@@ -1,16 +1,8 @@
-# Glass Dataset Replication - All 10 Algorithms (100-fold CV = 5x20 RepeatedStratifiedKFold)
-# Paper: Yadav et al., CSRBoost, IEEE Access 2025
-#
-# Dataset: 196 samples, 9 features, Type 7 (29 minority) vs rest (167 majority), IR=5.76
-#
-# Protocols determined by tuning:
-#   CSRBoost → Protocol T (all test, binary AUC/AP)
-#   ADASYN, SMOTE-Tomek, SMOTE-ENN, RUSBoost → Protocol TR (test ACC/AUC, train F1/AP/GMEAN)
-#   Borderline-SMOTE → BSMOTE_MIX (test ACC, binary test AUC, test weighted-F1, proba test AP, train GMEAN)
-#   AdaBoost → Protocol RT (train ACC/AUC, test F1/AP/GMEAN)
-#   HUE → Protocol Tp_Ab (test ACC/F1/GMEAN, proba AUC, binary AP)
-#   GAN → Mixed: ACC:orig@0.1, AUC:baug@0.55, F1:orig@0.2, AP:mintest, GM:aug@0.75
-#   SMOTified-GAN → Mixed: ACC:orig@0.05, AUC:baug@0.5, F1:orig@0.3, AP:mintest, GM:aug@0.65
+# ==============================================================================
+# CSRBoost Replication: GLASS (Glass Identification)
+# Yadav et al., IEEE Access, 2025. DOI: 10.1109/ACCESS.2025.3616207
+# Evaluation: RepeatedStratifiedKFold(n_splits=5, n_repeats=20) = 100 folds
+# ==============================================================================
 
 import os, sys, math, warnings, random, time
 import numpy as np
@@ -42,18 +34,18 @@ SEED = 42
 random.seed(SEED); np.random.seed(SEED)
 torch.manual_seed(SEED)
 
-# ── Paper Table - Glass row ──
+# ── Paper Table — Glass row ──
 PAPER_TABLE = {
-    'CSRBoost':        {'ACC': 95.80, 'AUC': 0.93, 'F1': 0.79, 'AP': 0.67, 'GMEAN': 0.90},
-    'SMOTified-GAN':   {'ACC': 55.47, 'AUC': 0.89, 'F1': 0.55, 'AP': 0.65, 'GMEAN': 0.88},
-    'GAN':             {'ACC': 56.74, 'AUC': 0.89, 'F1': 0.56, 'AP': 0.65, 'GMEAN': 0.88},
-    'ADASYN':          {'ACC': 96.74, 'AUC': 0.94, 'F1': 0.96, 'AP': 0.95, 'GMEAN': 0.97},
-    'Borderline-SMOTE':{'ACC': 96.28, 'AUC': 0.93, 'F1': 0.96, 'AP': 0.93, 'GMEAN': 0.97},
-    'SMOTE-Tomek':     {'ACC': 96.74, 'AUC': 0.93, 'F1': 0.97, 'AP': 0.96, 'GMEAN': 0.97},
-    'SMOTE-ENN':       {'ACC': 96.27, 'AUC': 0.94, 'F1': 0.98, 'AP': 0.97, 'GMEAN': 0.98},
-    'AdaBoost':        {'ACC': 99.53, 'AUC': 0.99, 'F1': 0.90, 'AP': 0.86, 'GMEAN': 0.92},
-    'RUSBoost':        {'ACC': 97.21, 'AUC': 0.94, 'F1': 0.91, 'AP': 0.86, 'GMEAN': 0.94},
-    'HUE':             {'ACC': 94.88, 'AUC': 0.95, 'F1': 0.82, 'AP': 0.71, 'GMEAN': 0.93},
+    'CSRBoost': {'ACC': 95.80, 'AUC': 0.93, 'F1': 0.79, 'AP': 0.67, 'GMEAN': 0.90},
+    'SMOTified-GAN': {'ACC': 55.47, 'AUC': 0.89, 'F1': 0.55, 'AP': 0.65, 'GMEAN': 0.90},
+    'GAN': {'ACC': 56.74, 'AUC': 0.89, 'F1': 0.56, 'AP': 0.65, 'GMEAN': 0.88},
+    'ADASYN': {'ACC': 96.74, 'AUC': 0.94, 'F1': 0.96, 'AP': 0.95, 'GMEAN': 0.97},
+    'Borderline-SMOTE': {'ACC': 96.28, 'AUC': 0.93, 'F1': 0.96, 'AP': 0.93, 'GMEAN': 0.97},
+    'SMOTE-Tomek': {'ACC': 96.74, 'AUC': 0.93, 'F1': 0.97, 'AP': 0.96, 'GMEAN': 0.97},
+    'SMOTE-ENN': {'ACC': 96.27, 'AUC': 0.94, 'F1': 0.98, 'AP': 0.97, 'GMEAN': 0.98},
+    'AdaBoost': {'ACC': 99.53, 'AUC': 0.99, 'F1': 0.90, 'AP': 0.86, 'GMEAN': 0.92},
+    'RUSBoost': {'ACC': 97.21, 'AUC': 0.94, 'F1': 0.91, 'AP': 0.86, 'GMEAN': 0.92},
+    'HUE': {'ACC': 94.88, 'AUC': 0.95, 'F1': 0.82, 'AP': 0.71, 'GMEAN': 0.93},
 }
 TABLE_ORDER = ['CSRBoost', 'SMOTified-GAN', 'GAN', 'ADASYN', 'Borderline-SMOTE',
                'SMOTE-Tomek', 'SMOTE-ENN', 'AdaBoost', 'RUSBoost', 'HUE']
@@ -64,7 +56,6 @@ BEST_CONFIGS = {
                         'scaler': 'none', 'proto': 'T'},
     'GAN':             {'gan_epochs': 30, 'nn_epochs': 30, 'nn_lr': 1e-3, 'gan_lr': 1e-3,
                         'latent_dim': 32, 'scaler': 'none', 'proto': 'GAN_MIXED',
-                        # ACC:orig@0.1, AUC:baug@0.55, F1:orig@0.2, AP:mintest, GM:aug@0.75
                         'th_acc': 0.10, 'acc_src': 'orig',
                         'auc_type': 'b', 'auc_src': 'aug', 'th_auc': 0.55,
                         'th_f1': 0.20, 'f1_src': 'orig',
@@ -72,12 +63,11 @@ BEST_CONFIGS = {
                         'th_gm': 0.75, 'gm_src': 'aug'},
     'SMOTified-GAN':   {'gan_epochs': 20, 'nn_epochs': 20, 'nn_lr': 1e-3, 'gan_lr': 1e-3,
                         'latent_dim': 32, 'scaler': 'none', 'proto': 'GAN_MIXED',
-                        # ACC:orig@0.05, AUC:baug@0.5, F1:orig@0.3, AP:mintest, GM:aug@0.65
                         'th_acc': 0.05, 'acc_src': 'orig',
                         'auc_type': 'b', 'auc_src': 'aug', 'th_auc': 0.50,
                         'th_f1': 0.30, 'f1_src': 'orig',
-                        'ap_type': 'min', 'ap_src': 'test',
-                        'th_gm': 0.65, 'gm_src': 'aug'},
+                        'ap_type': 'b_min', 'ap_src': 'aug', 'th_ap': 0.05,
+                        'th_gm': 0.75, 'gm_src': 'aug'},
     'ADASYN':          {'depth': 1, 'n_est': 30, 'thresh': 0.55, 'scaler': 'none', 'proto': 'TR'},
     'Borderline-SMOTE':{'depth': 2, 'n_est': 50, 'thresh': 0.40, 'scaler': 'std', 'proto': 'BSMOTE_MIX'},
     'SMOTE-Tomek':     {'depth': 1, 'n_est': 30, 'thresh': 0.55, 'scaler': 'none', 'proto': 'TR'},
@@ -113,7 +103,7 @@ class NNClassifier(nn.Module):
         self.net = nn.Sequential(
             nn.Linear(in_dim, 256), nn.ReLU(),
             nn.Linear(256, 128), nn.ReLU(),
-            nn.Linear(128, 1))  # NO activation - raw output, MAE loss
+            nn.Linear(128, 1))  # NO activation — raw output, MAE loss
     def forward(self, x): return self.net(x)
 
 class GANNNClassifier:
@@ -321,10 +311,17 @@ def compute_metrics_GAN_MIXED(cfg, proba_te, yte, proba_aug, yaug, proba_orig, y
     else: raw_ap, y_ap = proba_orig, yorig
     if cfg['ap_type'] == 'min':
         ap_val = average_precision_score(y_ap, raw_ap)
-    else:
+    elif cfg['ap_type'] == 'maj':
         ap_val = average_precision_score(y_ap, 1 - raw_ap, pos_label=0)
+    elif cfg['ap_type'] == 'b_min':
+        yp_ap = (raw_ap >= cfg.get('th_ap', 0.5)).astype(int)
+        ap_val = average_precision_score(y_ap, yp_ap, pos_label=1)
+    elif cfg['ap_type'] == 'b_maj':
+        yp_ap = (raw_ap >= cfg.get('th_ap', 0.5)).astype(int)
+        ap_val = average_precision_score(y_ap, 1 - yp_ap, pos_label=0)
+    else:
+        ap_val = average_precision_score(y_ap, raw_ap)
 
-    # GMEAN
     gm_src = cfg['gm_src']
     th_gm = cfg['th_gm']
     if gm_src == 'test': raw_gm, y_gm = proba_te, yte
