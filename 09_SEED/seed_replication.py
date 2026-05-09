@@ -1,5 +1,5 @@
 # ============================================================
-# CSRBoost Paper Replication — Seed Dataset (100-fold CV)
+# CSRBoost Paper Replication - Seed Dataset (100-fold CV)
 # ============================================================
 # Seed: 210 samples, 7 features
 # Class 3 = minority (70), Classes 1+2 = majority (140), IR = 2.0

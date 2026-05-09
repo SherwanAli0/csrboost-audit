@@ -445,7 +445,7 @@ def compute_metrics_gan(y_test, y_pred_test, y_proba_test):
 
 def run_replication():
     print("=" * 120)
-    print("CB (SONAR) REPLICATION V2 — 9 algorithms (ADASYN = N/A per paper)")
+    print("CB (SONAR) REPLICATION V2 - 9 algorithms (ADASYN = N/A per paper)")
     print("=" * 120)
 
     X, y = load_cb(DATA_PATH)

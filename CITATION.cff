@@ -1,0 +1,35 @@
+cff-version: 1.2.0
+title: "A Forensic Audit and Reverse-Engineering of CSRBoost: Exposing Undocumented Evaluation Protocols in Imbalanced Classification"
+message: "If you use this software or its findings, please cite both the original paper and this replication."
+type: software
+authors:
+  - family-names: Ali
+    given-names: Sherwan
+    affiliation: "Uskudar University, Department of Computer Engineering"
+license: MIT
+date-released: 2026-04-27
+keywords:
+  - reproducibility audit
+  - forensic reverse-engineering
+  - class imbalance
+  - CSRBoost
+  - ensemble learning
+  - SMOTE
+  - GAN
+  - imbalanced classification
+  - evaluation protocol
+references:
+  - type: article
+    title: "CSRBoost: Clustered Sampling With Resampling Boosting for Imbalanced Dataset Pattern Classification"
+    authors:
+      - family-names: Yadav
+        given-names: S.
+      - family-names: Gupta
+        given-names: S.
+      - family-names: Yadav
+        given-names: A. K.
+      - family-names: Gupta
+        given-names: S.
+    journal: "IEEE Access"
+    year: 2025
+    doi: "10.1109/ACCESS.2025.3616207"

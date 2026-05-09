@@ -12,7 +12,7 @@
 #     - 5 NN epochs (intentionally undertrained), lr=1e-3 (Adam default)
 #     - GAN: 500 epochs, lr=1e-5, Sigmoid generator
 #
-#   Metric sources (mixed protocol — each metric from different data):
+#   Metric sources (mixed protocol - each metric from different data):
 #     ACC   ← aug_train accuracy (balanced, sigmoid>0.5, ≈ 64-68%)
 #     F1    ← aug_train F1_micro (= accuracy on balanced data)
 #     AUC   ← orig_train probability AUC (~0.82 at 5 epochs sweet spot)
@@ -85,7 +85,7 @@ CSR_P = 1.0
 CSR_SAMPLE_PCT = 0.5
 CSR_SMOTE_K = 5
 
-# HUE — DO NOT CHANGE: calibrated to ~1.1% avg error via grid search
+# HUE - DO NOT CHANGE: calibrated to ~1.1% avg error via grid search
 HUE_MAX_DEPTH = 10
 HUE_ITQ_ITERS = 50
 HUE_THRESHOLD = 0.69
@@ -143,7 +143,7 @@ GAN_SMOTE_K = 5
 # ---------------------------------------------------------------------------
 # Architecture: Dense(256,relu) → Dense(128,relu) → Dense(1), NO BN/Dropout/Sigmoid
 # Loss: MAE (L1Loss), NOT BCE
-# Epochs: 5 (intentionally undertrained — this is the sweet spot for AUC≈0.82)
+# Epochs: 5 (intentionally undertrained - this is the sweet spot for AUC≈0.82)
 # LR: 1e-3 (Adam default)
 # Batch size: 128
 NN_EPOCHS_GAN = 5
@@ -572,7 +572,7 @@ class RUSBoostClassifier(BaseEstimator, ClassifierMixin):
 # GAN Architecture
 # =========================
 class GeneratorSigmoid(nn.Module):
-    """Sigmoid output — matches SMOTified-GAN reference code generator."""
+    """Sigmoid output - matches SMOTified-GAN reference code generator."""
     def __init__(self, latent_dim, output_dim):
         super().__init__()
         self.net = nn.Sequential(
@@ -598,7 +598,7 @@ class RefNNClassifier(nn.Module):
       Dense(256, relu) → Dense(128, relu) → Dense(1)
     NO BatchNorm, NO Dropout, NO Sigmoid output.
     Used with MAE loss (L1Loss) and 5 epochs.
-    Raw output (not sigmoid) — threshold at 0.5 for classification,
+    Raw output (not sigmoid) - threshold at 0.5 for classification,
     sigmoid transform for probability-based metrics.
     """
     def __init__(self, input_dim):
@@ -677,7 +677,7 @@ def train_gan_psdas(X_minority, n_gen, mode='gan', seed=42):
     return syn.astype(np.float32)
 
 # =========================
-# GAN+NN Classifier — PSDAS (decoded protocol)
+# GAN+NN Classifier - PSDAS (decoded protocol)
 # =========================
 class GANNNClassifierPSDAS(BaseEstimator, ClassifierMixin):
     """
@@ -725,7 +725,7 @@ class GANNNClassifierPSDAS(BaseEstimator, ClassifierMixin):
         set_all_seeds(self.random_state + 1)  # different seed for NN
         self.model_ = RefNNClassifier(X_aug.shape[1]).to(device)
         optimizer = optim.Adam(self.model_.parameters(), lr=NN_LR_GAN)
-        criterion = nn.L1Loss()  # MAE loss — key finding from hypothesis tests
+        criterion = nn.L1Loss()  # MAE loss - key finding from hypothesis tests
 
         loader = DataLoader(
             TensorDataset(torch.FloatTensor(X_aug),
@@ -914,7 +914,7 @@ def build_models(seed_offset):
 def print_results(results_mean, results_std):
     metrics = ['ACC', 'AUC', 'F1', 'AP', 'GMEAN']
     print("\n" + "=" * 115)
-    print("PSDAS REPLICATION V2 — Results vs Paper (Table 7a)")
+    print("PSDAS REPLICATION V2 - Results vs Paper (Table 7a)")
     print("=" * 115)
     hdr = f"{'Method':<20}"
     for m in metrics:
@@ -963,7 +963,7 @@ def print_results(results_mean, results_std):
 # =========================
 def main():
     print("=" * 80)
-    print("CSRBoost Replication V2 — PSDAS Dataset")
+    print("CSRBoost Replication V2 - PSDAS Dataset")
     print(f"CV: {N_SPLITS}x{REPEATS}={N_SPLITS*REPEATS} folds | Device: {GAN_DEVICE}")
     print(f"PSDAS label mode: {PSDAS_LABEL_MODE}")
     print(f"GAN/SMOTified-GAN: RefNN (256→128→1), MAE loss, "

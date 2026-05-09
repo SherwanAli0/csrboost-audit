@@ -37,7 +37,7 @@ SEED = 42
 random.seed(SEED); np.random.seed(SEED)
 torch.manual_seed(SEED)
 
-# ── Paper Table 2 — ILPD row ──
+# ── Paper Table 2 - ILPD row ──
 PAPER_TABLE = {
     'CSRBoost':        {'ACC': 66.72, 'AUC': 0.66, 'F1': 0.48, 'AP': 0.36, 'GMEAN': 0.62},
     'SMOTified-GAN':   {'ACC': 70.09, 'AUC': 0.76, 'F1': 0.77, 'AP': 0.88, 'GMEAN': 0.55},

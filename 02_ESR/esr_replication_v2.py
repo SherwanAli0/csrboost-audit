@@ -137,7 +137,7 @@ def compute_metrics_standard(y_true, y_pred):
     }
 
 def compute_metrics_mixed(y_test, y_pred_test, y_proba_test, y_orig_train, y_proba_orig_train):
-    """GAN/SMOTified-GAN evaluation for ESR — Protocol C (all test):
+    """GAN/SMOTified-GAN evaluation for ESR - Protocol C (all test):
     ACC   = test hard preds
     AUC   = test probabilities
     F1    = test hard preds

@@ -42,7 +42,7 @@ SEED = 42
 random.seed(SEED); np.random.seed(SEED)
 torch.manual_seed(SEED)
 
-# ── Paper Table — Glass row ──
+# ── Paper Table - Glass row ──
 PAPER_TABLE = {
     'CSRBoost':        {'ACC': 95.80, 'AUC': 0.93, 'F1': 0.79, 'AP': 0.67, 'GMEAN': 0.90},
     'SMOTified-GAN':   {'ACC': 55.47, 'AUC': 0.89, 'F1': 0.55, 'AP': 0.65, 'GMEAN': 0.88},
@@ -113,7 +113,7 @@ class NNClassifier(nn.Module):
         self.net = nn.Sequential(
             nn.Linear(in_dim, 256), nn.ReLU(),
             nn.Linear(256, 128), nn.ReLU(),
-            nn.Linear(128, 1))  # NO activation — raw output, MAE loss
+            nn.Linear(128, 1))  # NO activation - raw output, MAE loss
     def forward(self, x): return self.net(x)
 
 class GANNNClassifier:

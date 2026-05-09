@@ -1,12 +1,12 @@
 # ============================================================
-# DCCC — CSRBoost paper replication (canonical script)
+# DCCC - CSRBoost paper replication (canonical script)
 # ============================================================
 # Same methodology as other folders (e.g. BCW, CB, ESR): 5-fold × 20 repeats = 100 folds.
 #
 # Evaluation (from our paper-style investigation):
-# 1. GAN / SMOTified-GAN — mixed: ACC on test; AUC, F1, AP, GMEAN on augmented train.
-# 2. Other methods — binary AUC/AP: roc_auc_score(y, y_pred), average_precision_score(y, y_pred).
-# 3. HUE — DecisionTree base, max_depth=10, threshold 0.60 on imbalanced test.
+# 1. GAN / SMOTified-GAN - mixed: ACC on test; AUC, F1, AP, GMEAN on augmented train.
+# 2. Other methods - binary AUC/AP: roc_auc_score(y, y_pred), average_precision_score(y, y_pred).
+# 3. HUE - DecisionTree base, max_depth=10, threshold 0.60 on imbalanced test.
 # 4. Paper targets: graduation report Table 9a (PAPER_TABLE below).
 #
 # Runtime: DCCC is large (~30k rows). GAN defaults follow the paper-style settings in v2;
@@ -77,7 +77,7 @@ HUE_ITQ_ITERS = 50
 # for imbalanced test data. Fixed at 0.60 (calibrated via grid search on held-out).
 HUE_THRESHOLD = 0.60
 
-# GAN / NN — defaults match prior v2 paper-style run; override via env for faster iteration
+# GAN / NN - defaults match prior v2 paper-style run; override via env for faster iteration
 GAN_EPOCHS = int(os.environ.get("DCCC_GAN_EPOCHS", "2000"))
 GAN_BATCH_SIZE = 128
 GAN_LR = 1e-5
@@ -575,7 +575,7 @@ def build_models(seed_offset):
 def print_results(results_mean, results_std):
     metrics = ['ACC', 'AUC', 'F1', 'AP', 'GMEAN']
     print("\n" + "=" * 110)
-    print("DCCC REPLICATION — Results vs paper (Table 9a targets)")
+    print("DCCC REPLICATION - Results vs paper (Table 9a targets)")
     print("=" * 110)
     hdr = f"{'Method':<20}"
     for m in metrics:
@@ -620,7 +620,7 @@ def print_results(results_mean, results_std):
 # Main
 # =========================
 def print_detailed_vs_paper(results_mean):
-    """BCW-style per-metric diff table (skip RUSBoost — not in paper table)."""
+    """BCW-style per-metric diff table (skip RUSBoost - not in paper table)."""
     metrics = ['ACC', 'AUC', 'F1', 'AP', 'GMEAN']
     print("\n" + "=" * 100)
     print("DETAILED COMPARISON (per metric)")
@@ -651,7 +651,7 @@ def print_detailed_vs_paper(results_mean):
 
 def main():
     print("=" * 80)
-    print("DCCC — CSRBoost paper replication")
+    print("DCCC - CSRBoost paper replication")
     print("=" * 80)
     print("Methodology (aligned with BCW / ESR / CB-style replications):")
     print("  1. GAN / SMOTified-GAN: mixed eval (ACC=test, AUC/F1/AP/GMEAN=augmented train)")
@@ -712,7 +712,7 @@ def main():
     print_results(results_mean, results_std)
     print_detailed_vs_paper(results_mean)
 
-    # Summary counts (exclude RUSBoost — no paper targets)
+    # Summary counts (exclude RUSBoost - no paper targets)
     total, ok, close = 0, 0, 0
     for method in TABLE_ORDER:
         if method == 'RUSBoost' or method not in results_mean.index:

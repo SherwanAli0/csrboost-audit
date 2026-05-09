@@ -1,5 +1,5 @@
 # ============================================================
-# CSRBoost Paper Replication — Wine Dataset (100-fold CV)
+# CSRBoost Paper Replication - Wine Dataset (100-fold CV)
 # ============================================================
 #
 # Wine: 178 samples, 13 features

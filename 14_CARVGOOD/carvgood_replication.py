@@ -1,5 +1,5 @@
 # ============================================================
-# CarVGood 100-fold Replication — All 10 methods
+# CarVGood 100-fold Replication - All 10 methods
 # ============================================================
 # car-vgood: 1728 samples, 6 categorical features
 # positive=65 (minority=vgood), negative=1663, IR~25.6
@@ -368,7 +368,7 @@ def compute_metrics_gan(pte_u, ptr_u, porig_u, pte_s, ptr_s, porig_s,
 # ============================================================
 def main():
     log("=" * 80)
-    log("CarVGood 100-fold Replication — All 10 methods")
+    log("CarVGood 100-fold Replication - All 10 methods")
     log("=" * 80)
 
     X, y = load_data(DATA_PATH)
@@ -499,7 +499,7 @@ def main():
     # Final results
     # ============================================================
     log("\n" + "=" * 80)
-    log("FINAL RESULTS — CarVGood 100-fold Replication")
+    log("FINAL RESULTS - CarVGood 100-fold Replication")
     log("=" * 80)
 
     for method in methods:

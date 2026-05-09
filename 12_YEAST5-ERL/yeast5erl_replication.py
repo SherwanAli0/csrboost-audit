@@ -389,7 +389,7 @@ def print_comparison(summary):
 
 def main():
     print("=" * 96)
-    print("CSRBoost Paper Replication — Yeast5-ERL (official run)")
+    print("CSRBoost Paper Replication - Yeast5-ERL (official run)")
     print("CV: RepeatedStratifiedKFold(5, 20) = 100 folds")
     print("Methods: CSRBoost, Borderline-SMOTE, SMOTE-Tomek, SMOTE-ENN, AdaBoost, RUSBoost, HUE")
     print("N.A. per paper: GAN, SMOTified-GAN, ADASYN")

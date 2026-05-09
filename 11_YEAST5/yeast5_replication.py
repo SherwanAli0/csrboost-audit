@@ -1,5 +1,5 @@
 # ============================================================
-# CSRBoost Paper Replication — Yeast5 Dataset (100-fold CV)
+# CSRBoost Paper Replication - Yeast5 Dataset (100-fold CV)
 # ============================================================
 # Yeast5: 1484 samples, 8 features
 # positive=44 (minority), negative=1440 (majority), IR=32.7

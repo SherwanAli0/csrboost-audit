@@ -509,7 +509,7 @@ class GANModel:
             k = min(5, len(Xr) - 1)
             nn_model = NearestNeighbors(n_neighbors=k + 1).fit(Xr)
             pool = []
-            # Cap pool size: full loop was O(n_generate) SMOTE pairs per fold — unnecessary on BCW-scale data.
+            # Cap pool size: full loop was O(n_generate) SMOTE pairs per fold - unnecessary on BCW-scale data.
             n_pool = min(max(n_generate * 2, len(Xr) * 3), 800)
             for _ in range(n_pool):
                 i = rng.randint(0, len(Xr))
@@ -614,7 +614,7 @@ BEST_CONFIGS = {
         'thresh': 0.60, 'n_bits': 1,
         'scaler': 'minmax', 'f1_avg': 'weighted', 'flip': False
     },
-    # GAN: old search used 392–522 GAN epochs + 2048-wide Gen + 100 NN epochs × 100 folds → hours on CPU.
+    # GAN: old search used 392-522 GAN epochs + 2048-wide Gen + 100 NN epochs × 100 folds → hours on CPU.
     # BCW is small; shallow nets + ~50 GAN epochs match typical paper-style underfitting and run in minutes.
     'GAN': {
         'g_hidden': [256, 512], 'd_hidden': [128, 64],

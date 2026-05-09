@@ -1,5 +1,5 @@
 # ============================================================
-# Cargood Full Replication — All 10 methods (100-fold CV)
+# Cargood Full Replication - All 10 methods (100-fold CV)
 # ============================================================
 # Cargood: 1728 samples, 6 categorical features (ordinal-encoded)
 # positive=69 (minority), negative=1659 (majority), IR~24.0
@@ -252,7 +252,7 @@ def train_gan_fold(Xtr, ytr, Xte, yte, seed, gen_epochs, nn_epochs, latent_dim, 
     return proba_te, proba_tr, proba_orig, yaug
 
 # ============================================================
-# MAIN — compute all methods per fold, accumulate metrics
+# MAIN - compute all methods per fold, accumulate metrics
 # ============================================================
 # Configs from tuning:
 # CSRBoost:      d=2,n=100,none, th1=0.50,th2=0.45, A:tr U:ptr F:teW P:ptr G:tr
@@ -495,7 +495,7 @@ def main():
     # Final results
     # ============================================================
     log("\n" + "=" * 80)
-    log("FINAL RESULTS — Cargood 100-fold Replication")
+    log("FINAL RESULTS - Cargood 100-fold Replication")
     log("=" * 80)
 
     summary = []
