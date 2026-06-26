@@ -20,7 +20,7 @@ Reproducibility is a cornerstone of scientific research, yet machine-learning pu
 3. Two head-to-head experiments (single-uniform protocol on five datasets and a 15-variation methodological sweep on the same five datasets) that empirically eliminate every common alternative explanation.
 4. Recommendations for improving methodological transparency in machine-learning publications.
 
-CSRBoost itself is shown to perform within 3 percent of its claimed values across all fifteen datasets when its own protocol is faithfully reconstructed. The validity of the comparator algorithms in Table 2, however, cannot be established under any standard evaluation.
+Two tracks frame the result. Under one uniform standardized protocol applied as the paper describes (the exact-replication track), only 42 of the 143 evaluated cells reproduce within 3 percent average error (29.4 percent), and CSRBoost itself reproduces this way on 10 of its 15 datasets, more than any comparator. After per-cell reverse-engineering, all 143 cells reproduce, but only under the undocumented choices above; on the 5 datasets where CSRBoost does not reproduce under the standard protocol (DCCC, SEED, YEAST5-ERL, CARGOOD, FLARE-F), it too requires these non-standard choices. The gap between 29.4 percent from the description and 100 percent only after reverse-engineering is the quantitative core of this audit. CSRBoost's core idea is supported; the validity of the comparator algorithms in Table 2 cannot be established under any standard evaluation.
 
 **Keywords:** reproducibility audit, forensic reverse-engineering, evaluation-protocol disclosure, class imbalance, CSRBoost, ensemble learning, hyperparameter optimization, SMOTE, GAN, imbalanced classification, machine-learning malpractice.
 
@@ -132,7 +132,7 @@ The 143 published metric cells across all (dataset, algorithm) combinations each
 
 Two follow-up experiments empirically eliminate every common alternative explanation for the residual gap between replication and paper.
 
-**Test 1: single uniform protocol on five datasets, eight methods, 100 folds.** No single uniform metric protocol can produce the paper-reported values. Best uniform protocol: 0 of 200 metric cells within tolerance.
+**Test 1: single uniform protocols on five datasets, eight methods, 100 folds.** Two candidate uniform protocols were each applied to every method. The best of them matched only 14.9 percent and 25.1 percent of the evaluated cells within tolerance, far below the per-cell tuned result, confirming that no single uniform protocol reproduces the table.
 
 **Test 2: comprehensive sweep of 15 methodological variations.** No widely used methodological change, including probability calibration (Platt and isotonic), classifier hyperparameter changes, resampling parameter changes, CSRBoost-specific changes, or alternative F1 averaging modes can replace per-metric tuning. The best single-change result (probability calibration) matched only 43.6 percent of metric cells within paper tolerance, compared to the per-metric tuned approach which matches 143 of 143 evaluated cells (100 percent within 3 percent).
 
@@ -163,13 +163,13 @@ Summary across all 15 datasets:
 | Flare-F | 10 | 10 | 100% |
 | **Total** | **143** | **143** | **100%** |
 
-The "Forced Match Rate" terminology is intentional. Each cell counted in this table required mirroring a specific undocumented evaluation choice catalogued in Section 8.3 to land within 3 percent of the published number; no cell achieved a match under standard, uniform evaluation. The rate measures the success of the reverse-engineering effort, not the validity of the original publication's protocol.
+The "Forced Match Rate" terminology is intentional: this table is the reverse-engineering track, not an honest reproduction. Each cell counted here required mirroring a specific undocumented evaluation choice catalogued in Section 8.3 to land within 3 percent of the published number. For comparison, under the standardized exact protocol applied uniformly to every method, only **42 of the 143 cells (29.4 percent)** reproduce within 3 percent (CSRBoost 10 of 15, the comparators 32 of the remaining 128); the other 101 require the per-cell choices. The 100 percent rate therefore measures the success of the reverse-engineering effort, not the validity of the original publication's protocol.
 
 ---
 
 ## 7. Headline numbers
 
-Mean absolute error between replicated and paper values for CSRBoost across all 15 datasets:
+Mean absolute error between replicated and paper values for CSRBoost across all 15 datasets, after the per-cell reverse-engineering that brings all 15 into tolerance:
 
 | Metric | Mean Absolute Error |
 |--------|---------------------|
@@ -179,7 +179,7 @@ Mean absolute error between replicated and paper values for CSRBoost across all 
 | Average Precision | 0.0118 |
 | G-Mean | 0.0043 |
 
-CSRBoost itself, evaluated under its own protocol uniformly across all datasets, lands within 3 percent of its reported numbers in every case.
+Under the standardized exact protocol, CSRBoost reproduces within 3 percent on 10 of its 15 datasets, more than any comparator method. The remaining 5 (DCCC, SEED, YEAST5-ERL, CARGOOD, FLARE-F) reach tolerance only under the same non-standard evaluation choices used for the comparators, so the errors above are a property of the reverse-engineered configuration, not of a uniform CSRBoost protocol.
 
 ---
 
@@ -187,7 +187,7 @@ CSRBoost itself, evaluated under its own protocol uniformly across all datasets,
 
 ### 8.1 Validation of CSRBoost core claims
 
-This study confirms the standalone effectiveness of the CSRBoost algorithm itself: when its own protocol (KMeans clustering with 50 percent per-cluster random under-sampling, SMOTE oversampling, AdaBoost with T=50 and standard 0.5 threshold, evaluation on the held-out test fold) is applied uniformly across all 15 datasets, CSRBoost lands within 3 percent of its reported numbers in every case. This validates the algorithm.
+This study supports the standalone effectiveness of the CSRBoost algorithm itself, with one honest qualification. When its own protocol (KMeans clustering with 50 percent per-cluster random under-sampling, SMOTE oversampling, AdaBoost with T=50 and standard 0.5 threshold, standard probability-based metrics, evaluation on the held-out test fold) is applied uniformly, CSRBoost lands within 3 percent of its reported numbers on 10 of the 15 datasets, more than any comparator method. On the remaining 5 (DCCC, SEED, YEAST5-ERL, CARGOOD, FLARE-F), CSRBoost reaches the published values only under the same non-standard evaluation choices required for the comparators. CSRBoost is thus the most reproducible method in the table, but it is not fully exempt from the table's reproducibility problem.
 
 It does not validate the comparison table on which CSRBoost's claimed superiority rests. Reproducing the comparison table (Table 2, seventeen rows by ten columns) was achieved only by mirroring cell-specific, mutually contradictory evaluation choices documented exhaustively in the configuration matrix. That file is best read as a diagnostic ledger, not a recipe. Its 143 entries are not implementation choices made in this study; they are the specific deviations from standard evaluation that the original Table 2 cells require. They include negative-valued AP decision thresholds, inverted training labels, swaps between F1-binary and F1-weighted within the same dataset, AP computed via `roc_auc_score`, locked per-cell G-Mean thresholds reverse-engineered to match each reported number, and per-method selection of evaluation source between held-out test, original training, and augmented training data.
 
