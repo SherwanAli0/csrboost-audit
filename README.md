@@ -37,7 +37,7 @@ The gap between **29.4 percent** (from the paper as written) and **100 percent**
 | CSRBoost reproduced (exact protocol / after reverse-engineering) | **10 of 15 / 15 of 15 datasets** |
 | Configurations searched (cumulative) | approximately 75,000 |
 | Compute-hours invested | 900 plus |
-| Project duration | approximately 3 months |
+| Reverse-engineering effort | approximately 3 months (within a longer project begun in late 2025) |
 
 Under the paper as written, only 29.4 percent of Table 2 reproduces. The full table reproduces only by switching evaluation logic from cell to cell, and even 5 of CSRBoost's own 15 cells require it.
 
