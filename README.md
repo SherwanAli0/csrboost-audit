@@ -18,7 +18,13 @@ This repository contains an undergraduate graduation thesis manuscript and the a
 
 ## Abstract
 
-This repository documents an independent forensic replication of CSRBoost across all fifteen benchmark datasets reported in the original paper. Across approximately three months of work, roughly 75,000 experimental configurations and 900 plus compute-hours, all 143 published metric cells in Table 2 were eventually reproduced within 3 percent average error. However, this reproduction was achievable only by mirroring per-cell undocumented evaluation choices that vary across the table. The CSRBoost algorithm itself, evaluated under its own protocol uniformly, lands within 3 percent of its claimed values on every dataset. The comparator algorithms in the paper's Table 2, however, cannot be reproduced under any single coherent evaluation pipeline. This repository releases the per-dataset replication scripts, the per-cell configuration matrix that documents which evaluation choice each published number requires, and the full report that lays out the mathematical case (most notably the SEED F1 paradox) for why the original Table 2 cannot be the output of a uniform protocol.
+This repository documents an independent forensic replication of CSRBoost across all fifteen benchmark datasets reported in the original paper, organized as two complementary tracks.
+
+**Exact replication (the honest baseline).** Implementing every method exactly as the paper describes, under one consistent standardized protocol with no per-cell tuning, only **42 of the 143** evaluated metric cells (**29.4 percent**) reproduce within 3 percent average error. CSRBoost itself reproduces this way on **10 of its 15** datasets.
+
+**Reverse-engineering (the forced match).** Across approximately three months, roughly 75,000 experimental configurations and 900 plus compute-hours, **all 143 cells (100 percent)** eventually reproduce within 3 percent, but only by mirroring per-cell undocumented evaluation choices that vary across the table, including test-set leakage, AUC and AP computed from binary predictions, per-metric decision thresholds, and asymmetric boosting. Even CSRBoost, the paper's own method, requires these non-standard choices on the remaining 5 of its 15 datasets.
+
+The gap between **29.4 percent** (from the paper as written) and **100 percent** (only after reverse-engineering) quantifies how much undocumented per-cell choice sits behind a "fully reproduced" claim. This repository releases the per-dataset replication scripts, the per-cell configuration matrix that documents which evaluation choice each published number requires, and the full report that lays out the mathematical case (most notably the SEED F1 paradox) for why the original Table 2 cannot be the output of a single uniform protocol.
 
 ## Headline result
 
@@ -26,13 +32,14 @@ This repository documents an independent forensic replication of CSRBoost across
 |---|---|
 | Datasets covered | 15 of 15 |
 | Algorithms covered | 10 of 10 (per dataset, with paper-reported exclusions preserved) |
-| Cells reproduced within 3 percent average error | **143 of 143** |
-| Cells reproducible under a single uniform protocol | **0 of 143** |
+| **Track 1 (exact)** - cells reproduced under one uniform standardized protocol | **42 of 143 (29.4%)** |
+| **Track 2 (reverse-engineered)** - cells reproduced after per-cell tuning | **143 of 143 (100%)** |
+| CSRBoost reproduced (exact protocol / after reverse-engineering) | **10 of 15 / 15 of 15 datasets** |
 | Configurations searched (cumulative) | approximately 75,000 |
 | Compute-hours invested | 900 plus |
 | Project duration | approximately 3 months |
 
-CSRBoost itself is reproducible. The paper's Table 2 as a whole is not, except by switching evaluation logic from cell to cell.
+Under the paper as written, only 29.4 percent of Table 2 reproduces. The full table reproduces only by switching evaluation logic from cell to cell, and even 5 of CSRBoost's own 15 cells require it.
 
 ## Repository structure
 
@@ -126,9 +133,11 @@ Notes:
 - Preprocessing: StandardScaler fitted on the training fold only and applied to the test fold (no leakage).
 - Stratification: maintained across all folds to preserve class ratios.
 
-## CSRBoost itself is reproducible
+## CSRBoost under the two tracks
 
-When the paper's stated CSRBoost protocol (KMeans clustering with 50 percent per-cluster random under-sampling, SMOTE oversampling, AdaBoost with 50 estimators and a 0.5 threshold, evaluation on the held-out test fold) is applied uniformly across all 15 datasets, CSRBoost lands within 3 percent of its reported numbers in every case.
+Under the paper's stated CSRBoost protocol (KMeans clustering with 50 percent per-cluster random under-sampling, SMOTE oversampling, AdaBoost with 50 estimators and a 0.5 threshold, standard probability-based metrics, evaluation on the held-out test fold) applied uniformly, CSRBoost reproduces within 3 percent on **10 of the 15** datasets. The other 5 (DCCC, SEED, YEAST5-ERL, CARGOOD, FLARE-F) do not reproduce under this standard protocol; matching the paper on them requires the same kinds of non-standard evaluation choices catalogued for the comparator algorithms (AUC and AP from binary predictions, training-set evaluation, weakened base trees, and shifted thresholds).
+
+The table below shows CSRBoost after the per-cell reverse-engineering is applied, which brings it within 3 percent on all 15 datasets:
 
 | Dataset | Paper ACC | Our ACC | Paper AUC | Our AUC | Paper F1 | Our F1 | Paper AP | Our AP | Paper GMean | Our GMean |
 |---------|-----------|---------|-----------|---------|----------|--------|----------|--------|-------------|-----------|
@@ -148,7 +157,7 @@ When the paper's stated CSRBoost protocol (KMeans clustering with 50 percent per
 | CARVGOOD | 99.94% | 99.94% | 0.98 | 0.9836 | 0.96 | 0.9598 | 0.93 | 0.9255 | 1.00 | 0.9977 |
 | FLARE-F | 93.43% | 93.62% | 0.67 | 0.6339 | 0.22 | 0.2011 | 0.10 | 0.1008 | 0.48 | 0.4670 |
 
-Mean absolute error against published values across the 15 datasets:
+Mean absolute error against published values across the 15 datasets (after reverse-engineering):
 
 | Metric | Mean Absolute Error |
 |--------|---------------------|
@@ -158,7 +167,7 @@ Mean absolute error against published values across the 15 datasets:
 | Average Precision | 0.0118 |
 | G-Mean | 0.0043 |
 
-This validates the CSRBoost algorithm. It does not, on its own, validate the rest of Table 2.
+CSRBoost's core ranking ability is genuine, and it is the most reproducible method in the paper (10 of 15 datasets under the standard protocol, versus far lower rates for the comparators). But it is not exempt from the table's reproducibility problem: 5 of its own 15 cells reproduce only under undocumented choices. This supports the CSRBoost idea while confirming that the published Table 2, including parts of CSRBoost's own row, is not the output of a single uniform protocol.
 
 ## What the comparison table actually requires
 
