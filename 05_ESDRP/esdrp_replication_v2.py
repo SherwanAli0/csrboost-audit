@@ -155,7 +155,7 @@ def load_esdrp(path):
     # LabelEncode all columns
     le = LabelEncoder()
     for col in df.columns:
-        if df[col].dtype == 'object':
+        if not pd.api.types.is_numeric_dtype(df[col]):  # 'object' alone misses the string dtype of pandas >= 3
             df[col] = le.fit_transform(df[col])
 
     # Target column

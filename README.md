@@ -218,7 +218,7 @@ For the full picture, including the two head-to-head experiments (single-uniform
 pip install -r requirements.txt
 ```
 
-Runtime and versions: the requirements are unpinned lower bounds and the versions used for the original runs were not recorded. In this repair pass only the arithmetic checks were run (Python 3.11, pandas 3.1.0, numpy 2.4.6); the replication scripts themselves were not re-run. `xlrd` is required to read `03_DCCC/DCCC.xls` (see `requirements.txt`).
+Runtime and versions: the requirements are unpinned lower bounds and the versions used for the original runs were not recorded. In this repair pass only the arithmetic checks were run (Python 3.11, pandas 3.1.0, numpy 2.4.6); the replication scripts themselves were not re-run. `xlrd` is required to read `03_DCCC/DCCC.xls` (see `requirements.txt`). With pandas 3.x the ESDRP and ILPD scripts failed at data loading (string columns are no longer `object` dtype, so the label-encoding step was skipped and `astype(float)` raised `ValueError`); the check was changed to "not numeric", and the loaded arrays were confirmed identical to the pandas 2.2.3 output. Only the data-loading functions were executed, not the experiments.
 
 Run any dataset script:
 
