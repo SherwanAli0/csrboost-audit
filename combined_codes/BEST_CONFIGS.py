@@ -51,8 +51,8 @@
 #   'proba'  : roc_auc_score(y_true, y_proba)
 #
 # Per-paper N/A cells are marked with the string 'N/A':
-#   PSDAS:      HUE                                (paper text only)
-#   ESR:        ADASYN, RUSBoost                   (Section III-D)
+#   PSDAS:      RUSBoost                           (Section III-D)
+#   ESR:        RUSBoost                           (Section III-D)
 #   DCCC:       RUSBoost                           (Section III-D, time-series)
 #   CB:         ADASYN                             (Section III-D, no neighbours)
 #   YEAST5-ERL: SMOTified-GAN, GAN, ADASYN         (Section III-D)
@@ -72,7 +72,7 @@ BEST_CONFIGS = {
 
     # ==========================================================================
     # 01 PSDAS  (psdas_replication_v2.py)
-    # PAPER N/A: HUE   (graduation report only; per script runs HUE with thr=0.69)
+    # HUE is evaluated here and has paper values in PAPER_TABLE; only RUSBoost is N/A (see NA_CELLS).
     # ==========================================================================
     ('PSDAS', 'CSRBoost'): {
         'sampler': 'SMOTE', 'sampler_args': {'k_neighbors': 5},
@@ -183,7 +183,7 @@ BEST_CONFIGS = {
 
     # ==========================================================================
     # 02 ESR  (esr_replication_v2.py)
-    # PAPER N/A: ADASYN, RUSBoost  (Section III-D)
+    # PAPER N/A: RUSBoost only (Section III-D); ADASYN is evaluated (see NA_CELLS).
     # Note: script wraps ALL non-GAN methods with AdaBoost(N=50, lr=1.0, depth=None)
     # and uses Protocol C for GAN/SMOTified-GAN: all-test, proba AUC/AP.
     # ==========================================================================
@@ -1885,34 +1885,35 @@ if __name__ == '__main__':
 
 
 # =============================================================================
-# PAPER_TABLE — corrected paper values (Yadav 2025 Table 2 + audit corrections)
+# PAPER_TABLE - paper values as printed in Yadav 2025 Table 2, re-checked against the table image in the 2026 repair
+# pass. Earlier copies of this file carried 24 mis-transcribed cells (listed in README.md, "Paper constants").
 # =============================================================================
 PAPER_TABLE = {
     ('PSDAS', 'CSRBoost'): {'ACC': 72.85, 'AUC': 0.66, 'F1': 0.4, 'AP': 0.25, 'GMEAN': 0.63},
     ('PSDAS', 'SMOTified-GAN'): {'ACC': 64.46, 'AUC': 0.82, 'F1': 0.64, 'AP': 0.7, 'GMEAN': 0.32},
     ('PSDAS', 'GAN'): {'ACC': 63.8, 'AUC': 0.82, 'F1': 0.64, 'AP': 0.69, 'GMEAN': 0.32},
     ('PSDAS', 'ADASYN'): {'ACC': 76.11, 'AUC': 0.64, 'F1': 0.38, 'AP': 0.25, 'GMEAN': 0.58},
-    ('PSDAS', 'Borderline-SMOTE'): {'ACC': 75.99, 'AUC': 0.62, 'F1': 0.38, 'AP': 0.25, 'GMEAN': 0.58},
+    ('PSDAS', 'Borderline-SMOTE'): {'ACC': 75.99, 'AUC': 0.62, 'F1': 0.38, 'AP': 0.25, 'GMEAN': 0.59},
     ('PSDAS', 'SMOTE-Tomek'): {'ACC': 75.99, 'AUC': 0.61, 'F1': 0.39, 'AP': 0.26, 'GMEAN': 0.59},
-    ('PSDAS', 'SMOTE-ENN'): {'ACC': 72.76, 'AUC': 0.65, 'F1': 0.42, 'AP': 0.27, 'GMEAN': 0.64},
+    ('PSDAS', 'SMOTE-ENN'): {'ACC': 72.67, 'AUC': 0.65, 'F1': 0.42, 'AP': 0.27, 'GMEAN': 0.64},
     ('PSDAS', 'AdaBoost'): {'ACC': 75.72, 'AUC': 0.65, 'F1': 0.38, 'AP': 0.25, 'GMEAN': 0.58},
     ('PSDAS', 'HUE'): {'ACC': 74.25, 'AUC': 0.71, 'F1': 0.49, 'AP': 0.32, 'GMEAN': 0.74},
     ('ESR', 'CSRBoost'): {'ACC': 92.05, 'AUC': 0.9, 'F1': 0.8, 'AP': 0.67, 'GMEAN': 0.89},
     ('ESR', 'SMOTified-GAN'): {'ACC': 95.84, 'AUC': 0.97, 'F1': 0.96, 'AP': 0.95, 'GMEAN': 0.92},
     ('ESR', 'GAN'): {'ACC': 95.89, 'AUC': 0.97, 'F1': 0.96, 'AP': 0.95, 'GMEAN': 0.92},
-    ('ESR', 'ADASYN'): {'ACC': 99.95, 'AUC': 0.89, 'F1': 0.77, 'AP': 0.63, 'GMEAN': 0.89},
+    ('ESR', 'ADASYN'): {'ACC': 89.95, 'AUC': 0.89, 'F1': 0.77, 'AP': 0.63, 'GMEAN': 0.89},
     ('ESR', 'Borderline-SMOTE'): {'ACC': 91.93, 'AUC': 0.89, 'F1': 0.82, 'AP': 0.69, 'GMEAN': 0.9},
     ('ESR', 'SMOTE-Tomek'): {'ACC': 91.81, 'AUC': 0.89, 'F1': 0.81, 'AP': 0.69, 'GMEAN': 0.9},
     ('ESR', 'SMOTE-ENN'): {'ACC': 91.72, 'AUC': 0.89, 'F1': 0.81, 'AP': 0.68, 'GMEAN': 0.9},
     ('ESR', 'AdaBoost'): {'ACC': 94.18, 'AUC': 0.91, 'F1': 0.85, 'AP': 0.76, 'GMEAN': 0.91},
     ('ESR', 'HUE'): {'ACC': 95.55, 'AUC': 0.94, 'F1': 0.87, 'AP': 0.77, 'GMEAN': 0.96},
-    ('DCCC', 'CSRBoost'): {'ACC': 68.32, 'AUC': 0.64, 'F1': 0.42, 'AP': 0.39, 'GMEAN': 0.62},
+    ('DCCC', 'CSRBoost'): {'ACC': 68.32, 'AUC': 0.64, 'F1': 0.42, 'AP': 0.29, 'GMEAN': 0.62},
     ('DCCC', 'SMOTified-GAN'): {'ACC': 81.68, 'AUC': 0.95, 'F1': 0.82, 'AP': 0.88, 'GMEAN': 0.82},
     ('DCCC', 'GAN'): {'ACC': 80.89, 'AUC': 0.94, 'F1': 0.81, 'AP': 0.87, 'GMEAN': 0.81},
     ('DCCC', 'ADASYN'): {'ACC': 72.27, 'AUC': 0.62, 'F1': 0.41, 'AP': 0.29, 'GMEAN': 0.59},
     ('DCCC', 'Borderline-SMOTE'): {'ACC': 72.45, 'AUC': 0.62, 'F1': 0.41, 'AP': 0.29, 'GMEAN': 0.59},
     ('DCCC', 'SMOTE-Tomek'): {'ACC': 72.49, 'AUC': 0.62, 'F1': 0.41, 'AP': 0.29, 'GMEAN': 0.59},
-    ('DCCC', 'SMOTE-ENN'): {'ACC': 70.52, 'AUC': 0.65, 'F1': 0.41, 'AP': 0.31, 'GMEAN': 0.64},
+    ('DCCC', 'SMOTE-ENN'): {'ACC': 70.52, 'AUC': 0.65, 'F1': 0.45, 'AP': 0.31, 'GMEAN': 0.64},
     ('DCCC', 'AdaBoost'): {'ACC': 72.99, 'AUC': 0.62, 'F1': 0.41, 'AP': 0.3, 'GMEAN': 0.59},
     ('DCCC', 'HUE'): {'ACC': 68.66, 'AUC': 0.68, 'F1': 0.49, 'AP': 0.33, 'GMEAN': 0.69},
     ('BCW', 'CSRBoost'): {'ACC': 94.37, 'AUC': 0.94, 'F1': 0.9, 'AP': 0.84, 'GMEAN': 0.92},
@@ -1929,14 +1930,14 @@ PAPER_TABLE = {
     ('CB', 'SMOTified-GAN'): {'ACC': 87.62, 'AUC': 0.96, 'F1': 0.88, 'AP': 0.93, 'GMEAN': 0.88},
     ('CB', 'GAN'): {'ACC': 86.79, 'AUC': 0.96, 'F1': 0.87, 'AP': 0.94, 'GMEAN': 0.86},
     ('CB', 'Borderline-SMOTE'): {'ACC': 77.44, 'AUC': 0.77, 'F1': 0.77, 'AP': 0.71, 'GMEAN': 0.78},
-    ('CB', 'SMOTE-Tomek'): {'ACC': 78.38, 'AUC': 0.78, 'F1': 0.74, 'AP': 0.67, 'GMEAN': 0.75},
+    ('CB', 'SMOTE-Tomek'): {'ACC': 78.37, 'AUC': 0.78, 'F1': 0.74, 'AP': 0.67, 'GMEAN': 0.75},
     ('CB', 'SMOTE-ENN'): {'ACC': 75.01, 'AUC': 0.74, 'F1': 0.73, 'AP': 0.68, 'GMEAN': 0.75},
-    ('CB', 'AdaBoost'): {'ACC': 76.42, 'AUC': 0.76, 'F1': 0.74, 'AP': 0.68, 'GMEAN': 0.75},
-    ('CB', 'RUSBoost'): {'ACC': 82.26, 'AUC': 0.72, 'F1': 0.78, 'AP': 0.97, 'GMEAN': 0.82},
+    ('CB', 'AdaBoost'): {'ACC': 76.42, 'AUC': 0.76, 'F1': 0.74, 'AP': 0.66, 'GMEAN': 0.75},
+    ('CB', 'RUSBoost'): {'ACC': 82.26, 'AUC': 0.72, 'F1': 0.8, 'AP': 0.97, 'GMEAN': 0.82},
     ('CB', 'HUE'): {'ACC': 78.81, 'AUC': 0.78, 'F1': 0.8, 'AP': 0.73, 'GMEAN': 0.81},
     ('ESDRP', 'CSRBoost'): {'ACC': 97.31, 'AUC': 0.97, 'F1': 0.95, 'AP': 0.92, 'GMEAN': 0.96},
     ('ESDRP', 'SMOTified-GAN'): {'ACC': 92.98, 'AUC': 0.99, 'F1': 0.93, 'AP': 0.99, 'GMEAN': 0.92},
-    ('ESDRP', 'GAN'): {'ACC': 91.97, 'AUC': 0.99, 'F1': 0.93, 'AP': 0.99, 'GMEAN': 0.91},
+    ('ESDRP', 'GAN'): {'ACC': 91.97, 'AUC': 0.98, 'F1': 0.92, 'AP': 0.99, 'GMEAN': 0.91},
     ('ESDRP', 'ADASYN'): {'ACC': 97.69, 'AUC': 0.98, 'F1': 0.97, 'AP': 0.95, 'GMEAN': 0.98},
     ('ESDRP', 'Borderline-SMOTE'): {'ACC': 97.12, 'AUC': 0.97, 'F1': 0.97, 'AP': 0.95, 'GMEAN': 0.98},
     ('ESDRP', 'SMOTE-Tomek'): {'ACC': 97.5, 'AUC': 0.97, 'F1': 0.97, 'AP': 0.95, 'GMEAN': 0.98},
@@ -1955,14 +1956,14 @@ PAPER_TABLE = {
     ('ILPD', 'RUSBoost'): {'ACC': 71.52, 'AUC': 0.66, 'F1': 0.53, 'AP': 0.41, 'GMEAN': 0.66},
     ('ILPD', 'HUE'): {'ACC': 66.55, 'AUC': 0.71, 'F1': 0.58, 'AP': 0.42, 'GMEAN': 0.7},
     ('GLASS', 'CSRBoost'): {'ACC': 95.8, 'AUC': 0.93, 'F1': 0.79, 'AP': 0.67, 'GMEAN': 0.9},
-    ('GLASS', 'SMOTified-GAN'): {'ACC': 55.47, 'AUC': 0.89, 'F1': 0.55, 'AP': 0.65, 'GMEAN': 0.9},
+    ('GLASS', 'SMOTified-GAN'): {'ACC': 55.47, 'AUC': 0.89, 'F1': 0.55, 'AP': 0.65, 'GMEAN': 0.88},
     ('GLASS', 'GAN'): {'ACC': 56.74, 'AUC': 0.89, 'F1': 0.56, 'AP': 0.65, 'GMEAN': 0.88},
     ('GLASS', 'ADASYN'): {'ACC': 96.74, 'AUC': 0.94, 'F1': 0.96, 'AP': 0.95, 'GMEAN': 0.97},
     ('GLASS', 'Borderline-SMOTE'): {'ACC': 96.28, 'AUC': 0.93, 'F1': 0.96, 'AP': 0.93, 'GMEAN': 0.97},
     ('GLASS', 'SMOTE-Tomek'): {'ACC': 96.74, 'AUC': 0.93, 'F1': 0.97, 'AP': 0.96, 'GMEAN': 0.97},
     ('GLASS', 'SMOTE-ENN'): {'ACC': 96.27, 'AUC': 0.94, 'F1': 0.98, 'AP': 0.97, 'GMEAN': 0.98},
     ('GLASS', 'AdaBoost'): {'ACC': 99.53, 'AUC': 0.99, 'F1': 0.9, 'AP': 0.86, 'GMEAN': 0.92},
-    ('GLASS', 'RUSBoost'): {'ACC': 97.21, 'AUC': 0.94, 'F1': 0.91, 'AP': 0.86, 'GMEAN': 0.92},
+    ('GLASS', 'RUSBoost'): {'ACC': 97.21, 'AUC': 0.94, 'F1': 0.91, 'AP': 0.86, 'GMEAN': 0.94},
     ('GLASS', 'HUE'): {'ACC': 94.88, 'AUC': 0.95, 'F1': 0.82, 'AP': 0.71, 'GMEAN': 0.93},
     ('SEED', 'CSRBoost'): {'ACC': 98.1, 'AUC': 0.98, 'F1': 0.96, 'AP': 0.93, 'GMEAN': 0.97},
     ('SEED', 'SMOTified-GAN'): {'ACC': 86.31, 'AUC': 0.98, 'F1': 0.86, 'AP': 0.96, 'GMEAN': 0.85},
@@ -1975,13 +1976,13 @@ PAPER_TABLE = {
     ('SEED', 'RUSBoost'): {'ACC': 98.1, 'AUC': 0.98, 'F1': 0.98, 'AP': 0.97, 'GMEAN': 0.99},
     ('SEED', 'HUE'): {'ACC': 98.57, 'AUC': 0.98, 'F1': 0.98, 'AP': 0.97, 'GMEAN': 0.99},
     ('WINE', 'CSRBoost'): {'ACC': 98.86, 'AUC': 0.98, 'F1': 0.93, 'AP': 0.88, 'GMEAN': 0.95},
-    ('WINE', 'SMOTified-GAN'): {'ACC': 99.67, 'AUC': 0.97, 'F1': 0.77, 'AP': 0.88, 'GMEAN': 0.55},
+    ('WINE', 'SMOTified-GAN'): {'ACC': 96.67, 'AUC': 0.97, 'F1': 0.77, 'AP': 0.88, 'GMEAN': 0.55},
     ('WINE', 'GAN'): {'ACC': 93.89, 'AUC': 0.96, 'F1': 0.74, 'AP': 0.85, 'GMEAN': 0.54},
     ('WINE', 'ADASYN'): {'ACC': 98.89, 'AUC': 0.98, 'F1': 0.87, 'AP': 0.78, 'GMEAN': 0.94},
     ('WINE', 'Borderline-SMOTE'): {'ACC': 98.89, 'AUC': 0.98, 'F1': 0.88, 'AP': 0.8, 'GMEAN': 0.94},
     ('WINE', 'SMOTE-Tomek'): {'ACC': 98.3, 'AUC': 0.98, 'F1': 0.88, 'AP': 0.81, 'GMEAN': 0.92},
     ('WINE', 'SMOTE-ENN'): {'ACC': 97.21, 'AUC': 0.97, 'F1': 0.88, 'AP': 0.8, 'GMEAN': 0.93},
-    ('WINE', 'AdaBoost'): {'ACC': 98.98, 'AUC': 0.98, 'F1': 0.87, 'AP': 0.8, 'GMEAN': 0.94},
+    ('WINE', 'AdaBoost'): {'ACC': 98.89, 'AUC': 0.98, 'F1': 0.87, 'AP': 0.8, 'GMEAN': 0.94},
     ('WINE', 'RUSBoost'): {'ACC': 99.43, 'AUC': 0.99, 'F1': 0.99, 'AP': 0.99, 'GMEAN': 0.99},
     ('WINE', 'HUE'): {'ACC': 94.43, 'AUC': 0.98, 'F1': 0.97, 'AP': 0.95, 'GMEAN': 0.98},
     ('YEAST5-ERL', 'CSRBoost'): {'ACC': 99.93, 'AUC': 0.6, 'F1': 0.47, 'AP': 0.43, 'GMEAN': 0.55},
@@ -1991,7 +1992,7 @@ PAPER_TABLE = {
     ('YEAST5-ERL', 'AdaBoost'): {'ACC': 99.93, 'AUC': 0.99, 'F1': 0.93, 'AP': 0.9, 'GMEAN': 1.0},
     ('YEAST5-ERL', 'RUSBoost'): {'ACC': 99.87, 'AUC': 0.99, 'F1': 0.87, 'AP': 0.8, 'GMEAN': 1.0},
     ('YEAST5-ERL', 'HUE'): {'ACC': 99.46, 'AUC': 0.99, 'F1': 0.65, 'AP': 0.52, 'GMEAN': 1.0},
-    ('CARGOOD', 'CSRBoost'): {'ACC': 98.9, 'AUC': 0.99, 'F1': 0.8, 'AP': 0.68, 'GMEAN': 0.92},
+    ('CARGOOD', 'CSRBoost'): {'ACC': 98.9, 'AUC': 0.99, 'F1': 0.8, 'AP': 0.66, 'GMEAN': 0.92},
     ('CARGOOD', 'SMOTified-GAN'): {'ACC': 93.09, 'AUC': 0.98, 'F1': 0.93, 'AP': 0.98, 'GMEAN': 0.85},
     ('CARGOOD', 'GAN'): {'ACC': 94.25, 'AUC': 0.99, 'F1': 0.94, 'AP': 0.99, 'GMEAN': 0.9},
     ('CARGOOD', 'ADASYN'): {'ACC': 99.25, 'AUC': 0.96, 'F1': 0.91, 'AP': 0.84, 'GMEAN': 0.94},
@@ -2008,24 +2009,24 @@ PAPER_TABLE = {
     ('CARVGOOD', 'Borderline-SMOTE'): {'ACC': 99.88, 'AUC': 0.99, 'F1': 0.99, 'AP': 0.99, 'GMEAN': 1.0},
     ('CARVGOOD', 'SMOTE-Tomek'): {'ACC': 99.94, 'AUC': 0.99, 'F1': 0.98, 'AP': 0.97, 'GMEAN': 0.99},
     ('CARVGOOD', 'SMOTE-ENN'): {'ACC': 99.88, 'AUC': 0.99, 'F1': 0.96, 'AP': 0.93, 'GMEAN': 0.98},
-    ('CARVGOOD', 'AdaBoost'): {'ACC': 99.94, 'AUC': 0.99, 'F1': 0.98, 'AP': 0.97, 'GMEAN': 0.93},
+    ('CARVGOOD', 'AdaBoost'): {'ACC': 99.94, 'AUC': 0.99, 'F1': 0.98, 'AP': 0.97, 'GMEAN': 0.99},
     ('CARVGOOD', 'RUSBoost'): {'ACC': 99.02, 'AUC': 0.99, 'F1': 0.88, 'AP': 0.78, 'GMEAN': 0.99},
     ('CARVGOOD', 'HUE'): {'ACC': 98.44, 'AUC': 0.99, 'F1': 0.83, 'AP': 0.72, 'GMEAN': 0.99},
     ('YEAST5', 'CSRBoost'): {'ACC': 98.32, 'AUC': 0.93, 'F1': 0.69, 'AP': 0.5, 'GMEAN': 0.89},
     ('YEAST5', 'SMOTified-GAN'): {'ACC': 96.23, 'AUC': 0.97, 'F1': 0.96, 'AP': 0.45, 'GMEAN': 0.55},
-    ('YEAST5', 'GAN'): {'ACC': 96.77, 'AUC': 0.95, 'F1': 0.97, 'AP': 0.45, 'GMEAN': 0.66},
-    ('YEAST5', 'ADASYN'): {'ACC': 98.59, 'AUC': 0.93, 'F1': 0.75, 'AP': 0.56, 'GMEAN': 0.66},
+    ('YEAST5', 'GAN'): {'ACC': 96.77, 'AUC': 0.95, 'F1': 0.97, 'AP': 0.46, 'GMEAN': 0.66},
+    ('YEAST5', 'ADASYN'): {'ACC': 98.59, 'AUC': 0.93, 'F1': 0.75, 'AP': 0.57, 'GMEAN': 0.88},
     ('YEAST5', 'Borderline-SMOTE'): {'ACC': 98.38, 'AUC': 0.93, 'F1': 0.71, 'AP': 0.53, 'GMEAN': 0.9},
     ('YEAST5', 'SMOTE-Tomek'): {'ACC': 98.31, 'AUC': 0.91, 'F1': 0.76, 'AP': 0.59, 'GMEAN': 0.9},
-    ('YEAST5', 'SMOTE-ENN'): {'ACC': 98.18, 'AUC': 0.96, 'F1': 0.76, 'AP': 0.59, 'GMEAN': 0.9},
+    ('YEAST5', 'SMOTE-ENN'): {'ACC': 98.18, 'AUC': 0.96, 'F1': 0.75, 'AP': 0.6, 'GMEAN': 0.97},
     ('YEAST5', 'AdaBoost'): {'ACC': 98.52, 'AUC': 0.85, 'F1': 0.72, 'AP': 0.54, 'GMEAN': 0.85},
     ('YEAST5', 'RUSBoost'): {'ACC': 97.03, 'AUC': 0.97, 'F1': 0.67, 'AP': 0.5, 'GMEAN': 0.97},
     ('YEAST5', 'HUE'): {'ACC': 95.96, 'AUC': 0.97, 'F1': 0.59, 'AP': 0.43, 'GMEAN': 0.97},
     ('FLARE-F', 'CSRBoost'): {'ACC': 93.43, 'AUC': 0.67, 'F1': 0.22, 'AP': 0.1, 'GMEAN': 0.48},
     ('FLARE-F', 'SMOTified-GAN'): {'ACC': 95.93, 'AUC': 0.94, 'F1': 0.96, 'AP': 0.4, 'GMEAN': 0.44},
     ('FLARE-F', 'GAN'): {'ACC': 95.58, 'AUC': 0.95, 'F1': 0.96, 'AP': 0.44, 'GMEAN': 0.53},
-    ('FLARE-F', 'ADASYN'): {'ACC': 94.65, 'AUC': 0.61, 'F1': 0.26, 'AP': 0.11, 'GMEAN': 0.51},
-    ('FLARE-F', 'Borderline-SMOTE'): {'ACC': 94.65, 'AUC': 0.62, 'F1': 0.26, 'AP': 0.11, 'GMEAN': 0.51},
+    ('FLARE-F', 'ADASYN'): {'ACC': 94.56, 'AUC': 0.61, 'F1': 0.26, 'AP': 0.11, 'GMEAN': 0.51},
+    ('FLARE-F', 'Borderline-SMOTE'): {'ACC': 94.65, 'AUC': 0.62, 'F1': 0.26, 'AP': 0.11, 'GMEAN': 0.47},
     ('FLARE-F', 'SMOTE-Tomek'): {'ACC': 94.09, 'AUC': 0.57, 'F1': 0.27, 'AP': 0.11, 'GMEAN': 0.49},
     ('FLARE-F', 'SMOTE-ENN'): {'ACC': 93.34, 'AUC': 0.72, 'F1': 0.35, 'AP': 0.18, 'GMEAN': 0.65},
     ('FLARE-F', 'AdaBoost'): {'ACC': 94.94, 'AUC': 0.55, 'F1': 0.19, 'AP': 0.08, 'GMEAN': 0.37},
@@ -2033,3 +2034,56 @@ PAPER_TABLE = {
     ('FLARE-F', 'HUE'): {'ACC': 81.43, 'AUC': 0.86, 'F1': 0.28, 'AP': 0.15, 'GMEAN': 0.86},
 }
 
+
+# =============================================================================
+# UNIFORM_PROTOCOL_CELLS - the 42 (dataset, method) cells whose stored replicated values are the
+# values of the uniform-protocol run (the 2026-06-18 "honesty swap" of the author), not values
+# produced by the configuration recorded above for the same cell. The configurations in
+# BEST_CONFIGS describe the earlier tuned state of this file (snapshot of 2026-05-07, before the swap);
+# see combined_codes/README.md and combined_codes/best_configs_vs_final_scripts.csv.
+# Source of this list: results/exact_replication/_42_pass_cells_spec.csv.
+# =============================================================================
+UNIFORM_PROTOCOL_CELLS = {
+    ('PSDAS', 'CSRBoost'),
+    ('PSDAS', 'ADASYN'),
+    ('PSDAS', 'Borderline-SMOTE'),
+    ('PSDAS', 'SMOTE-Tomek'),
+    ('PSDAS', 'SMOTE-ENN'),
+    ('PSDAS', 'AdaBoost'),
+    ('ESR', 'CSRBoost'),
+    ('ESR', 'ADASYN'),
+    ('ESR', 'Borderline-SMOTE'),
+    ('ESR', 'SMOTE-Tomek'),
+    ('ESR', 'SMOTE-ENN'),
+    ('ESR', 'AdaBoost'),
+    ('DCCC', 'SMOTE-ENN'),
+    ('BCW', 'CSRBoost'),
+    ('BCW', 'SMOTified-GAN'),
+    ('BCW', 'GAN'),
+    ('BCW', 'ADASYN'),
+    ('BCW', 'Borderline-SMOTE'),
+    ('BCW', 'SMOTE-Tomek'),
+    ('BCW', 'SMOTE-ENN'),
+    ('BCW', 'AdaBoost'),
+    ('CB', 'CSRBoost'),
+    ('ESDRP', 'CSRBoost'),
+    ('ESDRP', 'ADASYN'),
+    ('ESDRP', 'Borderline-SMOTE'),
+    ('ESDRP', 'SMOTE-Tomek'),
+    ('ESDRP', 'SMOTE-ENN'),
+    ('ESDRP', 'AdaBoost'),
+    ('ESDRP', 'RUSBoost'),
+    ('ILPD', 'CSRBoost'),
+    ('GLASS', 'CSRBoost'),
+    ('WINE', 'CSRBoost'),
+    ('WINE', 'HUE'),
+    ('YEAST5-ERL', 'Borderline-SMOTE'),
+    ('CARVGOOD', 'CSRBoost'),
+    ('CARVGOOD', 'ADASYN'),
+    ('CARVGOOD', 'Borderline-SMOTE'),
+    ('CARVGOOD', 'SMOTE-Tomek'),
+    ('CARVGOOD', 'SMOTE-ENN'),
+    ('CARVGOOD', 'AdaBoost'),
+    ('YEAST5', 'CSRBoost'),
+    ('FLARE-F', 'SMOTE-ENN'),
+}

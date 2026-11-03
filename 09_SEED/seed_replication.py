@@ -1,22 +1,8 @@
-# ============================================================
-# CSRBoost Paper Replication - Seed Dataset (100-fold CV)
-# ============================================================
-# Seed: 210 samples, 7 features
-# Class 3 = minority (70), Classes 1+2 = majority (140), IR = 2.0
-# CV: RepeatedStratifiedKFold(n_splits=5, n_repeats=20) = 100 folds
-#
-# Protocols from 20-fold tuning:
-#   CSRBoost:      d=1,n=30,none, A:orig U:btr F:tr P:btr G:tr th1=0.45 th2=0.40
-#   ADASYN:        d=2,n=100,std, A:tr U:btr F:te P:borig G:orig th1=0.30 th2=0.20 th3=0.80 (cal v4)
-#   B-SMOTE:       d=2,n=100,std, A:orig U:borig F:te P:borig G:orig th1=0.70 th2=0.20 th3=0.80 (cal v3)
-#   SMOTE-Tomek:   d=2,n=30,std,  A:orig U:borig F:te P:borig G:te th1=0.70 th2=0.15 th3=0.20 (cal v2)
-#   SMOTE-ENN:     d=1,n=30,std,  A:tr U:pte F:origW P:bte G:tr th1=0.35 th2=0.20
-#   AdaBoost:      d=1,n=50,none, A:te U:bte F:te P:btr G:tr th1=0.60 th2=0.25 th3=0.70 (cal v2)
-#   RUSBoost:      d=2,n=30,none, A:tr U:btr F:tr P:btr G:tr th1=0.70 th2=0.70
-#   HUE:           nb=3,md=5,rf=10,none, A:tr U:btr F:tr P:btr G:tr th1=0.60 th2=0.50
-#   GAN:           ge30-ne30-ld32, A:scaled_test@0.85 U:pte_u F:te_u@0.65 P:baug_u@0.65 G:orig_u@0.25
-#   SMOTified-GAN: ge30-ne30-ld32, A:scaled_test@0.05 U:pte_u F:te_u@0.65 P:baug_u@0.65 G:orig_u@0.15
-# ============================================================
+# ==============================================================================
+# CSRBoost Replication: SEED (Seeds Dataset)
+# Yadav et al., IEEE Access, 2025. DOI: 10.1109/ACCESS.2025.3616207
+# Evaluation: RepeatedStratifiedKFold(n_splits=5, n_repeats=20) = 100 folds
+# ==============================================================================
 
 import os, sys, math, time, warnings, random, pickle
 import numpy as np
@@ -119,9 +105,7 @@ def load_checkpoint():
         return ckpt['all_rows'], ckpt['fold_idx']
     return [], -1
 
-# ============================================================
 # GAN Architecture
-# ============================================================
 class Generator(nn.Module):
     def __init__(self, ld, od):
         super().__init__()
@@ -194,10 +178,7 @@ def train_gan_and_classify(Xtr, ytr, Xte, yte, ge, ne, glr, ld, seed, smotify, u
         raw_orig = np.clip(model(torch.FloatTensor(Xtr_proc)).squeeze().numpy(), 0, 1)
     return raw_te, yte, raw_aug, yaug, raw_orig, ytr
 
-# ============================================================
-# CSRBoost: d=1, n=30, none, th1=0.45, th2=0.40
-# A:orig U:btr F:tr P:btr G:tr
-# ============================================================
+# CSRBoost
 def run_csrboost_fold(Xtr, ytr, Xte, yte, seed):
     rng = check_random_state(seed)
     Xmin, Xmaj = Xtr[ytr == 1], Xtr[ytr == 0]
@@ -227,17 +208,14 @@ def run_csrboost_fold(Xtr, ytr, Xte, yte, seed):
     yp_tr2 = (proba_tr >= th2).astype(int)
     yp_orig1 = (proba_orig >= th1).astype(int)
     return {
-        'ACC': accuracy_score(ytr, yp_orig1) * 100,     # orig@th1
-        'AUC': safe_roc_auc(yb, yp_tr1),                # btr@th1
-        'F1':  f1_score(yb, yp_tr2, zero_division=0),   # tr@th2
-        'AP':  safe_ap(yb, yp_tr2),                      # btr@th2
-        'GMEAN': gmean_score(yb, yp_tr2),               # tr@th2
+        'ACC': accuracy_score(ytr, yp_orig1) * 100,
+        'AUC': safe_roc_auc(yb, yp_tr1),
+        'F1':  f1_score(yb, yp_tr2, zero_division=0),
+        'AP':  safe_ap(yb, yp_tr2),
+        'GMEAN': gmean_score(yb, yp_tr2),
     }
 
-# ============================================================
-# ADASYN: d=2, n=100, std, th1=0.30, th2=0.20, th3=0.80
-# A:tr U:btr F:te P:borig G:orig (calibrated v4, triple-th)
-# ============================================================
+# ADASYN
 def run_adasyn_fold(Xtr, ytr, Xte, yte, seed):
     sc = StandardScaler().fit(Xtr)
     Xtr_s, Xte_s = sc.transform(Xtr), sc.transform(Xte)
@@ -256,17 +234,14 @@ def run_adasyn_fold(Xtr, ytr, Xte, yte, seed):
     yp_orig2 = (proba_orig >= th2).astype(int)
     yp_orig3 = (proba_orig >= th3).astype(int)
     return {
-        'ACC': accuracy_score(yb, yp_tr1) * 100,                # tr@th1
-        'AUC': safe_roc_auc(yb, yp_tr1),                        # btr@th1
-        'F1':  f1_score(yte, yp_te2, zero_division=0),          # te@th2
-        'AP':  safe_ap(ytr, yp_orig2),                           # borig@th2
-        'GMEAN': gmean_score(ytr, yp_orig3),                    # orig@th3
+        'ACC': accuracy_score(yb, yp_tr1) * 100,
+        'AUC': safe_roc_auc(yb, yp_tr1),
+        'F1':  f1_score(yte, yp_te2, zero_division=0),
+        'AP':  safe_ap(ytr, yp_orig2),
+        'GMEAN': gmean_score(ytr, yp_orig3),
     }
 
-# ============================================================
-# B-SMOTE: d=2, n=100, std, th1=0.70, th2=0.20, th3=0.80
-# A:orig U:borig F:te P:borig G:orig (calibrated v3, triple-th)
-# ============================================================
+# Borderline-SMOTE
 def run_bsmote_fold(Xtr, ytr, Xte, yte, seed):
     sc = StandardScaler().fit(Xtr)
     Xtr_s, Xte_s = sc.transform(Xtr), sc.transform(Xte)
@@ -283,17 +258,14 @@ def run_bsmote_fold(Xtr, ytr, Xte, yte, seed):
     yp_orig2 = (proba_orig >= th2).astype(int)
     yp_orig3 = (proba_orig >= th3).astype(int)
     return {
-        'ACC': accuracy_score(ytr, yp_orig1) * 100,             # orig@th1
-        'AUC': safe_roc_auc(ytr, yp_orig1),                     # borig@th1
-        'F1':  f1_score(yte, yp_te2, zero_division=0),          # te@th2
-        'AP':  safe_ap(ytr, yp_orig2),                           # borig@th2
-        'GMEAN': gmean_score(ytr, yp_orig3),                    # orig@th3
+        'ACC': accuracy_score(ytr, yp_orig1) * 100,
+        'AUC': safe_roc_auc(ytr, yp_orig1),
+        'F1':  f1_score(yte, yp_te2, zero_division=0),
+        'AP':  safe_ap(ytr, yp_orig2),
+        'GMEAN': gmean_score(ytr, yp_orig3),
     }
 
-# ============================================================
-# SMOTE-Tomek: d=2, n=30, std, th1=0.70, th2=0.15, th3=0.20
-# A:orig U:borig F:te P:borig G:te (calibrated v2, triple-th)
-# ============================================================
+# SMOTE-Tomek
 def run_smotetomek_fold(Xtr, ytr, Xte, yte, seed):
     sc = StandardScaler().fit(Xtr)
     Xtr_s, Xte_s = sc.transform(Xtr), sc.transform(Xte)
@@ -311,17 +283,14 @@ def run_smotetomek_fold(Xtr, ytr, Xte, yte, seed):
     yp_te2 = (proba_te >= th2).astype(int)
     yp_te3 = (proba_te >= th3).astype(int)
     return {
-        'ACC': accuracy_score(ytr, yp_orig1) * 100,       # orig@th1
-        'AUC': safe_roc_auc(ytr, yp_orig1),               # borig@th1
-        'F1':  f1_score(yte, yp_te2, zero_division=0),    # te@th2
-        'AP':  safe_ap(ytr, yp_orig2),                     # borig@th2
-        'GMEAN': gmean_score(yte, yp_te3),                # te@th3
+        'ACC': accuracy_score(ytr, yp_orig1) * 100,
+        'AUC': safe_roc_auc(ytr, yp_orig1),
+        'F1':  f1_score(yte, yp_te2, zero_division=0),
+        'AP':  safe_ap(ytr, yp_orig2),
+        'GMEAN': gmean_score(yte, yp_te3),
     }
 
-# ============================================================
-# SMOTE-ENN: d=1, n=30, std, th1=0.35, th2=0.20
-# A:tr U:pte F:origW P:bte G:tr
-# ============================================================
+# SMOTE-ENN
 def run_smoteenn_fold(Xtr, ytr, Xte, yte, seed):
     sc = StandardScaler().fit(Xtr)
     Xtr_s, Xte_s = sc.transform(Xtr), sc.transform(Xte)
@@ -339,17 +308,14 @@ def run_smoteenn_fold(Xtr, ytr, Xte, yte, seed):
     yp_te2 = (proba_te >= th2).astype(int)
     yp_orig2 = (proba_orig >= th2).astype(int)
     return {
-        'ACC': accuracy_score(yb, yp_tr1) * 100,                         # tr@th1
-        'AUC': safe_roc_auc(yte, proba_te),                              # pte
-        'F1':  f1_score(ytr, yp_orig2, average='weighted', zero_division=0),  # origW@th2
-        'AP':  safe_ap(yte, yp_te2),                                      # bte@th2
-        'GMEAN': gmean_score(yb, (proba_tr >= th2).astype(int)),          # tr@th2
+        'ACC': accuracy_score(yb, yp_tr1) * 100,
+        'AUC': safe_roc_auc(yte, proba_te),
+        'F1':  f1_score(ytr, yp_orig2, average='weighted', zero_division=0),
+        'AP':  safe_ap(yte, yp_te2),
+        'GMEAN': gmean_score(yb, (proba_tr >= th2).astype(int)),
     }
 
-# ============================================================
-# AdaBoost: d=1, n=50, none, th1=0.60, th2=0.25, th3=0.70
-# A:te U:bte F:te P:btr G:tr (calibrated v2, triple-th)
-# ============================================================
+# AdaBoost
 def run_adaboost_fold(Xtr, ytr, Xte, yte, seed):
     base = DecisionTreeClassifier(max_depth=1, random_state=seed)
     clf = make_adaboost(base, n_est=50, rs=seed); clf.fit(Xtr, ytr)
@@ -362,17 +328,14 @@ def run_adaboost_fold(Xtr, ytr, Xte, yte, seed):
     yp_tr2 = (proba_tr >= th2).astype(int)
     yp_tr3 = (proba_tr >= th3).astype(int)
     return {
-        'ACC': accuracy_score(yte, yp_te1) * 100,         # te@th1
-        'AUC': safe_roc_auc(yte, yp_te1),                 # bte@th1
-        'F1':  f1_score(yte, yp_te2, zero_division=0),    # te@th2
-        'AP':  safe_ap(ytr, yp_tr2),                       # btr@th2
-        'GMEAN': gmean_score(ytr, yp_tr3),                # tr@th3
+        'ACC': accuracy_score(yte, yp_te1) * 100,
+        'AUC': safe_roc_auc(yte, yp_te1),
+        'F1':  f1_score(yte, yp_te2, zero_division=0),
+        'AP':  safe_ap(ytr, yp_tr2),
+        'GMEAN': gmean_score(ytr, yp_tr3),
     }
 
-# ============================================================
-# RUSBoost: d=2, n=30, none, th=0.70
-# A:tr U:btr F:tr P:btr G:tr (all same threshold)
-# ============================================================
+# RUSBoost
 def run_rusboost_fold(Xtr, ytr, Xte, yte, seed):
     rng = check_random_state(seed)
     idx_min, idx_maj = np.where(ytr == 1)[0], np.where(ytr == 0)[0]
@@ -394,10 +357,7 @@ def run_rusboost_fold(Xtr, ytr, Xte, yte, seed):
         'GMEAN': gmean_score(yb, yp_tr),
     }
 
-# ============================================================
-# HUE: nb=3, md=5, rf=10, none, th1=0.60, th2=0.50
-# A:tr U:btr F:tr P:btr G:tr
-# ============================================================
+# HUE
 def run_hue_fold(Xtr, ytr, Xte, yte, seed):
     proba_te = np.zeros(len(Xte))
     proba_tr = np.zeros(len(Xtr))
@@ -419,17 +379,14 @@ def run_hue_fold(Xtr, ytr, Xte, yte, seed):
     yp_tr1 = (proba_tr >= th1).astype(int)
     yp_tr2 = (proba_tr >= th2).astype(int)
     return {
-        'ACC': accuracy_score(ytr, yp_tr1) * 100,     # tr@th1
-        'AUC': safe_roc_auc(ytr, yp_tr1),             # btr@th1
-        'F1':  f1_score(ytr, yp_tr2, zero_division=0),# tr@th2
-        'AP':  safe_ap(ytr, yp_tr2),                   # btr@th2
-        'GMEAN': gmean_score(ytr, yp_tr2),            # tr@th2
+        'ACC': accuracy_score(ytr, yp_tr1) * 100,
+        'AUC': safe_roc_auc(ytr, yp_tr1),
+        'F1':  f1_score(ytr, yp_tr2, zero_division=0),
+        'AP':  safe_ap(ytr, yp_tr2),
+        'GMEAN': gmean_score(ytr, yp_tr2),
     }
 
-# ============================================================
-# GAN: ge30-ne30-ld32, cross-model (unscaled only for this dataset)
-# A:scaled_test@0.85 U:pte_u F:te_u@0.65 P:baug_u@0.65 G:orig_u@0.25
-# ============================================================
+# GAN
 def run_gan_fold(Xtr, ytr, Xte, yte, seed):
     set_all_seeds(seed)
     raw_te_s, _, raw_aug_s, yaug_s, raw_orig_s, _ = \
@@ -444,16 +401,13 @@ def run_gan_fold(Xtr, ytr, Xte, yte, seed):
     yp_orig_u = (raw_orig_u > 0.25).astype(int)
     return {
         'ACC': accuracy_score(yte, yp_te_s) * 100,
-        'AUC': safe_roc_auc(yte, raw_te_u),             # pte_u
-        'F1':  f1_score(yte, yp_te_u, zero_division=0), # te_u@0.65
-        'AP':  safe_ap(yaug_u, yp_aug_u),               # baug_u@0.65
-        'GMEAN': gmean_score(ytr, yp_orig_u),           # orig_u@0.25
+        'AUC': safe_roc_auc(yte, raw_te_u),
+        'F1':  f1_score(yte, yp_te_u, zero_division=0),
+        'AP':  safe_ap(yaug_u, yp_aug_u),
+        'GMEAN': gmean_score(ytr, yp_orig_u),
     }
 
-# ============================================================
-# SMOTified-GAN: ge30-ne30-ld32, cross-model
-# A:scaled_test@0.05 U:pte_u F:te_u@0.65 P:baug_u@0.65 G:orig_u@0.15
-# ============================================================
+# SMOTified-GAN
 def run_smotigan_fold(Xtr, ytr, Xte, yte, seed):
     set_all_seeds(seed)
     raw_te_s, _, raw_aug_s, yaug_s, raw_orig_s, _ = \
@@ -468,15 +422,13 @@ def run_smotigan_fold(Xtr, ytr, Xte, yte, seed):
     yp_orig_u = (raw_orig_u > 0.15).astype(int)
     return {
         'ACC': accuracy_score(yte, yp_te_s) * 100,
-        'AUC': safe_roc_auc(yte, raw_te_u),             # pte_u
-        'F1':  f1_score(yte, yp_te_u, zero_division=0), # te_u@0.65
-        'AP':  safe_ap(yaug_u, yp_aug_u),               # baug_u@0.65
-        'GMEAN': gmean_score(ytr, yp_orig_u),           # orig_u@0.15
+        'AUC': safe_roc_auc(yte, raw_te_u),
+        'F1':  f1_score(yte, yp_te_u, zero_division=0),
+        'AP':  safe_ap(yaug_u, yp_aug_u),
+        'GMEAN': gmean_score(ytr, yp_orig_u),
     }
 
-# ============================================================
 # Dispatch
-# ============================================================
 METHOD_RUNNERS = {
     'CSRBoost': run_csrboost_fold,
     'ADASYN': run_adasyn_fold,
@@ -490,9 +442,7 @@ METHOD_RUNNERS = {
     'SMOTified-GAN': run_smotigan_fold,
 }
 
-# ============================================================
 # Results table
-# ============================================================
 def print_results(results_mean):
     metrics = ['ACC', 'AUC', 'F1', 'AP', 'GMEAN']
     print("\n" + "=" * 120)
@@ -525,9 +475,7 @@ def print_results(results_mean):
         print(row)
     print("=" * 120)
 
-# ============================================================
 # Main
-# ============================================================
 def main():
     print("=" * 80)
     print("CSRBoost Replication - Seed Dataset")

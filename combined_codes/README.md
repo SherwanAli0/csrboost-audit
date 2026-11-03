@@ -1,7 +1,9 @@
 # combined_codes/
 
-Single-file unified replication of CSRBoost (Yadav 2025) on all 15 datasets,
-mirroring the section structure of `graduation project exact replication/scripts/exact_replication_local.py`.
+Single-file unified replication framework for the per-cell tuned track (Track 2) of the CSRBoost audit on all 15 datasets.
+It was written to mirror the section structure of an `exact_replication_local.py` script for the uniform-protocol track; that engine is now included at `../exact_replication/exact_replication_local.py`.
+
+**Status (repair pass).** The framework has not been re-run end to end: only the dataset loaders were executed and checked (all 15 reproduce the sample counts, feature counts and class counts in the top-level README) and `BEST_CONFIGS.py` was run for its built-in self-check. The ESDRP, ILPD and CB loaders in `combined_replication.py` were corrected to match the per-dataset scripts: ESDRP read a file name that does not exist in the repository (`ESDRP.csv`; the shipped file is `diabetes_data_upload.csv`), ILPD tried to convert the string `Female`/`Male` column to float (the column is named `V2`, not `Gender`) and labelled the majority class as positive, and CB labelled the majority class (Mine) as positive whereas the per-dataset script and the README treat Rock (97) as the minority class 1. The HUE branch of this framework uses SMOTE-balanced RandomForest bags for every dataset, which is not the ITQ-based HUE that several per-dataset scripts run (see the HUE note in the top-level README), so HUE rows produced here are not expected to equal those scripts.
 
 ## Files
 
@@ -24,13 +26,9 @@ mirroring the section structure of `graduation project exact replication/scripts
   Single-document concatenation of `combined_replication.py` and
   `BEST_CONFIGS.py` for review or LLM consumption.
 
-### Reference (per-dataset scripts; copies of the originals in `0X_<DS>/`)
+### Reference (per-dataset scripts)
 
-- `PSDAS_replication.py`, `ESR_replication.py`, ..., `FLARE_F_replication.py`
-  These are unchanged copies of each dataset's standalone script. Kept here
-  for traceability — the unified framework's logic was extracted from them.
-  They are **not** imported by `combined_replication.py`; each is a
-  self-contained module that can be run independently.
+The standalone per-dataset scripts live in the numbered folders at the top level (for example `01_PSDAS/psdas_replication_v2.py`). Copies of them are not stored in this folder. The unified framework's logic was extracted from them and does not import them.
 
 ## Running
 
@@ -72,8 +70,11 @@ and is far easier to review.
 
 ## Audit consistency
 
-`BEST_CONFIGS` and `PAPER_TABLE` are aligned with the 143/143 PASS audit at
-`results/replication_audit_final_20260425.csv`:
+**Provenance and status.** The author's folder holds exactly one `BEST_CONFIGS.py` and one `combined_replication.py`, both dated 2026-05-07 and inside an older snapshot (`graduation project/`, marked do-not-use on 2026-06-01 because it predates the paper-constant correction and the 2026-06-18 swap of 42 rows to uniform-protocol values). The repository copies started from them; paper references, loaders and provenance notes were subsequently corrected during this repair pass. The configuration values remain historical. The final submission (README of 2026-07-13, thesis, reports) does not cite them; the per-cell configurations of record for the final results are the dictionaries and run functions inside the 15 final per-dataset scripts (2026-06-21). The combined framework is therefore historical.
+
+**Per-cell configuration matrix.** `combined_codes/BEST_CONFIGS.py` is a historical 2026-05-07 snapshot, not a validated recipe for the final stored results. The configurations of record are in the 15 final per-dataset scripts. `python combined_codes/compare_configs.py` reports all 150 rows: 38 agree and 24 differ on the fields extracted from dictionary configurations; another 40 show partial agreement and 4 show differences in literals extracted heuristically from function bodies. The remaining 37 evaluated rows are unverified (27 use module constants/classes, 4 have no comparable literals, and 6 have unresolved threshold representations); 7 rows are N/A. Static checks cover only the reported fields, not complete execution behavior. `UNIFORM_PROTOCOL_CELLS` marks the 42 rows replaced with uniform-protocol results. No configuration was rewritten to force agreement. Static configuration checks, stored-table arithmetic, and reproduced model runs are different evidence levels; no model was rerun in this repair pass. Details: `combined_codes/README.md` and `combined_codes/best_configs_vs_final_scripts.csv`.
+
+Of the 24 dictionary differences, all 24 are among the 42 swapped rows; 3 of the 4 heuristic differences are also swapped rows. The remaining statuses explicitly describe unresolved fields. The 40 partial agreements cover extracted literals only and do not establish complete configuration agreement. `PAPER_TABLE` and current audit paper columns now agree, including CARVGOOD/ADASYN AUC 0.98.
 
 - 143 evaluated cells (one config per cell)
 - 7 N/A cells: PSDAS/RUSBoost, ESR/RUSBoost, DCCC/RUSBoost, CB/ADASYN,

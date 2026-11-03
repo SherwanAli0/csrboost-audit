@@ -1,0 +1,151 @@
+dataset,algorithm,swapped_to_uniform_protocol,status,detail
+BCW,ADASYN,True,differs,depth: BEST_CONFIGS 1 / script None
+BCW,AdaBoost,True,differs,depth: BEST_CONFIGS 7 / script None; n_est: BEST_CONFIGS 89 / script 50; threshold: BEST_CONFIGS [0.48] / script [0.5]
+BCW,Borderline-SMOTE,True,differs,depth: BEST_CONFIGS 1 / script None; scaler: BEST_CONFIGS none / script robust
+BCW,CSRBoost,True,differs,depth: BEST_CONFIGS 1 / script None
+BCW,GAN,True,unverified (threshold representation),"BEST_CONFIGS records per-metric thresholds [0.5], the script dictionary a nominal [0.34]; whether the script applies per-metric thresholds elsewhere was not settled"
+BCW,HUE,False,match,"compared: depth, n_est, scaler, threshold"
+BCW,RUSBoost,False,unverified (threshold representation),"BEST_CONFIGS records per-metric thresholds [0.08, 0.14, 0.39, 0.97, 0.99], the script dictionary a nominal [0.5]; whether the script applies per-metric thresholds elsewhere was not settled"
+BCW,SMOTE-ENN,True,differs,depth: BEST_CONFIGS 1 / script None; scaler: BEST_CONFIGS none / script minmax
+BCW,SMOTE-Tomek,True,differs,depth: BEST_CONFIGS 1 / script None; scaler: BEST_CONFIGS none / script minmax
+BCW,SMOTified-GAN,True,differs,scaler: BEST_CONFIGS none / script minmax; threshold: BEST_CONFIGS [0.5] / script [0.3]
+CARGOOD,ADASYN,False,partial agreement (static text),"depth: BEST_CONFIGS 2 / script [2]; n_est: BEST_CONFIGS 100 / script [100]; thresholds equal [0.4, 0.5]"
+CARGOOD,AdaBoost,False,partial agreement (static text),"depth: BEST_CONFIGS 5 / script [5]; n_est: BEST_CONFIGS 50 / script [50]; thresholds equal [0.35, 0.55, 0.65]"
+CARGOOD,Borderline-SMOTE,False,partial agreement (static text),"depth: BEST_CONFIGS 2 / script [2]; n_est: BEST_CONFIGS 100 / script [100]; thresholds equal [0.3, 0.4, 0.5]"
+CARGOOD,CSRBoost,False,partial agreement (static text),depth: BEST_CONFIGS 2 / script [2]; n_est: BEST_CONFIGS 100 / script [100]; thresholds equal [0.45]
+CARGOOD,GAN,False,partial agreement (static text),"thresholds equal [0.25, 0.5, 0.55]"
+CARGOOD,HUE,False,partial agreement (static text),"hue max_depth: BEST_CONFIGS 7 / script [5, 7]; hue rf_trees: BEST_CONFIGS 10 / script [10]; thresholds equal [0.3, 0.4, 0.45, 0.5, 0.65]"
+CARGOOD,RUSBoost,False,partial agreement (static text),"depth: BEST_CONFIGS 2 / script [2]; n_est: BEST_CONFIGS 100 / script [100]; thresholds equal [0.15, 0.45, 0.5, 0.55]"
+CARGOOD,SMOTE-ENN,False,partial agreement (static text),depth: BEST_CONFIGS 2 / script [2]; n_est: BEST_CONFIGS 50 / script [50]; thresholds equal [0.5]
+CARGOOD,SMOTE-Tomek,False,partial agreement (static text),"depth: BEST_CONFIGS 2 / script [2]; n_est: BEST_CONFIGS 100 / script [100]; thresholds equal [0.35, 0.4, 0.5, 0.6]"
+CARGOOD,SMOTified-GAN,False,partial agreement (static text),"thresholds equal [0.1, 0.4]"
+CARVGOOD,ADASYN,True,differs,depth: BEST_CONFIGS 1 / script None; scaler: BEST_CONFIGS none / script std
+CARVGOOD,AdaBoost,True,differs,"depth: BEST_CONFIGS 5 / script None; threshold: BEST_CONFIGS [0.3, 0.55] / script [0.5]"
+CARVGOOD,Borderline-SMOTE,True,differs,depth: BEST_CONFIGS 1 / script None; scaler: BEST_CONFIGS none / script std
+CARVGOOD,CSRBoost,True,differs,depth: BEST_CONFIGS 1 / script None; scaler: BEST_CONFIGS none / script std
+CARVGOOD,GAN,False,match,compared: 
+CARVGOOD,HUE,False,match,"compared: scaler, threshold"
+CARVGOOD,RUSBoost,False,match,"compared: depth, n_est, scaler, threshold"
+CARVGOOD,SMOTE-ENN,True,differs,depth: BEST_CONFIGS 1 / script None; scaler: BEST_CONFIGS none / script std
+CARVGOOD,SMOTE-Tomek,True,differs,depth: BEST_CONFIGS 1 / script None; scaler: BEST_CONFIGS none / script std
+CARVGOOD,SMOTified-GAN,False,match,compared: 
+CB,ADASYN,False,N/A in the paper,
+CB,AdaBoost,False,match,"compared: depth, n_est, scaler, threshold"
+CB,Borderline-SMOTE,False,match,"compared: depth, n_est, scaler, threshold"
+CB,CSRBoost,True,differs,depth: BEST_CONFIGS 1 / script None
+CB,GAN,False,match,compared: scaler
+CB,HUE,False,match,"compared: scaler, threshold"
+CB,RUSBoost,False,unverified (threshold representation),"BEST_CONFIGS records per-metric thresholds [0.27, 0.4, 0.54, 0.56, 0.68], the script dictionary a nominal [0.5]; whether the script applies per-metric thresholds elsewhere was not settled"
+CB,SMOTE-ENN,False,match,"compared: depth, n_est, scaler, threshold"
+CB,SMOTE-Tomek,False,match,"compared: depth, n_est, scaler, threshold"
+CB,SMOTified-GAN,False,match,compared: scaler
+DCCC,ADASYN,False,unverified (configuration in module constants and classes; not compared),
+DCCC,AdaBoost,False,unverified (configuration in module constants and classes; not compared),
+DCCC,Borderline-SMOTE,False,unverified (configuration in module constants and classes; not compared),
+DCCC,CSRBoost,False,unverified (configuration in module constants and classes; not compared),
+DCCC,GAN,False,unverified (configuration in module constants and classes; not compared),
+DCCC,HUE,False,unverified (configuration in module constants and classes; not compared),
+DCCC,RUSBoost,False,N/A in the paper,
+DCCC,SMOTE-ENN,True,unverified (configuration in module constants and classes; not compared),
+DCCC,SMOTE-Tomek,False,unverified (configuration in module constants and classes; not compared),
+DCCC,SMOTified-GAN,False,unverified (configuration in module constants and classes; not compared),
+ESDRP,ADASYN,True,differs,depth: BEST_CONFIGS 1 / script None
+ESDRP,AdaBoost,True,differs,depth: BEST_CONFIGS 3 / script None; n_est: BEST_CONFIGS 100 / script 50
+ESDRP,Borderline-SMOTE,True,differs,depth: BEST_CONFIGS 1 / script None
+ESDRP,CSRBoost,True,differs,n_est: BEST_CONFIGS 30 / script 50; cluster_pct: BEST_CONFIGS 0.7 / script 0.5
+ESDRP,GAN,False,match,compared: scaler
+ESDRP,HUE,False,match,"compared: scaler, threshold"
+ESDRP,RUSBoost,True,differs,n_est: BEST_CONFIGS 10 / script 50
+ESDRP,SMOTE-ENN,True,differs,depth: BEST_CONFIGS 1 / script None; scaler: BEST_CONFIGS none / script std
+ESDRP,SMOTE-Tomek,True,differs,depth: BEST_CONFIGS 1 / script None; scaler: BEST_CONFIGS none / script std
+ESDRP,SMOTified-GAN,False,match,compared: scaler
+ESR,ADASYN,True,unverified (configuration in module constants and classes; not compared),
+ESR,AdaBoost,True,unverified (configuration in module constants and classes; not compared),
+ESR,Borderline-SMOTE,True,unverified (configuration in module constants and classes; not compared),
+ESR,CSRBoost,True,unverified (configuration in module constants and classes; not compared),
+ESR,GAN,False,unverified (configuration in module constants and classes; not compared),
+ESR,HUE,False,unverified (configuration in module constants and classes; not compared),
+ESR,RUSBoost,False,N/A in the paper,
+ESR,SMOTE-ENN,True,unverified (configuration in module constants and classes; not compared),
+ESR,SMOTE-Tomek,True,unverified (configuration in module constants and classes; not compared),
+ESR,SMOTified-GAN,False,unverified (configuration in module constants and classes; not compared),
+FLARE-F,ADASYN,False,partial agreement (static text),depth: BEST_CONFIGS 2 / script [2]; n_est: BEST_CONFIGS 100 / script [100]; thresholds equal [0.5]
+FLARE-F,AdaBoost,False,partial agreement (static text),"depth: BEST_CONFIGS None / script [None]; n_est: BEST_CONFIGS 50 / script [50]; thresholds equal [0.45, 0.5]"
+FLARE-F,Borderline-SMOTE,False,unverified (threshold representation),"BEST_CONFIGS thresholds [0.4, 0.55], script thresholds [0.55]; one set contains the other"
+FLARE-F,CSRBoost,False,partial agreement (static text),depth: BEST_CONFIGS 1 / script [1]; n_est: BEST_CONFIGS 30 / script [30]; thresholds equal [0.5]
+FLARE-F,GAN,False,partial agreement (static text),"thresholds equal [0.35, 0.85]"
+FLARE-F,HUE,False,partial agreement (static text),"hue max_depth: BEST_CONFIGS 7 / script [5, 7]; hue rf_trees: BEST_CONFIGS 10 / script [10]; thresholds equal [0.45, 0.7]"
+FLARE-F,RUSBoost,False,partial agreement (static text),"depth: BEST_CONFIGS 2 / script [2]; n_est: BEST_CONFIGS 30 / script [30]; thresholds equal [0.4, 0.55]"
+FLARE-F,SMOTE-ENN,True,differs (static text),depth: BEST_CONFIGS 1 / script [2]; n_est: BEST_CONFIGS 50 / script [100]
+FLARE-F,SMOTE-Tomek,False,partial agreement (static text),"depth: BEST_CONFIGS 2 / script [2]; n_est: BEST_CONFIGS 100 / script [100]; thresholds equal [0.5, 0.55]"
+FLARE-F,SMOTified-GAN,False,unverified (threshold representation),"BEST_CONFIGS thresholds [-1.0, 0.44, 0.7, 0.95, 1.0], script thresholds [0.7, 0.95, 1.0]; one set contains the other"
+GLASS,ADASYN,False,match,"compared: depth, n_est, scaler, threshold"
+GLASS,AdaBoost,False,match,"compared: depth, n_est, scaler, threshold"
+GLASS,Borderline-SMOTE,False,match,"compared: depth, n_est, scaler, threshold"
+GLASS,CSRBoost,True,differs,depth: BEST_CONFIGS 2 / script None; n_est: BEST_CONFIGS 30 / script 50; cluster_pct: BEST_CONFIGS 0.7 / script 0.5; p: BEST_CONFIGS 2.0 / script 1.0; threshold: BEST_CONFIGS [0.4] / script [0.5]
+GLASS,GAN,False,match,compared: scaler
+GLASS,HUE,False,match,"compared: scaler, threshold"
+GLASS,RUSBoost,False,match,"compared: depth, n_est, scaler, threshold"
+GLASS,SMOTE-ENN,False,match,"compared: depth, n_est, scaler, threshold"
+GLASS,SMOTE-Tomek,False,match,"compared: depth, n_est, scaler, threshold"
+GLASS,SMOTified-GAN,False,match,compared: scaler
+ILPD,ADASYN,False,match,"compared: depth, n_est, scaler, threshold"
+ILPD,AdaBoost,False,match,"compared: depth, n_est, scaler, threshold"
+ILPD,Borderline-SMOTE,False,match,"compared: depth, n_est, scaler, threshold"
+ILPD,CSRBoost,True,differs,depth: BEST_CONFIGS 2 / script None; n_est: BEST_CONFIGS 30 / script 50; cluster_pct: BEST_CONFIGS 0.7 / script 0.5; p: BEST_CONFIGS 2.0 / script 1.0
+ILPD,GAN,False,match,"compared: scaler, threshold"
+ILPD,HUE,False,match,"compared: scaler, threshold"
+ILPD,RUSBoost,False,match,"compared: depth, n_est, scaler, threshold"
+ILPD,SMOTE-ENN,False,match,"compared: depth, n_est, scaler, threshold"
+ILPD,SMOTE-Tomek,False,match,"compared: depth, n_est, scaler, threshold"
+ILPD,SMOTified-GAN,False,unverified (threshold representation),"BEST_CONFIGS records per-metric thresholds [0.05, 0.1, 0.3, 0.65, 0.8], the script dictionary a nominal [0.25]; whether the script applies per-metric thresholds elsewhere was not settled"
+PSDAS,ADASYN,True,unverified (configuration in module constants and classes; not compared),
+PSDAS,AdaBoost,True,unverified (configuration in module constants and classes; not compared),
+PSDAS,Borderline-SMOTE,True,unverified (configuration in module constants and classes; not compared),
+PSDAS,CSRBoost,True,unverified (configuration in module constants and classes; not compared),
+PSDAS,GAN,False,unverified (configuration in module constants and classes; not compared),
+PSDAS,HUE,False,unverified (configuration in module constants and classes; not compared),
+PSDAS,RUSBoost,False,N/A in the paper,
+PSDAS,SMOTE-ENN,True,unverified (configuration in module constants and classes; not compared),
+PSDAS,SMOTE-Tomek,True,unverified (configuration in module constants and classes; not compared),
+PSDAS,SMOTified-GAN,False,unverified (configuration in module constants and classes; not compared),
+SEED,ADASYN,False,partial agreement (static text),"depth: BEST_CONFIGS 2 / script [2]; n_est: BEST_CONFIGS 100 / script [100]; thresholds equal [0.2, 0.3, 0.8]"
+SEED,AdaBoost,False,partial agreement (static text),"depth: BEST_CONFIGS 1 / script [1]; n_est: BEST_CONFIGS 50 / script [50]; thresholds equal [0.25, 0.6, 0.7]"
+SEED,Borderline-SMOTE,False,partial agreement (static text),"depth: BEST_CONFIGS 2 / script [2]; n_est: BEST_CONFIGS 100 / script [100]; thresholds equal [0.2, 0.7, 0.8]"
+SEED,CSRBoost,False,partial agreement (static text),"depth: BEST_CONFIGS 1 / script [1]; n_est: BEST_CONFIGS 30 / script [30]; thresholds equal [0.4, 0.45]"
+SEED,GAN,False,unverified (no comparable literal found),
+SEED,HUE,False,partial agreement (static text),"hue max_depth: BEST_CONFIGS 5 / script [5]; hue rf_trees: BEST_CONFIGS 10 / script [10]; thresholds equal [0.5, 0.6]"
+SEED,RUSBoost,False,partial agreement (static text),depth: BEST_CONFIGS 2 / script [2]; n_est: BEST_CONFIGS 30 / script [30]; thresholds equal [0.7]
+SEED,SMOTE-ENN,False,partial agreement (static text),"depth: BEST_CONFIGS 1 / script [1]; n_est: BEST_CONFIGS 30 / script [30]; thresholds equal [0.2, 0.35]"
+SEED,SMOTE-Tomek,False,partial agreement (static text),"depth: BEST_CONFIGS 2 / script [2]; n_est: BEST_CONFIGS 30 / script [30]; thresholds equal [0.15, 0.2, 0.7]"
+SEED,SMOTified-GAN,False,unverified (no comparable literal found),
+WINE,ADASYN,False,partial agreement (static text),"depth: BEST_CONFIGS 1 / script [1]; n_est: BEST_CONFIGS 50 / script [50]; thresholds equal [0.3, 0.55]"
+WINE,AdaBoost,False,partial agreement (static text),"depth: BEST_CONFIGS 1 / script [1]; n_est: BEST_CONFIGS 50 / script [50]; thresholds equal [0.3, 0.5]"
+WINE,Borderline-SMOTE,False,partial agreement (static text),"depth: BEST_CONFIGS 1 / script [1]; n_est: BEST_CONFIGS 100 / script [100]; thresholds equal [0.55, 0.7, 0.75]"
+WINE,CSRBoost,True,differs (static text),depth: BEST_CONFIGS 1 / script [2]; n_est: BEST_CONFIGS 50 / script [30]; thresholds: BEST_CONFIGS [0.5] / script [0.55]
+WINE,GAN,False,unverified (no comparable literal found),
+WINE,HUE,True,partial agreement (static text),hue rf_trees: BEST_CONFIGS 10 / script [10]; thresholds equal [0.55]
+WINE,RUSBoost,False,partial agreement (static text),depth: BEST_CONFIGS 1 / script [1]; n_est: BEST_CONFIGS 100 / script [100]; thresholds equal [0.55]
+WINE,SMOTE-ENN,False,partial agreement (static text),depth: BEST_CONFIGS 2 / script [2]; n_est: BEST_CONFIGS 30 / script [30]; thresholds equal [0.45]
+WINE,SMOTE-Tomek,False,partial agreement (static text),depth: BEST_CONFIGS 1 / script [1]; n_est: BEST_CONFIGS 100 / script [100]; thresholds equal [0.7]
+WINE,SMOTified-GAN,False,unverified (no comparable literal found),
+YEAST5,ADASYN,False,differs (static text),"thresholds: BEST_CONFIGS [0.2, 0.3, 0.5, 0.65] / script [0.5, 0.55]"
+YEAST5,AdaBoost,False,partial agreement (static text),"depth: BEST_CONFIGS 2 / script [2]; n_est: BEST_CONFIGS 100 / script [100]; thresholds equal [0.45, 0.5]"
+YEAST5,Borderline-SMOTE,False,partial agreement (static text),"depth: BEST_CONFIGS 2 / script [2]; n_est: BEST_CONFIGS 30 / script [30]; thresholds equal [0.45, 0.5]"
+YEAST5,CSRBoost,True,differs (static text),"depth: BEST_CONFIGS 1 / script [2]; thresholds: BEST_CONFIGS [0.5] / script [0.4, 0.45]"
+YEAST5,GAN,False,partial agreement (static text),"thresholds equal [0.35, 0.55, 0.75]"
+YEAST5,HUE,False,partial agreement (static text),"hue max_depth: BEST_CONFIGS 5 / script [2, 5]; hue rf_trees: BEST_CONFIGS 10 / script [10]; thresholds equal [0.35, 0.55]"
+YEAST5,RUSBoost,False,partial agreement (static text),"depth: BEST_CONFIGS 2 / script [2]; n_est: BEST_CONFIGS 100 / script [100]; thresholds equal [0.6, 0.7]"
+YEAST5,SMOTE-ENN,False,partial agreement (static text),depth: BEST_CONFIGS 1 / script [1]; n_est: BEST_CONFIGS 30 / script [30]; thresholds equal [0.55]
+YEAST5,SMOTE-Tomek,False,partial agreement (static text),depth: BEST_CONFIGS 2 / script [2]; n_est: BEST_CONFIGS 100 / script [100]; thresholds equal [0.5]
+YEAST5,SMOTified-GAN,False,partial agreement (static text),"thresholds equal [0.25, 0.85]"
+YEAST5-ERL,ADASYN,False,N/A in the paper,
+YEAST5-ERL,AdaBoost,False,match,"compared: depth, n_est, scaler, threshold"
+YEAST5-ERL,Borderline-SMOTE,True,differs,"n_est: BEST_CONFIGS 50 / script 30; scaler: BEST_CONFIGS none / script std; threshold: BEST_CONFIGS [0.5] / script [0.35, 0.4]"
+YEAST5-ERL,CSRBoost,False,match,"compared: depth, n_est, scaler, cluster_pct, threshold"
+YEAST5-ERL,GAN,False,N/A in the paper,
+YEAST5-ERL,HUE,False,match,"compared: depth, n_est, scaler, threshold"
+YEAST5-ERL,RUSBoost,False,match,"compared: depth, n_est, scaler, threshold"
+YEAST5-ERL,SMOTE-ENN,False,match,"compared: depth, n_est, scaler, threshold"
+YEAST5-ERL,SMOTE-Tomek,False,match,"compared: depth, n_est, scaler, threshold"
+YEAST5-ERL,SMOTified-GAN,False,N/A in the paper,

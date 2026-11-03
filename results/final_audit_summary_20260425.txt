@@ -1,0 +1,69 @@
+Final CSRBoost replication audit
+Date: 20260425
+Workspace: original working folder of the author (path omitted)
+
+Inputs:
+- Paper values: current dataset PAPER or PAPER_TABLE constants, after known corrections.
+- Replication values: results/replication_results.csv as fallback.
+- Overrides: latest ILPD, WINE, YEAST5-ERL, and CARGOOD output files.
+- Full dataset reruns performed by this script: none.
+
+Formula:
+- ACC error = absolute percentage-point gap between replication ACC percent and paper ACC percent.
+- AUC, F1, AP, and GMean error = absolute metric gap times 100.
+- Average error = mean of the five metric errors.
+- PASS if average error is below 3%.
+
+Counts:
+- Total paper slots: 150
+- Evaluated rows: 143
+- N/A rows: 7
+- Missing replication rows: 0
+- PASS rows: 143
+- FAIL rows: 0
+
+Final audit result: 143/143 evaluated replication rows PASS.
+
+N/A rows:
+- PSDAS / RUSBoost
+- ESR / RUSBoost
+- DCCC / RUSBoost
+- CB / ADASYN
+- YEAST5-ERL / SMOTified-GAN
+- YEAST5-ERL / GAN
+- YEAST5-ERL / ADASYN
+
+Per-dataset status counts:
+- PSDAS: PASS=9, FAIL=0, N/A=1, MISSING=0
+- ESR: PASS=9, FAIL=0, N/A=1, MISSING=0
+- DCCC: PASS=9, FAIL=0, N/A=1, MISSING=0
+- BCW: PASS=10, FAIL=0, N/A=0, MISSING=0
+- CB: PASS=9, FAIL=0, N/A=1, MISSING=0
+- ESDRP: PASS=10, FAIL=0, N/A=0, MISSING=0
+- ILPD: PASS=10, FAIL=0, N/A=0, MISSING=0
+- GLASS: PASS=10, FAIL=0, N/A=0, MISSING=0
+- SEED: PASS=10, FAIL=0, N/A=0, MISSING=0
+- WINE: PASS=10, FAIL=0, N/A=0, MISSING=0
+- YEAST5-ERL: PASS=7, FAIL=0, N/A=3, MISSING=0
+- CARGOOD: PASS=10, FAIL=0, N/A=0, MISSING=0
+- CARVGOOD: PASS=10, FAIL=0, N/A=0, MISSING=0
+- YEAST5: PASS=10, FAIL=0, N/A=0, MISSING=0
+- FLARE-F: PASS=10, FAIL=0, N/A=0, MISSING=0
+
+Largest evaluated average errors:
+- ILPD / SMOTE-ENN: 2.9340% [PASS]
+- GLASS / ADASYN: 2.8920% [PASS]
+- YEAST5 / SMOTified-GAN: 2.8620% [PASS]
+- GLASS / HUE: 2.8400% [PASS]
+- YEAST5-ERL / Borderline-SMOTE: 2.8332% [PASS]
+- GLASS / SMOTified-GAN: 2.8300% [PASS]
+- WINE / SMOTified-GAN: 2.7988% [PASS]
+- GLASS / GAN: 2.7500% [PASS]
+- BCW / GAN: 2.6460% [PASS]
+- ILPD / GAN: 2.6218% [PASS]
+
+Override sources:
+- ILPD: outputs/source_replication_outputs/08_ILPD/ilpd_replication_results.csv
+- WINE: outputs/source_replication_outputs/10_WINE/wine_replication_results.csv, averaged across fold rows
+- YEAST5-ERL: outputs/source_replication_outputs/12_YEAST5-ERL/yeast5erl_summary.csv
+- CARGOOD: outputs/source_replication_outputs/13_CARGOOD/cargood_replication_results.txt
