@@ -538,7 +538,7 @@ def build_models(seed_offset):
 def print_results(results_mean, results_std):
     metrics = ['ACC', 'AUC', 'F1', 'AP', 'GMEAN']
     print("\n" + "=" * 110)
-    print("DCCC REPLICATION — Results vs paper (Table 9a targets)")
+    print("DCCC REPLICATION \u2014 Results vs paper (Table 9a targets)")
     print("=" * 110)
     hdr = f"{'Method':<20}"
     for m in metrics:
@@ -581,7 +581,7 @@ def print_results(results_mean, results_std):
 
 # Main
 def print_detailed_vs_paper(results_mean):
-    """BCW-style per-metric diff table (skip RUSBoost — not in paper table)."""
+    """BCW-style per-metric diff table (skip RUSBoost - not in paper table)."""
     metrics = ['ACC', 'AUC', 'F1', 'AP', 'GMEAN']
     print("\n" + "=" * 100)
     print("DETAILED COMPARISON (per metric)")
@@ -612,7 +612,7 @@ def print_detailed_vs_paper(results_mean):
 
 def main():
     print("=" * 80)
-    print("DCCC — CSRBoost paper replication")
+    print("DCCC \u2014 CSRBoost paper replication")
     print("=" * 80)
     print("Methodology (aligned with BCW / ESR / CB-style replications):")
     print("  1. GAN / SMOTified-GAN: mixed eval (ACC=test, AUC/F1/AP/GMEAN=augmented train)")
@@ -673,7 +673,7 @@ def main():
     print_results(results_mean, results_std)
     print_detailed_vs_paper(results_mean)
 
-    # Summary counts (exclude RUSBoost — no paper targets)
+    # Summary counts (exclude RUSBoost - no paper targets)
     total, ok, close = 0, 0, 0
     for method in TABLE_ORDER:
         if method == 'RUSBoost' or method not in results_mean.index:

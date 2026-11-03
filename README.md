@@ -74,38 +74,38 @@ In the stored uniform-protocol results, 42 of 143 rows pass. In the final table,
 
 ```
 .
-├── README.md                              this file
-├── REPORT.md                              full forensic report (thesis manuscript)
-├── CITATION.cff                           citation metadata
-├── LICENSE                                MIT License
-├── requirements.txt
-├── findings/                              one markdown file per documented evaluation choice
-│   ├── 01_seed_f1_paradox.md
-│   ├── 02_test_set_leakage_gan.md
-│   ├── 03_per_cell_thresholds.md
-│   ├── 04_subzero_ap_threshold.md
-│   ├── 05_majority_class_ap.md
-│   ├── 06_ap_via_roc_auc_score.md
-│   ├── 07_asymmetric_boosting_weight_update.md
-│   └── 08_inverted_training_labels.md
-├── 01_PSDAS/                              Predict Students Dropout and Academic Success (n=4424,  IR=4.57)
-├── 02_ESR/                                Epileptic Seizure Recognition                  (n=11500, IR=4.00)
-├── 03_DCCC/                               Default of Credit Card Clients                 (n=30000, IR=3.52)
-├── 04_BCW/                                Breast Cancer Wisconsin (Diagnostic)           (n=569,   IR=1.68)
-├── 05_ESDRP/                              Early Stage Diabetes Risk Prediction           (n=520,   IR=1.60)
-├── 06_CB/                                 Connectionist Bench - Sonar                    (n=208,   IR=1.14)
-├── 07_GLASS/                              Glass Identification                           (n=196,   IR=5.76)
-├── 08_ILPD/                               Indian Liver Patient Dataset                   (n=583,   IR=2.49)
-├── 09_SEED/                               Seeds (Wheat Varieties)                        (n=210,   IR=2.00)
-├── 10_WINE/                               Wine (UCI Wine recognition data, class 3 vs rest) (n=178,   IR=2.71)
-├── 11_YEAST5/                             Yeast - class 5 (ME2 site) vs rest             (n=1484,  IR=32.73)
-├── 12_YEAST5-ERL/                         Yeast - class ERL vs rest                      (n=1484,  IR=295.80)
-├── 13_CARGOOD/                            Car Evaluation - good class                    (n=1728,  IR=24.04)
-├── 14_CARVGOOD/                           Car Evaluation - very good class               (n=1728,  IR=25.58)
-├── 15_FLARE-F/                            Solar Flare - F class                          (n=1066,  IR=23.79)
-├── combined_codes/                        unified framework from an earlier snapshot (see its README)
-├── exact_replication/                     uniform-protocol engine (Track 1) and its Colab variants for ESR and DCCC
-└── results/                               audit tables of record, uniform-protocol records, HUE re-run, superseded files (see results/README.md)
++-- README.md                              this file
++-- REPORT.md                              full forensic report (thesis manuscript)
++-- CITATION.cff                           citation metadata
++-- LICENSE                                MIT License
++-- requirements.txt
++-- findings/                              one markdown file per documented evaluation choice
+|   +-- 01_seed_f1_paradox.md
+|   +-- 02_test_set_leakage_gan.md
+|   +-- 03_per_cell_thresholds.md
+|   +-- 04_subzero_ap_threshold.md
+|   +-- 05_majority_class_ap.md
+|   +-- 06_ap_via_roc_auc_score.md
+|   +-- 07_asymmetric_boosting_weight_update.md
+|   +-- 08_inverted_training_labels.md
++-- 01_PSDAS/                              Predict Students Dropout and Academic Success (n=4424,  IR=4.57)
++-- 02_ESR/                                Epileptic Seizure Recognition                  (n=11500, IR=4.00)
++-- 03_DCCC/                               Default of Credit Card Clients                 (n=30000, IR=3.52)
++-- 04_BCW/                                Breast Cancer Wisconsin (Diagnostic)           (n=569,   IR=1.68)
++-- 05_ESDRP/                              Early Stage Diabetes Risk Prediction           (n=520,   IR=1.60)
++-- 06_CB/                                 Connectionist Bench - Sonar                    (n=208,   IR=1.14)
++-- 07_GLASS/                              Glass Identification                           (n=196,   IR=5.76)
++-- 08_ILPD/                               Indian Liver Patient Dataset                   (n=583,   IR=2.49)
++-- 09_SEED/                               Seeds (Wheat Varieties)                        (n=210,   IR=2.00)
++-- 10_WINE/                               Wine (UCI Wine recognition data, class 3 vs rest) (n=178,   IR=2.71)
++-- 11_YEAST5/                             Yeast - class 5 (ME2 site) vs rest             (n=1484,  IR=32.73)
++-- 12_YEAST5-ERL/                         Yeast - class ERL vs rest                      (n=1484,  IR=295.80)
++-- 13_CARGOOD/                            Car Evaluation - good class                    (n=1728,  IR=24.04)
++-- 14_CARVGOOD/                           Car Evaluation - very good class               (n=1728,  IR=25.58)
++-- 15_FLARE-F/                            Solar Flare - F class                          (n=1066,  IR=23.79)
++-- combined_codes/                        unified framework from an earlier snapshot (see its README)
++-- exact_replication/                     uniform-protocol engine (Track 1) and its Colab variants for ESR and DCCC
++-- results/                               audit tables of record, uniform-protocol records, HUE re-run, superseded files (see results/README.md)
 ```
 
 IR = Imbalance Ratio (majority count divided by minority count).

@@ -358,7 +358,7 @@ def compute_metrics_gan(pte_u, ptr_u, porig_u, pte_s, ptr_s, porig_s,
 # MAIN
 def main():
     log("=" * 80)
-    log("CarVGood 100-fold Replication — All 10 methods")
+    log("CarVGood 100-fold Replication \u2014 All 10 methods")
     log("=" * 80)
 
     X, y = load_data(DATA_PATH)
@@ -487,7 +487,7 @@ def main():
 
     # Final results
     log("\n" + "=" * 80)
-    log("FINAL RESULTS — CarVGood 100-fold Replication")
+    log("FINAL RESULTS \u2014 CarVGood 100-fold Replication")
     log("=" * 80)
 
     for method in methods:

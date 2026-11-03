@@ -20,7 +20,7 @@ Two metric protocols computed in parallel for every method:
 
 Both protocols use threshold=0.5, no other tuning.
 
-Datasets: 5 smallest — WINE, GLASS, CB, SEED, BCW.
+Datasets: 5 smallest - WINE, GLASS, CB, SEED, BCW.
 
 Author: Sherwan Ali | Uskudar University
 Date: 2026-04-29
