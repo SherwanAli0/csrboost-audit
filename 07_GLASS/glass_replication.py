@@ -34,7 +34,7 @@ SEED = 42
 random.seed(SEED); np.random.seed(SEED)
 torch.manual_seed(SEED)
 
-# ── Paper Table — Glass row ──
+# -- Paper Table - Glass row --
 PAPER_TABLE = {
     'CSRBoost':        {'ACC': 95.80, 'AUC': 0.93, 'F1': 0.79, 'AP': 0.67, 'GMEAN': 0.90},
     'SMOTified-GAN':   {'ACC': 55.47, 'AUC': 0.89, 'F1': 0.55, 'AP': 0.65, 'GMEAN': 0.88},
@@ -50,7 +50,7 @@ PAPER_TABLE = {
 TABLE_ORDER = ['CSRBoost', 'SMOTified-GAN', 'GAN', 'ADASYN', 'Borderline-SMOTE',
                'SMOTE-Tomek', 'SMOTE-ENN', 'AdaBoost', 'RUSBoost', 'HUE']
 
-# ── Best configs from tuning ──
+# -- Best configs from tuning --
 BEST_CONFIGS = {
     'CSRBoost':        {'depth': None, 'n_est': 50, 'samp': 0.5, 'p': 1.0, 'thresh': 0.50,  # value taken from the exact-replication run (2026-06-18 swap): the structural config (untuned AdaBoost T=50, depth=None, thr 0.5) follows exact_replication_local.py, but this script's eval disposition here is NOT identical to the engine - it uses scaler='none' (engine fits StandardScaler), a per-fold seed (SEED+fold_idx, see L454) rather than the engine's fixed SEED=42, and proto 'T' which computes binary AUC/AP on hard labels (engine uses proba AUC/AP). So re-running will not reproduce the engine values exactly; the swapped values of record live in the report tables / spec / baseline.
                         'scaler': 'none', 'proto': 'T'},
@@ -78,7 +78,7 @@ BEST_CONFIGS = {
                         'scaler': 'none', 'proto': 'Tp_Ab'},
 }
 
-# ── GAN components ──
+# -- GAN components --
 class Generator(nn.Module):
     def __init__(self, latent_dim, out_dim):
         super().__init__()
@@ -103,7 +103,7 @@ class NNClassifier(nn.Module):
         self.net = nn.Sequential(
             nn.Linear(in_dim, 256), nn.ReLU(),
             nn.Linear(256, 128), nn.ReLU(),
-            nn.Linear(128, 1))  # NO activation — raw output, MAE loss
+            nn.Linear(128, 1))  # NO activation - raw output, MAE loss
     def forward(self, x): return self.net(x)
 
 class GANNNClassifier:
@@ -226,7 +226,7 @@ class CSRBoostClassifier(BaseEstimator, ClassifierMixin):
     def predict(self, X): return (self.predict_proba(X)[:, 1] >= self.thresh).astype(int)
 
 
-# ── Metric computation functions ──
+# -- Metric computation functions --
 def compute_metrics_T(yte, y_pred):
     """Protocol T: all test, binary AUC/AP."""
     return {'ACC': accuracy_score(yte, y_pred) * 100,
@@ -476,7 +476,7 @@ def main():
 
         all_rows.append({'Method': method, **avg, 'note': f'{mean_err:.1f}% [{tag}]'})
 
-    # ── Print final table ──
+    # -- Print final table --
     print(f"\n{'='*110}")
     print(f"{'Method':20s} | {'ACC':>7s} {'AUC':>6s} {'F1':>6s} {'AP':>6s} {'GM':>6s} | {'Paper ACC':>9s} {'AUC':>6s} {'F1':>6s} {'AP':>6s} {'GM':>6s} | {'Err':>8s}")
     print('-' * 110)
