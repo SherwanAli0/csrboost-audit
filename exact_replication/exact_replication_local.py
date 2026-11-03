@@ -301,7 +301,7 @@ PAPER_TABLE2 = {
         "CSRBoost": {"ACC": 99.83, "AUC": 0.99, "F1": 0.96, "AP": 0.92, "GMEAN": 0.99},
         "SMOTifiedGAN": {"ACC": 93.14, "AUC": 0.99, "F1": 0.93, "AP": 0.98, "GMEAN": 0.82},
         "GAN": {"ACC": 94.78, "AUC": 0.99, "F1": 0.95, "AP": 0.99, "GMEAN": 0.93},
-        "ADASYN": {"ACC": 99.88, "AUC": 0.99, "F1": 0.98, "AP": 0.97, "GMEAN": 0.98},
+        "ADASYN": {"ACC": 99.88, "AUC": 0.98, "F1": 0.98, "AP": 0.97, "GMEAN": 0.98},  # AUC 0.98 as printed in Table 2 (was 0.99; transcription correction, see results/README.md)
         "Borderline-SMOTE": {"ACC": 99.88, "AUC": 0.99, "F1": 0.99, "AP": 0.99, "GMEAN": 1.0},
         "SMOTE-Tomek": {"ACC": 99.94, "AUC": 0.99, "F1": 0.98, "AP": 0.97, "GMEAN": 0.99},
         "SMOTE-ENN": {"ACC": 99.88, "AUC": 0.99, "F1": 0.96, "AP": 0.93, "GMEAN": 0.98},

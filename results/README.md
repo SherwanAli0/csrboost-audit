@@ -38,7 +38,7 @@ The working folder contains many nested snapshots and archives. The files above 
 record") and checked against the top-level `results/` folder of the working tree (identical bytes)
 and the author's correction notice of 2026-06-01. Folders carrying `DO_NOT_USE` markers (the older
 nested `graduation project*` folders and the stale PDF) and `archive_*` folders were not used for
-numbers. The files in this folder are unmodified copies, except for the removal of a local path in
+numbers. These started as copies of the author's files. The current paper-reference correction below is applied to the engine, paper table, audit table, uniform comparison and passing-row specification; replicated metrics are unchanged. Other copy adjustments were the removal of a local path in
 `final_audit_summary_20260425.txt`, a changed default root in `hue_canonical/hue_runner.py`, and a
 one-word comment edit in `../exact_replication/exact_replication_local.py`.
 
@@ -49,22 +49,22 @@ protocol back to the uniform-protocol values. `verify_summary.py` checks that th
 `_42_pass_cells_spec.csv` appear unchanged in `replication_audit_final_20260425.csv`. The `Replication_Source` column
 of the audit file still names an older results file for some of these rows.
 
-## One paper constant that differs from the printed table
+## Paper-reference correction
 
-CARVGOOD / ADASYN / AUC is 0.99 in `paper_values_final_20260425.csv`, the audit file, the baseline
-file and the engine. In the printed Table 2 it is 0.98 (read from the table image of a converted
-copy of the paper). The files were kept as the author has them; `verify_summary.py` uses 0.98 as a
-documented override. The row passes under both values.
+CARVGOOD / ADASYN / AUC reads **0.98** in the enlarged Table 2 paper image. The author's copies had 0.99. Current code and reference tables now contain 0.98; the associated error columns and row averages are recalculated. Replicated metric values are unchanged. The row remains PASS (about 0.813 percentage points); both headline row counts remain unchanged. Superseded files retain their historical values. Internal agreement is checked by `verify_summary.py`; this is not a fresh independent transcription of every paper entry.
 
-## Copy checksums
+## Verification levels
 
-MD5 of the copied files (first 12 characters), identical to the author's originals:
+`verify_summary.py` checks arithmetic and internal agreement of stored tables, including 143/143 row averages, 42/143 uniform-protocol rows, and 631/715 individual metrics. Its MAE summary covers the 15 CSRBoost rows only. `combined_codes/compare_configs.py` checks selected source configuration fields statically. Neither script trains models; no model runs were repeated in this repair pass, and the 101 tuned rows have not been regenerated.
 
-| File | MD5 |
+## Current table checksums
+
+SHA-256 after normalizing CRLF line endings to LF (also printed by `verify_summary.py`):
+
+| File | SHA-256 |
 |---|---|
-| `replication_audit_final_20260425.csv` | aa7f7100c5d0 |
-| `paper_values_final_20260425.csv` | 288981ca5e8a |
-| `replication_values_final_20260425.csv` | 405aae763da7 |
-| `exact_replication/baseline_phase1_comparison.csv` | 01b6c97f51de |
-| `exact_replication/baseline_phase1_results_only.csv` | b37f330504a4 |
-| `exact_replication/_42_pass_cells_spec.csv` | 08c3e5b4442e |
+| `replication_audit_final_20260425.csv` | `100b4a2438a750dadce2e3fbe00fe040c328689199814737af0ad462c44038c9` |
+| `paper_values_final_20260425.csv` | `4e0bb95ae8404fa2d0cffe2e690765d301120777c78b0abd87c0ba42be32263a` |
+| `exact_replication/baseline_phase1_comparison.csv` | `f2a3f440293b7bb30734bba2197eacf081b6e2f7c8ff398562b823900ed47728` |
+
+These identify the current corrected tables, not byte-identical copies of the author's originals.
