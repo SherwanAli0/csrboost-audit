@@ -28,25 +28,30 @@ The gap between **29.4 percent** (from the paper as written) and **100 percent**
 
 ## Match criterion
 
-The "within 3 percent" criterion used throughout this repository is a **row-level average absolute error in percentage points**, not a relative error and not a per-metric tolerance. It is defined in the code (`PASS_THRESHOLD_PCT` and `compare_to_paper` in `combined_codes/combined_replication.py`; the `err = (...) / 5` block at the end of each per-dataset script) and was re-checked against `results/replication_results.csv`.
+The "within 3 percent" criterion used throughout this repository is a **row-level average absolute error in percentage points**, not a relative error and not a per-metric tolerance. It is defined in the code (`PASS_THRESHOLD_PCT` and `compare_to_paper` in `combined_codes/combined_replication.py`; the `err = (...) / 5` block at the end of each per-dataset script) and was re-checked against `results/replication_audit_final_20260425.csv` and `results/exact_replication/baseline_phase1_comparison.csv`.
 
 - **Unit of count ("cell").** One counted unit is one (dataset, algorithm) result row, not one individual metric. There are 15 datasets x 10 algorithms = 150 rows, of which 7 are not reported in the paper and are excluded (PSDAS/RUSBoost, ESR/RUSBoost, DCCC/RUSBoost, CB/ADASYN, YEAST5-ERL/SMOTified-GAN, YEAST5-ERL/GAN, YEAST5-ERL/ADASYN). The denominator 143 is therefore 143 rows, each carrying five metrics (715 metric values). Elsewhere in this repository "cell" means such a row.
 - **Per-metric error.** Accuracy is stored in percent: `e_ACC = |ACC_rep - ACC_paper|` in percentage points. AUC, F1, AP and G-Mean are stored on a 0 to 1 scale: `e_m = |m_rep - m_paper| x 100`, also in percentage points. These are absolute differences; no division by the paper value is involved, so there is no zero-denominator case.
 - **Aggregation.** `avg_err = (e_ACC + e_AUC + e_F1 + e_AP + e_GMean) / 5`, computed on the mean of each metric over the evaluation folds (not per fold).
-- **Decision.** A row matches if `avg_err < 3`. The per-dataset scripts use a strict `< 3`; `combined_replication.py` uses `<= 3.0`. No committed row sits exactly on the boundary (largest recomputed value: 2.978, ESR/ADASYN), so both give the same 143 of 143.
-- **Rounding.** Paper values have two decimals. Replicated values are stored to two decimals (ACC) or four decimals (other metrics) and `Avg_Error` in `results/replication_results.csv` is rounded to one decimal, so ESR/ADASYN (2.978) is displayed as "3.0%" yet is PASS. Recomputing from the stored columns agrees with the stored `Avg_Error` to within 0.05.
-- **Consequence.** Because the average is taken across five metrics, an individual metric can exceed 3 percentage points while the row still matches (for example CARGOOD/CSRBoost G-Mean is 5.78 points from the paper value used in `PAPER_TABLE`, with a row average of 2.29). The criterion does not assert that every metric is within 3 percent.
-- **Not a relative error, and the scripts are not fully uniform.** Reading the same five metrics as relative errors (`|rep - paper| / paper x 100`) would give only 112 of 143 rows below 3 (FLARE-F 0 of 10), so the definition matters. The committed table follows the absolute definition above. The BCW script (`04_BCW/bcw_final_replication.py`) prints its per-metric comparison and its final per-method `avg=...` line as relative percentages, and the YEAST5-ERL script uses `<= 3`; the other scripts use the absolute definition with `< 3`. The relative-error figures printed by the BCW script are therefore not comparable with `results/replication_results.csv`.
+- **Decision.** A row matches if `avg_err < 3`. The tuned-track audit applies a strict `< 3` (the per-dataset scripts do the same); the uniform-protocol comparison scripts of the author apply `<= 3.0`; `combined_replication.py` uses `<= 3.0`. No committed row sits on the boundary (largest recomputed value in the tuned-track table: 2.942, YEAST5/CSRBoost), so the choice does not change any count.
+- **Rounding.** Paper values have two decimals. Replicated values are stored to two decimals (ACC) or four decimals (other metrics), and in the tuned-track table `Average_Error(%)` is stored with up to four decimals. Recomputing from the row's own columns agrees with the stored value to within 0.003.
+- **Consequence.** Because the average is taken across five metrics, an individual metric can exceed 3 percentage points while the row still matches (for example CARGOOD/CSRBoost G-Mean is 5.78 points from the paper value, with a row average of 2.53). The criterion does not assert that every metric is within 3 percent.
+- **Not a relative error, and the scripts are not fully uniform.** Reading the same five metrics as relative errors (`|rep - paper| / paper x 100`) would give only 114 of 143 rows below 3 (FLARE-F 0 of 10), so the definition matters. The committed tables follow the absolute definition above. The BCW script (`04_BCW/bcw_final_replication.py`) prints its per-metric comparison and its final per-method `avg=...` line as relative percentages and the YEAST5-ERL script uses `<= 3`; the other scripts use the absolute definition. The relative figures printed by the BCW script are therefore not comparable with the tables in `results/`.
 - **Reproduce the arithmetic** (pandas only, no model training): `python results/verify_summary.py`.
 
 ## Evidence status of the two headline counts
 
+Files of record (copied from the author's final submission folder; `results/README.md` lists them, explains how the author's folder was ranked, and names what is superseded):
+
 | Count | Committed evidence | Status |
 |---|---|---|
-| 143 of 143 rows match (Track 2) | `results/replication_results.csv` (143 evaluated rows, 7 N/A, `Status` = PASS for all 143). Recomputed from its own columns with `python results/verify_summary.py`: all 143 below 3 (largest 2.978). Its paper columns equal `PAPER_TABLE` in `combined_codes/BEST_CONFIGS.py` for all 143 rows. | Arithmetic verified from the committed table. It holds relative to those paper constants only (see the note on paper constants below). The replication values were not regenerated in this pass. |
-| 42 of 143 rows match under one uniform protocol (Track 1), CSRBoost 10 of 15 | No per-row record of the uniform-protocol run is committed. The files named in code comments (`scripts/exact_replication_local.py`, `results/replication_audit_final_20260425.csv`) are not in this repository. | Not traceable to a committed artifact. The ratio itself is internally consistent (42/143 = 29.4 percent; 10 + 32 = 42; 143 - 42 = 101). The same applies to the Test 1 and Test 2 percentages in REPORT.md Section 5.4. |
+| 143 of 143 rows match (tuned track) | `results/replication_audit_final_20260425.csv` (150 rows: 143 evaluated, 7 N/A, `Status` = PASS for all 143), with `paper_values_final_20260425.csv`, `replication_values_final_20260425.csv` and `final_audit_summary_20260425.txt`. | Recomputed by `python results/verify_summary.py`: 143 rows below 3 (largest 2.942). The replicated values were not regenerated in this pass. 42 of the 143 rows carry the values of the uniform-protocol run (next row), not separately tuned values; the other 101 are tuned values. |
+| 42 of 143 rows match under one uniform protocol, CSRBoost 10 of 15 | The engine `exact_replication/exact_replication_local.py` (plus the Colab variants for ESR and DCCC), the row-level result table `results/exact_replication/baseline_phase1_comparison.csv` (and `baseline_phase1_results_only.csv`), and the 42 passing rows in `results/exact_replication/_42_pass_cells_spec.csv`. | Recomputed by `verify_summary.py`: 42 PASS, 101 FAIL, 7 N/A (42/143 = 29.4 percent). CSRBoost passes on PSDAS, ESR, BCW, CB, ESDRP, ILPD, GLASS, WINE, YEAST5 and CARVGOOD (10) and fails on DCCC, SEED, YEAST5-ERL, CARGOOD and FLARE-F; the other nine algorithms pass 32 rows in total. The per-fold raw outputs of that run are not in this repository, so the table was recomputed, not regenerated. |
+| Test 1 (14.9 and 25.1 percent) and Test 2 (43.6 percent), REPORT.md Section 5.4 | Described in the author's thesis text (its Sections 5.4.2 and 5.4.3). The raw per-cell file is only in an older, superseded folder of the author's workspace and is not included here. | Not traceable to a committed artifact. |
 
-**Paper constants are not uniform across the committed files.** The per-dataset scripts, `PAPER_TABLE`/`replication_results.csv` (described as the corrected constants), and the CSRBoost table below (taken from `results/csrboost_replication_results.csv`) disagree in places. The scripts and `PAPER_TABLE` differ in 27 metric entries across 23 rows; using the script constants instead, two rows would not meet the criterion (YEAST5-ERL/AdaBoost 3.72 and YEAST5-ERL/RUSBoost 4.43), i.e. 141 of 143. The largest single disagreements are ESR/ADASYN accuracy (script 89.95, `PAPER_TABLE` 99.95; this one decides whether that row is at 0.98 or at 2.98) and DCCC/CSRBoost AP (script 0.29, `PAPER_TABLE` 0.39). Which constants match Table 2 of Yadav et al. has not been checked against the paper in this pass and is listed as an open question for the author.
+**How the two tracks relate.** On 2026-06-18 the author set the tuned-track values of the 42 rows that pass the uniform protocol back to the uniform-protocol values (the "honesty swap"), so that the tuned table does not claim tuning where none was needed. The per-dataset scripts in the numbered folders therefore do not regenerate those 42 stored values (comments in the scripts say so). For the other 101 rows the repository holds the stored values and the scripts used to tune them; no re-run was done to confirm that the scripts regenerate them. `Replication_Source` in the audit file still names an older results file for some of the 42 swapped rows.
+
+**Paper constants.** The paper values used in the comparison were re-checked against the image of Table 2 in a converted copy of the paper (numbers only were compared, all 143 rows). The constants in `exact_replication_local.py`, `paper_values_final_20260425.csv` and the per-dataset scripts agree with the printed table in every row except one: CARVGOOD/ADASYN AUC is 0.98 in the printed table and 0.99 in those files (it is 0.98 in `combined_codes/BEST_CONFIGS.py`). The author's files were left as they are; `verify_summary.py` applies 0.98 as a documented override, the CARVGOOD script now has 0.98, and the row matches under either value (average error 0.81 instead of 0.93). Older copies of the constants (the first version of `combined_codes/BEST_CONFIGS.py` and the superseded CSVs in `results/`) carried 24 mis-transcribed cells, which the author had already corrected on 2026-06-01: PSDAS Borderline-SMOTE G-Mean (0.58 instead of 0.59), PSDAS SMOTE-ENN ACC (72.76 instead of 72.67), ESR ADASYN ACC (99.95 instead of 89.95), DCCC CSRBoost AP (0.39 instead of 0.29), DCCC SMOTE-ENN F1 (0.41 instead of 0.45), CB SMOTE-Tomek ACC (78.38 instead of 78.37), CB AdaBoost AP (0.68 instead of 0.66), CB RUSBoost F1 (0.78 instead of 0.80), ESDRP GAN AUC and F1 (0.99 and 0.93 instead of 0.98 and 0.92), GLASS SMOTified-GAN G-Mean (0.90 instead of 0.88), GLASS RUSBoost G-Mean (0.92 instead of 0.94), WINE SMOTified-GAN ACC (99.67 instead of 96.67), WINE AdaBoost ACC (98.98 instead of 98.89), CARGOOD CSRBoost AP (0.68 instead of 0.66), CARVGOOD AdaBoost G-Mean (0.93 instead of 0.99), YEAST5 GAN AP (0.45 instead of 0.46), YEAST5 ADASYN AP and G-Mean (0.56 and 0.66 instead of 0.57 and 0.88), YEAST5 SMOTE-ENN F1, AP and G-Mean (0.76, 0.59 and 0.90 instead of 0.75, 0.60 and 0.97), FLARE-F ADASYN ACC (94.65 instead of 94.56) and FLARE-F Borderline-SMOTE G-Mean (0.51 instead of 0.47). The author's correction note lists a 25th change, CARVGOOD ADASYN AUC from 0.98 to 0.99; the printed table shows 0.98, so that change is not supported by the table image. The reading of the table image was done by eye on enlarged crops and should be confirmed against the original PDF.
 
 ## Headline result
 
@@ -96,7 +101,9 @@ Under the paper as written, only 29.4 percent of Table 2 reproduces. The full ta
 ├── 13_CARGOOD/                            Car Evaluation - good class                    (n=1728,  IR=24.04)
 ├── 14_CARVGOOD/                           Car Evaluation - very good class               (n=1728,  IR=25.58)
 ├── 15_FLARE-F/                            Solar Flare - F class                          (n=1066,  IR=23.79)
-└── results/                               full replication results CSV (all datasets, all methods)
+├── combined_codes/                        unified framework from an earlier snapshot (see its README)
+├── exact_replication/                     uniform-protocol engine (Track 1) and its Colab variants for ESR and DCCC
+└── results/                               audit tables of record, uniform-protocol records, HUE re-run, superseded files (see results/README.md)
 ```
 
 IR = Imbalance Ratio (majority count divided by minority count).
@@ -148,7 +155,7 @@ Notes:
 ## Evaluation protocol
 
 - Cross-validation: RepeatedStratifiedKFold with 5 splits times 20 repeats = 100 train/test evaluations per dataset (5-fold CV repeated 20 times; not 100-fold CV). Seed 42 (`random_state=SEED`) in every script.
-  - Stored-result discrepancy for four datasets: the `CV_Folds` column of `results/csrboost_replication_results.csv` records 20 evaluations (5 splits times 4 repeats) for PSDAS, ESR, SEED and FLARE-F, while the committed scripts for those datasets set 20 repeats (100 evaluations) and the PSDAS script header still says "5x4 = 20 folds". Which setting produced the stored numbers for those four datasets cannot be determined from the repository; running the scripts as committed uses 100.
+  - Earlier versions of this README said that PSDAS, ESR, SEED and FLARE-F used 5 splits times 4 repeats = 20 evaluations, because a `CV_Folds` column in a superseded CSV said 20 for them. No file in the author's final submission supports that: the final per-dataset scripts, the uniform-protocol engine and its Colab variants for ESR and DCCC all use 20 repeats, and the final READMEs of the author say 100 evaluations for every dataset. Which setting produced the stored values for those four datasets cannot be proven from the repository (the stored values of 95 rows are labelled as coming from an older results file), so the committed code and records are taken at their word: 100 evaluations. The origin of the old `CV_Folds` column is unknown.
 - Metrics: Accuracy (percent), AUC-ROC, F1-Score, Average Precision (AP), G-Mean.
 - Threshold: default 0.5 for all methods unless explicitly overridden in the script.
 - Preprocessing: StandardScaler fitted on the training fold only and applied to the test fold (no leakage).
@@ -158,42 +165,42 @@ Notes:
 
 Under the paper's stated CSRBoost protocol (KMeans clustering with 50 percent per-cluster random under-sampling, SMOTE oversampling, AdaBoost with 50 estimators and a 0.5 threshold, standard probability-based metrics, evaluation on the held-out test fold) applied uniformly, CSRBoost reproduces within 3 percent on **10 of the 15** datasets. The other 5 (DCCC, SEED, YEAST5-ERL, CARGOOD, FLARE-F) do not reproduce under this standard protocol; matching the paper on them requires the same kinds of non-standard evaluation choices catalogued for the comparator algorithms (AUC and AP from binary predictions, training-set evaluation, weakened base trees, and shifted thresholds).
 
-The table below shows CSRBoost after the per-cell reverse-engineering is applied, which brings it within 3 percent on all 15 datasets:
+The table below lists the 15 CSRBoost rows of the tuned-track table of record (`results/replication_audit_final_20260425.csv`). "Source" says which run produced the replicated values: for the 10 datasets on which CSRBoost passes the uniform protocol, the values are those of the uniform-protocol run (the 2026-06-18 swap described under "Evidence status"); the other 5 (DCCC, SEED, YEAST5-ERL, CARGOOD, FLARE-F) are tuned values. "Avg err" is the criterion of the Match criterion section, in percentage points.
 
-| Dataset | Paper ACC | Our ACC | Paper AUC | Our AUC | Paper F1 | Our F1 | Paper AP | Our AP | Paper GMean | Our GMean |
-|---------|-----------|---------|-----------|---------|----------|--------|----------|--------|-------------|-----------|
-| PSDAS | 72.85% | 72.19% | 0.66 | 0.6391 | 0.40 | 0.397 | 0.25 | 0.2544 | 0.63 | 0.6254 |
-| ESR | 92.05% | 91.10% | 0.90 | 0.8910 | 0.80 | 0.7940 | 0.67 | 0.6630 | 0.89 | 0.8900 |
-| DCCC | 68.32% | 69.00% | 0.64 | 0.6358 | 0.42 | 0.4349 | 0.29 | 0.2987 | 0.62 | 0.6282 |
-| BCW | 94.37% | 92.94% | 0.94 | 0.9273 | 0.90 | 0.9065 | 0.84 | 0.8539 | 0.92 | 0.9267 |
-| ESDRP | 97.12% | 96.28% | 0.97 | 0.9622 | 0.96 | 0.9522 | 0.93 | 0.9233 | 0.97 | 0.9620 |
-| CB | 76.43% | 76.54% | 0.76 | 0.7510 | 0.69 | 0.6762 | 0.63 | 0.7179 | 0.71 | 0.7164 |
-| GLASS | 95.33% | 94.59% | 0.91 | 0.9170 | 0.79 | 0.8276 | 0.69 | 0.7206 | 0.91 | 0.9129 |
-| ILPD | 66.72% | 66.22% | 0.64 | 0.6323 | 0.49 | 0.4869 | 0.37 | 0.3718 | 0.63 | 0.6254 |
-| SEED | 98.10% | 98.39% | 0.98 | 0.9879 | 0.96 | 0.9647 | 0.93 | 0.9319 | 0.96 | 0.9626 |
-| WINE | 99.81% | 99.78% | 1.00 | 0.9978 | 0.94 | 0.9439 | 0.91 | 0.9121 | 0.96 | 0.9599 |
-| YEAST5 | 98.32% | 98.16% | 0.93 | 0.9312 | 0.71 | 0.7142 | 0.54 | 0.5387 | 0.89 | 0.8899 |
-| YEAST5-ERL | 99.93% | 99.88% | 0.61 | 0.6050 | 0.47 | 0.4700 | 0.47 | 0.4718 | 0.47 | 0.4700 |
-| CARGOOD | 98.90% | 95.79% | 0.99 | 0.9859 | 0.80 | 0.8175 | 0.68 | 0.6758 | 0.92 | 0.9778 |
-| CARVGOOD | 99.94% | 99.94% | 0.98 | 0.9836 | 0.96 | 0.9598 | 0.93 | 0.9255 | 1.00 | 0.9977 |
-| FLARE-F | 93.43% | 93.62% | 0.67 | 0.6339 | 0.22 | 0.2011 | 0.10 | 0.1008 | 0.48 | 0.4670 |
+| Dataset | Paper ACC | Our ACC | Paper AUC | Our AUC | Paper F1 | Our F1 | Paper AP | Our AP | Paper GMean | Our GMean | Avg err | Source |
+|---------|-----------|---------|-----------|---------|----------|--------|----------|--------|-------------|-----------|---------|--------|
+| PSDAS | 72.85% | 72.58% | 0.66 | 0.6400 | 0.40 | 0.4000 | 0.25 | 0.2600 | 0.63 | 0.6300 | 0.65 | uniform protocol |
+| ESR | 92.05% | 91.78% | 0.90 | 0.8919 | 0.80 | 0.8051 | 0.67 | 0.6805 | 0.89 | 0.8908 | 0.54 | uniform protocol |
+| DCCC | 68.32% | 69.00% | 0.64 | 0.6358 | 0.42 | 0.4349 | 0.29 | 0.2987 | 0.62 | 0.6282 | 0.86 | tuned |
+| BCW | 94.37% | 92.35% | 0.94 | 0.9222 | 0.90 | 0.8994 | 0.84 | 0.8420 | 0.92 | 0.9218 | 0.85 | uniform protocol |
+| ESDRP | 97.31% | 96.14% | 0.97 | 0.9602 | 0.95 | 0.9502 | 0.92 | 0.9213 | 0.96 | 0.9600 | 0.46 | uniform protocol |
+| CB | 76.43% | 70.80% | 0.76 | 0.7063 | 0.69 | 0.6828 | 0.63 | 0.6251 | 0.71 | 0.7009 | 2.62 | uniform protocol |
+| GLASS | 95.80% | 93.21% | 0.93 | 0.8948 | 0.79 | 0.7844 | 0.67 | 0.6610 | 0.90 | 0.8889 | 1.74 | uniform protocol |
+| ILPD | 66.72% | 64.59% | 0.66 | 0.6195 | 0.48 | 0.4730 | 0.36 | 0.3601 | 0.62 | 0.6133 | 1.51 | uniform protocol |
+| SEED | 98.10% | 98.39% | 0.98 | 0.9879 | 0.96 | 0.9647 | 0.93 | 0.9319 | 0.97 | 0.9626 | 0.50 | tuned |
+| WINE | 98.86% | 96.49% | 0.98 | 0.9587 | 0.93 | 0.9358 | 0.88 | 0.8980 | 0.95 | 0.9574 | 1.52 | uniform protocol |
+| YEAST5 | 98.32% | 97.60% | 0.93 | 0.8797 | 0.69 | 0.6571 | 0.50 | 0.4645 | 0.89 | 0.8688 | 2.94 | uniform protocol |
+| YEAST5-ERL | 99.93% | 99.88% | 0.60 | 0.6050 | 0.47 | 0.4700 | 0.43 | 0.4718 | 0.55 | 0.4700 | 2.55 | tuned |
+| CARGOOD | 98.90% | 95.79% | 0.99 | 0.9859 | 0.80 | 0.8175 | 0.66 | 0.6758 | 0.92 | 0.9778 | 2.53 | tuned |
+| CARVGOOD | 99.83% | 99.74% | 0.99 | 0.9883 | 0.96 | 0.9658 | 0.92 | 0.9364 | 0.99 | 0.9879 | 0.54 | uniform protocol |
+| FLARE-F | 93.43% | 93.62% | 0.67 | 0.6339 | 0.22 | 0.2011 | 0.10 | 0.1008 | 0.48 | 0.4670 | 1.41 | tuned |
 
-Mean absolute error against published values across the 15 datasets (after reverse-engineering):
+Mean absolute error against the printed values across these 15 rows:
 
-| Metric | Mean Absolute Error (table above, 15 rows) |
+| Metric | Mean Absolute Error |
 |--------|---------------------|
-| Accuracy | 0.65 percentage points |
-| AUC | 0.0092 |
-| F1-Score | 0.0095 |
+| Accuracy | 1.44 percentage points |
+| AUC | 0.0210 |
+| F1-Score | 0.0084 |
 | Average Precision | 0.0118 |
-| G-Mean | 0.0078 |
+| G-Mean | 0.0151 |
 
-**Correction note (2026 repair pass).** Two things in this section were corrected.
+(`python results/verify_summary.py` prints these.) They are larger for accuracy, AUC and G-Mean than in earlier versions of this README because 10 of the rows now carry the uniform-protocol values, which sit further from the paper than separately tuned values did.
 
-1. *CARGOOD paper values.* The CARGOOD row previously listed paper values 98.21 / 0.98 / 0.95 / 0.98 / 0.97 (ACC / AUC / F1 / AP / G-Mean). Those numbers appear only in the draft file `results/csrboost_replication_results.csv`. The per-dataset script (`13_CARGOOD/cargood_replication.py`), `PAPER_TABLE` and `results/replication_results.csv` all give ACC 98.90, AUC 0.99, F1 0.80 and G-Mean 0.92, with AP 0.68 in `PAPER_TABLE` and `replication_results.csv` and 0.66 in the script. The row now shows those values (AP from `PAPER_TABLE`). With the old printed values the row's average error would have been 9.49 points, contradicting the "within 3 percent" statement; with the corrected values it is 2.29 (2.53 if the script's AP of 0.66 is used), so the row meets the criterion as defined under [Match criterion](#match-criterion). No replicated value was changed. Individual CARGOOD metrics are still far apart (F1 differs by 1.75 points, G-Mean by 5.78), which the row average hides.
-2. *Mean absolute errors.* The previously stated values (0.49 / 0.0091 / 0.0089 / 0.0118 / 0.0043) could not be reproduced from any combination of the committed files that was tried. The table above now reports the values recomputed from the 15 rows as printed. Using only `results/replication_results.csv` (replicated and paper values from the same file) the same quantities are 0.80 / 0.0151 / 0.0123 / 0.0269 / 0.0158 (`python results/verify_summary.py`). The larger errors are not a change in the experiment; they are what the stored numbers give.
+**Correction note (2026 repair pass).**
 
-Remaining discrepancies not resolved here: the "Paper" columns of the rows DCCC (AP), ESDRP (ACC), GLASS (ACC, AUC, AP), ILPD (AUC), WINE (ACC, AUC, AP), YEAST5 (F1, AP), YEAST5-ERL (AP, G-Mean) and CARVGOOD (ACC) in the table above differ from `PAPER_TABLE`, and the "Our" columns for YEAST5 and CARVGOOD match `results/csrboost_replication_results.csv` but not `results/replication_results.csv` (for example YEAST5 accuracy 98.16 versus 97.60). These rows are left as printed because the committed files do not show which value is correct; they need checking against the original paper and the original run logs. Even so, no row in the table has an average error of 3 or more under either set of paper constants (largest: CB 2.36 with the printed values, YEAST5-ERL 2.55 with the `PAPER_TABLE` constants).
+1. *This table was rebuilt from the file of record.* The previous version mixed replicated values from an earlier, superseded results file with paper values from a still earlier draft. That mixture contained wrong CARGOOD paper values (98.21 / 0.98 / 0.95 / 0.98 / 0.97 instead of 98.90 / 0.99 / 0.80 / 0.66 / 0.92), which made the CARGOOD row look like a 9.49 point average error and contradict the "within 3 percent" statement. With the printed paper values the row is at 2.53 (its G-Mean is still 5.78 points away and its F1 1.75, which the row average hides). Nine other rows had paper cells that disagreed with the printed table or with each other (DCCC AP, ESDRP ACC, GLASS ACC/AUC/AP, ILPD AUC, WINE ACC/AUC/AP, YEAST5 F1/AP, YEAST5-ERL AP/G-Mean, CARVGOOD ACC), and the pre-swap replicated values of CSRBoost on several datasets were still shown (for example CB 76.54 / 0.7510 / 0.6762 / 0.7179 / 0.7164, where the audit table has 70.80 / 0.7063 / 0.6828 / 0.6251 / 0.7009). No replicated value was edited: the numbers shown are those of the file of record.
+2. *The previously stated mean absolute errors* (0.49 / 0.0091 / 0.0089 / 0.0118 / 0.0043) could not be reproduced from the file of record. They are close to what the author's earlier CSRBoost-only results file of 2026-04-19 gives (all 15 rows: ACC 0.487, AUC 0.0098, F1 0.0094, AP 0.0124, G-Mean 0.0046; without CARGOOD: ACC 0.474, AUC 0.0096, F1 0.0089, AP 0.0124, G-Mean 0.0043), so they most likely come from that or a similar earlier state, but the exact derivation could not be recovered. The figures were replaced by the recomputed values above.
 
 CSRBoost's core ranking ability is genuine, and it is the most reproducible method in the paper (10 of 15 datasets under the standard protocol, versus far lower rates for the comparators). But it is not exempt from the table's reproducibility problem: 5 of its own 15 cells reproduce only under undocumented choices. This supports the CSRBoost idea while confirming that the published Table 2, including parts of CSRBoost's own row, is not the output of a single uniform protocol.
 
@@ -218,9 +225,17 @@ For the full picture, including the two head-to-head experiments (single-uniform
 pip install -r requirements.txt
 ```
 
-Runtime and versions: the requirements are unpinned lower bounds and the versions used for the original runs were not recorded. In this repair pass only the arithmetic checks were run (Python 3.11, pandas 3.1.0, numpy 2.4.6); the replication scripts themselves were not re-run. `xlrd` is required to read `03_DCCC/DCCC.xls` (see `requirements.txt`). With pandas 3.x the ESDRP and ILPD scripts failed at data loading (string columns are no longer `object` dtype, so the label-encoding step was skipped and `astype(float)` raised `ValueError`); the check was changed to "not numeric", and the loaded arrays were confirmed identical to the pandas 2.2.3 output. Only the data-loading functions were executed, not the experiments.
+Runtime and versions: the requirements are unpinned lower bounds and the versions used for the original runs were not recorded. In this repair pass only the arithmetic checks were run (Python 3.11, pandas 3.1.0, numpy 2.4.6); the replication scripts themselves were not re-run. `xlrd` is required to read `03_DCCC/DCCC.xls` (see `requirements.txt`). With pandas 3.x the ESDRP and ILPD scripts failed at data loading (string columns are no longer `object` dtype, so the label-encoding step was skipped and `astype(float)` raised `ValueError`); the check was changed to "not numeric", and the loaded arrays were confirmed identical to the pandas 2.2.3 output. Only the data-loading functions were executed, not the experiments. The scripts in the numbered folders are the author's final versions; for the 42 rows that carry uniform-protocol values they do not regenerate the stored numbers (see "Evidence status").
 
-Run any dataset script:
+Run the uniform-protocol (Track 1) engine, which reads the datasets from the numbered folders, for one or more datasets (the full run is long and was not repeated in this repair pass):
+
+```bash
+python exact_replication/exact_replication_local.py --datasets PSDAS BCW
+```
+
+(ESR and DCCC were run with the Colab variants `exact_replication_colab_ESR.py` and `exact_replication_colab_DCCC.py`.)
+
+Run any tuned-track dataset script:
 
 ```bash
 cd 04_BCW
@@ -254,7 +269,7 @@ GAN-based methods require PyTorch. They are significantly slower without a GPU.
 - ITQ (Iterative Quantization) applied to majority-class PCA projection.
 - Majority samples assigned to subspace codes; one balanced subsample per subspace.
 - Base classifier: DecisionTreeClassifier or ExtraTreesClassifier, depending on the script (ExtraTrees appears in the ESR, BCW, ESDRP and CB scripts; PSDAS and DCCC use decision trees).
-- The ITQ/PCA code path exists in the PSDAS, ESR, DCCC, BCW, ESDRP and CB scripts. The GLASS, SEED, WINE and YEAST5 to FLARE-F scripts instead run small bagged RandomForest ensembles (SMOTE per bag in GLASS and YEAST5 to FLARE-F, bootstrap in SEED and WINE) with no hashing step, and ILPD uses its own configuration. A comment in `10_WINE/wine_replication.py` says the WINE HUE values in the audit table came from a canonical ITQ implementation in the uniform-protocol track that is not included here, so the shipped WINE script is not the code that produced that stored row. The ITQ description above therefore does not apply to every dataset's HUE row; read the `HUE` branch of each script for what was actually run. (Checked by reading the HUE branch of each committed script and searching for `itq`, `rf_trees` and `n_rf`; the HUE implementations were not re-run.)
+- **Which HUE ran where.** The ITQ/PCA code path (the hashing ensemble described above) is used in the PSDAS, ESR, DCCC, BCW, ESDRP and CB scripts and in the uniform-protocol engine. In the tuned scripts for GLASS, ILPD, SEED, WINE, YEAST5, YEAST5-ERL, CARGOOD, CARVGOOD and FLARE-F, HUE is a small bagged RandomForest approximation with no hashing step (SMOTE per bag in most, bootstrap bags in SEED and WINE); the author's own re-run script `results/hue_canonical/hue_runner.py` describes them that way. That script re-ran the canonical ITQ-HUE on those nine datasets over 100 folds (outputs in `results/hue_canonical/outputs/`): only WINE is within 3 percent (average error 2.29); the others are not (ILPD 3.21, SEED 3.97, GLASS 5.75, FLARE-F 8.56, YEAST5 10.54, CARVGOOD 14.74, CARGOOD 14.85, YEAST5-ERL 16.83). So the stored tuned HUE rows of eight of those datasets are matched by the RandomForest approximation, not by the HUE of the original reference. For WINE, the stored HUE row is the uniform-protocol (canonical ITQ) value, and the WINE script, which runs the RandomForest approximation, does not regenerate it. The ITQ description above therefore does not apply to every dataset's HUE row; read the `HUE` branch of each script. (Checked by reading the committed scripts and the re-run outputs; the HUE implementations were not re-run here.)
 
 **GAN and SMOTified-GAN:**
 

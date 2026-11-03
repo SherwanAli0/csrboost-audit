@@ -70,7 +70,7 @@ and is far easier to review.
 
 ## Audit consistency
 
-`BEST_CONFIGS` and `PAPER_TABLE` are aligned with the 143/143 PASS audit table `results/replication_results.csv` (the dated file name `replication_audit_final_20260425.csv` used in earlier notes is not in this repository; the paper columns of `results/replication_results.csv` equal `PAPER_TABLE` for all 143 rows, checked by `python results/verify_summary.py`). The per-dataset scripts carry some different paper constants (27 metric entries across 23 rows), see the top-level README:
+**Provenance and status.** `BEST_CONFIGS.py` and `combined_replication.py` are identical to the copies in an older snapshot of the author's working folder (dated 2026-05-07, marked do-not-use on 2026-06-01 because it predates the paper-constant correction and the 2026-06-18 swap of 42 rows to uniform-protocol values). They are not part of the author's final submission. The per-cell configurations in `BEST_CONFIGS.py` therefore describe the earlier tuned state and were not checked here against the rows of `results/replication_audit_final_20260425.csv`; for example the CSRBoost configuration for CB differs from the one in the final `06_CB` script. `PAPER_TABLE` was corrected in this repair pass to the values printed in Table 2 (24 cells changed; the paper columns of the audit file equal it except CARVGOOD/ADASYN AUC, 0.99 there and 0.98 here and in the printed table), checked by `python results/verify_summary.py`. Treat this folder as historical; the code of record is in the numbered dataset folders and `../exact_replication/`.
 
 - 143 evaluated cells (one config per cell)
 - 7 N/A cells: PSDAS/RUSBoost, ESR/RUSBoost, DCCC/RUSBoost, CB/ADASYN,
