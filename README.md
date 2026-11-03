@@ -4,7 +4,7 @@
 > S. Yadav, S. Gupta, A. K. Yadav, and S. Gupta. *CSRBoost: Clustered Sampling With Resampling Boosting for Imbalanced Dataset Pattern Classification.* IEEE Access, 2025.
 > [DOI: 10.1109/ACCESS.2025.3616207](https://doi.org/10.1109/ACCESS.2025.3616207)
 
-[![License: MIT](https://img.shields.io/badge/license-MIT-yellow.svg)](LICENSE)
+[![License: MIT (code) + CC BY 4.0 (documentation)](https://img.shields.io/badge/license-MIT%20%28code%29%20%2B%20CC%20BY%204.0%20%28docs%29-yellow.svg)](LICENSE)
 [![Python 3.10+](https://img.shields.io/badge/python-3.10+-blue.svg)](https://www.python.org/downloads/)
 [![Status: thesis manuscript](https://img.shields.io/badge/status-thesis%20manuscript-orange.svg)](#status)
 
@@ -62,8 +62,8 @@ Files of record (copied from the author's final submission folder; `results/READ
 | Datasets covered | 15 of 15 |
 | Algorithms covered | 10 of 10 (per dataset, with paper-reported exclusions preserved) |
 | **Track 1 (exact)** - cells reproduced under one uniform standardized protocol | **42 of 143 (29.4%)** |
-| **Track 2 (reverse-engineered)** - cells reproduced after per-cell tuning | **143 of 143 (100%)** |
-| CSRBoost reproduced (exact protocol / after reverse-engineering) | **10 of 15 / 15 of 15 datasets** |
+| **Track 2 (stored final table)** - rows below 3 points row-average error (42 rows carry uniform-protocol values, 101 are tuned values not regenerated in this pass) | **143 of 143 (100%)** |
+| CSRBoost rows below 3 points (uniform protocol / stored final table; tuned rows not regenerated in this pass) | **10 of 15 / 15 of 15 datasets** |
 | Configurations searched (author's retrospective project-wide estimate) | approximately 75,000; not verified from committed logs |
 | Compute-hours (author's retrospective project-wide estimate) | 900 plus; not verified from committed logs |
 | Reverse-engineering effort | approximately 3 months (within a longer project begun in late 2025) |
@@ -77,7 +77,7 @@ In the stored uniform-protocol results, 42 of 143 rows pass. In the final table,
 +-- README.md                              this file
 +-- REPORT.md                              full forensic report (thesis manuscript)
 +-- CITATION.cff                           citation metadata
-+-- LICENSE                                MIT License
++-- LICENSE                                MIT (code) + CC BY 4.0 (documentation)
 +-- requirements.txt
 +-- findings/                              one markdown file per documented evaluation choice
 |   +-- 01_seed_f1_paradox.md
@@ -208,7 +208,7 @@ CSRBoost's core ranking ability is genuine, and it is the most reproducible meth
 
 ## What the comparison table actually requires
 
-Reproducing the rest of Table 2 (the seventeen-rows-by-ten-columns comparison table) was achievable only by mirroring cell-specific evaluation choices that disagree with each other across rows on the same dataset. The full per-(dataset, algorithm) configuration matrix is provided as Supplementary Material A, embedded as `combined_codes/BEST_CONFIGS.py` in the dataset scripts. Each entry documents the specific choice required to land that cell within the 3 percent tolerance. The findings live in [`findings/`](findings/), with one markdown file per documented evaluation choice. Highlights:
+Reproducing the rest of Table 2 (the seventeen-rows-by-ten-columns comparison table) was achievable only by mirroring cell-specific evaluation choices that disagree with each other across rows on the same dataset. `combined_codes/BEST_CONFIGS.py` is a historical snapshot (2026-05-07) of per-cell configurations. It is not embedded in the dataset scripts. It is partially checked against them by `combined_codes/compare_configs.py` (150 cells: 38 dictionary agreements, 24 dictionary differences, 40 partial static agreements, 4 static-literal differences, 37 unverified, 7 N/A). The configurations of record are in the 15 final per-dataset scripts. The findings live in [`findings/`](findings/), with one markdown file per documented evaluation choice. Highlights:
 
 1. **The SEED F1 inconsistency.** The paper reports F1 = 0.50 for ADASYN, Borderline-SMOTE, SMOTE-Tomek, SMOTE-ENN, and AdaBoost on SEED, but F1 = 0.98 for RUSBoost and HUE on the same data and folds. With one fixed set of classifier outputs, no single F1 averaging mode plus threshold gives both 0.50 and 0.98 (the seven methods are different classifiers, so this is not by itself a proof that the original experiments could not have produced both). The 0.50 vs 0.98 split is reproducible only when F1 averaging switches mid-table from `binary` for the resampling baselines to `weighted` or `macro` for RUSBoost and HUE. This is strong empirical evidence, not a mathematical proof, that the table is not the output of a uniform protocol; it does not show how the authors computed their numbers. See [`findings/01_seed_f1_paradox.md`](findings/01_seed_f1_paradox.md).
 2. **Test-set leakage on GAN-family methods.** GAN and SMOTified-GAN cells are reproducible only when evaluation includes augmented training data (with synthetic samples) rather than held-out test data. See [`findings/02_test_set_leakage_gan.md`](findings/02_test_set_leakage_gan.md).
