@@ -64,8 +64,18 @@ B. Documentation, Results, Findings, and Reports
 Copyright (c) 2026 Sherwan Ali
 
 This work is licensed under the Creative Commons Attribution 4.0
-International License. To view a copy of this license, visit
-https://creativecommons.org/licenses/by/4.0/
+International License.
+
+Files covered by this Section B: all .md files (README.md, REPORT.md,
+findings/, combined_codes/README.md), the results CSV files, the
+combined_replication.docx document, and the research notes in this
+repository, except for the material described in Section C.
+
+The full legal code of the license is in the file
+LICENSE-CC-BY-4.0.txt at the root of this repository (an unmodified
+copy of the official text). That file contains the complete terms and
+governs; the summary below is for convenience only. The license can
+also be viewed online at https://creativecommons.org/licenses/by/4.0/
 
 You are free to:
 
@@ -84,10 +94,6 @@ Under the following terms:
   No additional restrictions - You may not apply legal terms or
   technological measures that legally restrict others from doing
   anything the license permits.
-
-The supervision credit (Dr. Gamze Uslu, Uskudar University) and the
-attribution of the original CSRBoost paper in README.md, REPORT.md and
-CITATION.cff must be kept when the material is reused.
 
 ============================================================
 C. Original paper, datasets, and third-party material
