@@ -229,7 +229,7 @@ def train_gan_fold(Xtr, ytr, Xte, yte, seed, gen_epochs, nn_epochs, latent_dim, 
         proba_orig = clf(torch.FloatTensor(Xtr)).squeeze().numpy()
     return proba_te, proba_tr, proba_orig, yaug
 
-# MAIN — compute all methods per fold, accumulate metrics
+# MAIN - compute all methods per fold, accumulate metrics
 def main():
     log("=" * 80)
     log("Flare-F Full Replication: All 10 methods (100-fold CV)")
@@ -472,7 +472,7 @@ def main():
 
     # Final results
     log("\n" + "=" * 80)
-    log("FINAL RESULTS — Flare-F 100-fold Replication")
+    log("FINAL RESULTS \u2014 Flare-F 100-fold Replication")
     log("=" * 80)
 
     summary = []
