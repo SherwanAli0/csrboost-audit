@@ -9,8 +9,7 @@ What is checked (definitions: "Match criterion" in README.md):
      avg_err = mean(|ACC diff| in points, |AUC/F1/AP/GMean diff| x 100) recomputed from the
      row's own columns and compared with the stored Average_Error(%).
   2. Its paper columns against PAPER_TABLE2 in exact_replication/exact_replication_local.py,
-     against the PAPER_TABLE in combined_codes/BEST_CONFIGS.py, and the one documented
-     override (PAPER_OVERRIDES below).
+     against the PAPER_TABLE in combined_codes/BEST_CONFIGS.py, and the corrected CARVGOOD/ADASYN AUC cell.
   3. results/exact_replication/baseline_phase1_comparison.csv (uniform-protocol track):
      42 PASS / 101 FAIL / 7 N/A recomputed, equality with _42_pass_cells_spec.csv, per-algorithm
      and CSRBoost counts.
@@ -20,6 +19,7 @@ What is checked (definitions: "Match criterion" in README.md):
 Exit status is 1 if a check that should hold does not.
 """
 import ast
+import hashlib
 import runpy
 import sys
 from pathlib import Path
@@ -32,9 +32,9 @@ METRICS = ["ACC", "AUC", "F1", "AP", "GMean"]
 NAME_MAP = {"YEAST5ERL": "YEAST5-ERL", "FLAREF": "FLARE-F"}
 ALG_MAP = {"SMOTifiedGAN": "SMOTified-GAN"}
 
-# Paper constant that differs between the author's copies of Table 2 and the table image
-# (CARVGOOD / ADASYN / AUC: 0.98 in the printed Table 2; 0.99 in the engine and audit CSVs).
-PAPER_OVERRIDES = {("CARVGOOD", "ADASYN", "AUC"): 0.98}
+# One paper constant was corrected in this repository after the author's copies were taken
+# (CARVGOOD / ADASYN / AUC: 0.98 in the printed Table 2; 0.99 in the author's copies). It is checked here.
+CORRECTED_CELL = ("CARVGOOD", "ADASYN", "AUC", 0.98)
 
 problems = 0
 
@@ -53,6 +53,15 @@ def avg_err(rep, pap):
 
 
 # ---------------------------------------------------------------- 1. final audit
+def sha256_lf(path):
+    """SHA-256 of a file with line endings normalised to LF (so the value does not depend on checkout settings)."""
+    return hashlib.sha256(path.read_bytes().replace(bytes([13, 10]), bytes([10]))).hexdigest()
+
+
+print("source table versions (SHA-256, LF-normalised; compare with results/README.md):")
+for name in ("replication_audit_final_20260425.csv", "paper_values_final_20260425.csv",
+             "exact_replication/baseline_phase1_comparison.csv"):
+    print("     %s  %s" % (sha256_lf(RES / name), name))
 fin = pd.read_csv(RES / "replication_audit_final_20260425.csv", keep_default_na=False)
 print("final audit file rows:", len(fin))
 fin = fin[~fin["Replication_ACC(%)"].isin(["", "N/A"])].copy()
@@ -96,21 +105,18 @@ fin_tab = {(r.Dataset, r.Algorithm): {KEYS[m]: pap.loc[i, m] for m in METRICS} f
 d1 = n_diff(fin_tab, table)
 check(len(d1) == 0, "final-audit paper columns vs PAPER_TABLE2 in the engine: %d differing cells" % len(d1))
 d2 = n_diff(fin_tab, best)
-check(len(d2) <= len(PAPER_OVERRIDES), "final-audit paper columns vs BEST_CONFIGS PAPER_TABLE: %d differing cell(s) %s" % (
-    len(d2), [(k, m, a, b) for k, m, a, b in d2]))
+check(len(d2) == 0, "final-audit paper columns vs BEST_CONFIGS PAPER_TABLE: %d differing cells" % len(d2))
 
-fin2 = fin.copy()
-pap2 = pap.copy()
-for (ds, alg, m), v in PAPER_OVERRIDES.items():
-    idx = fin2[(fin2.Dataset == ds) & (fin2.Algorithm == alg)].index[0]
-    pap2.loc[idx, m] = v
-fin2["calc"] = avg_err(rep, pap2)
-check(int((fin2.calc < 3).sum()) == 143, "with the documented paper override(s): rows < 3: %d, largest %.3f" % (
-    (fin2.calc < 3).sum(), fin2.calc.max()))
-for (ds, alg, m), v in PAPER_OVERRIDES.items():
-    idx = fin2[(fin2.Dataset == ds) & (fin2.Algorithm == alg)].index[0]
-    print("     override %s/%s %s: paper %.2f instead of %.2f -> row avg_err %.3f instead of %.3f" % (
-        ds, alg, m, v, pap.loc[idx, m], fin2.loc[idx, "calc"], fin.loc[idx, "calc"]))
+ds_, alg_, m_, v_ = CORRECTED_CELL
+ci = fin[(fin.Dataset == ds_) & (fin.Algorithm == alg_)].index[0]
+check(abs(pap.loc[ci, m_] - v_) < 1e-12, "paper %s of %s/%s is %.2f (transcription correction applied); row avg_err %.3f" % (
+    m_, ds_, alg_, v_, fin.loc[ci, "calc"]))
+fin2, pap2 = fin, pap
+
+# individual metrics (separate calculation from the row criterion)
+indiv = sum(int(x <= 3 + 1e-10) for _, r_ in rep.iterrows() for x in
+            [abs(r_["ACC"] - pap.loc[_, "ACC"])] + [abs(r_[m] - pap.loc[_, m]) * 100 for m in METRICS[1:]])
+check(indiv == 631, "individual metrics within 3 points (ACC) / 0.03 (others): %d of %d (different unit from the 143 rows)" % (indiv, 5 * len(fin)))
 
 # ---------------------------------------------------------------- 3. uniform-protocol track
 base = pd.read_csv(RES / "exact_replication" / "baseline_phase1_comparison.csv", keep_default_na=False)
@@ -141,9 +147,7 @@ bt = {(NAME_MAP.get(r.dataset, r.dataset), ALG_MAP.get(r.algorithm, r.algorithm)
       {k: r["paper_" + k] for k in ("ACC", "AUC", "F1", "AP", "GMEAN")} for _, r in ev.iterrows()}
 check(len(n_diff(bt, table)) == 0, "uniform-protocol paper columns vs PAPER_TABLE2: 0 differing cells")
 r = ev[(ev.dataset == "CARVGOOD") & (ev.algorithm == "ADASYN")].iloc[0]
-alt = (abs(r.repl_ACC - r.paper_ACC) + abs(r.repl_AUC - 0.98) * 100 + abs(r.repl_F1 - r.paper_F1) * 100
-       + abs(r.repl_AP - r.paper_AP) * 100 + abs(r.repl_GMEAN - r.paper_GMEAN) * 100) / 5
-print("     CARVGOOD/ADASYN with the override: avg_err %.3f instead of %.3f (still PASS)" % (alt, r.calc))
+check(abs(r.paper_AUC - 0.98) < 1e-12, "uniform-protocol table: CARVGOOD/ADASYN paper AUC 0.98, avg_err %.3f (PASS)" % r.calc)
 
 # ---------------------------------------------------------------- 4. swapped rows
 bad = 0
