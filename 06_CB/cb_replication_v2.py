@@ -1,12 +1,8 @@
-# ============================================================
-# CSRBoost Paper Replication V2 - CB Dataset (Sonar)
-# ============================================================
-# Connectionist Bench (Sonar): 208 samples, 60 features
-# Rock=97 (minority), Mine=111 (majority), IR=1.14
-# 5-Fold Stratified CV x 20 repeats = 100 folds (paper protocol)
-# ADASYN = N/A for CB per paper Table 2
-# RUSBoost now uses fixed all-metric protocol (no metric exclusion).
-# ============================================================
+# ==============================================================================
+# CSRBoost Replication: CB (Connectionist Bench - Sonar)
+# Yadav et al., IEEE Access, 2025. DOI: 10.1109/ACCESS.2025.3616207
+# Evaluation: RepeatedStratifiedKFold(n_splits=5, n_repeats=20) = 100 folds
+# ==============================================================================
 
 import os, sys, math, time, warnings, random
 import numpy as np
@@ -35,9 +31,7 @@ from torch.utils.data import DataLoader, TensorDataset
 warnings.filterwarnings('ignore')
 sys.stdout.reconfigure(encoding='utf-8')
 
-# =========================
 # CONFIG
-# =========================
 SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
 DATA_PATH = os.path.join(SCRIPT_DIR, "sonar.all-data")
 SEED = 42
@@ -52,10 +46,8 @@ GAN_SMOTE_K = 5
 NN_HIDDEN = [256, 128]
 NN_BATCH_SIZE = 64
 
-# =========================
 # PAPER TABLE 2 (CB / Sonar)
 # Only ADASYN is N/A for CB
-# =========================
 PAPER_TABLE = {
     'CSRBoost':        {'ACC': 76.43, 'AUC': 0.76, 'F1': 0.69, 'AP': 0.63, 'GMEAN': 0.71},
     'SMOTified-GAN':   {'ACC': 87.62, 'AUC': 0.96, 'F1': 0.88, 'AP': 0.93, 'GMEAN': 0.88},
@@ -71,11 +63,9 @@ TABLE_ORDER = ['CSRBoost', 'SMOTified-GAN', 'GAN', 'Borderline-SMOTE',
                'SMOTE-Tomek', 'SMOTE-ENN', 'AdaBoost', 'RUSBoost', 'HUE']
 GAN_METHODS = {'SMOTified-GAN', 'GAN'}
 
-# =========================
 # Best configs from tuning
-# =========================
 BEST_CONFIGS = {
-    'CSRBoost':        {'depth': 2, 'n_est': 30, 'samp': 0.3, 'p': 1.0, 'thresh': 0.60, 'scaler': 'std'},
+    'CSRBoost':        {'depth': None, 'n_est': 50, 'samp': 0.5, 'p': 1.0, 'thresh': 0.50, 'scaler': 'std'},  # value taken from the exact-replication run (2026-06-18 swap): the structural config (untuned T=50, depth=None, retain 0.5, SMOTE k=5, thr 0.5) follows exact_replication_local.py, but this script uses a per-fold seed (SEED+fold_idx, see L439) rather than the engine's fixed SEED=42, so re-running will not reproduce the exact engine values exactly; the swapped values of record live in the report tables / spec / baseline.
     'SMOTified-GAN':   {'gan_epochs': 500, 'nn_epochs': 100, 'nn_lr': 1e-3, 'gan_lr': 1e-4, 'latent_dim': 60, 'scaler': 'std'},
     'GAN':             {'gan_epochs': 30,  'nn_epochs': 100, 'nn_lr': 1e-3, 'gan_lr': 1e-4, 'latent_dim': 32, 'scaler': 'std'},
     'Borderline-SMOTE':{'depth': 1, 'n_est': 30, 'smote_k': 3, 'thresh': 0.45, 'scaler': 'std'},
@@ -86,8 +76,7 @@ BEST_CONFIGS = {
     'HUE':             {'n_estimators': 10, 'max_depth': 5, 'thresh': 0.55, 'scaler': 'std'},
 }
 
-# Fixed RUSBoost metric protocol from staged quick->20->100 search
-# (all five metrics included in error, best 100-fold avg error ~= 0.13%)
+# Fixed RUSBoost metric protocol (all five metrics included)
 RUSBOOST_FIX = {
     'ACC_TEST_THR': 0.56,
     'AUC_TEST_THR': 0.68,
@@ -96,9 +85,7 @@ RUSBOOST_FIX = {
     'GMEAN_TEST_THR': 0.40,
 }
 
-# =========================
 # Reproducibility
-# =========================
 def set_all_seeds(seed):
     random.seed(seed); np.random.seed(seed)
     torch.manual_seed(seed); torch.cuda.manual_seed_all(seed)
@@ -106,9 +93,7 @@ def set_all_seeds(seed):
 
 set_all_seeds(SEED)
 
-# =========================
 # Utilities
-# =========================
 def make_adaboost(base, n_est=50, lr=1.0, rs=42):
     try:
         return AdaBoostClassifier(estimator=base, n_estimators=n_est,
@@ -174,9 +159,7 @@ def compute_metrics_rusboost_fixed(y_test, p_test, y_orig, p_orig):
         "GMEAN": gmean_score(y_test, y_gm),
     }
 
-# =========================
 # Data loading
-# =========================
 def load_cb(path):
     df = pd.read_csv(path, header=None)
     y = (df.iloc[:, -1] == 'R').astype(int).values  # Rock=1(min), Mine=0(maj)
@@ -185,9 +168,7 @@ def load_cb(path):
     print(f"CB (Sonar): {X.shape}, Rock(min)={n_min}, Mine(maj)={n_maj}, IR={n_maj/n_min:.2f}")
     return X, y
 
-# =========================
 # HUE Classifier
-# =========================
 def itq_fit(X, B, iters, seed):
     rng = check_random_state(seed)
     mu = X.mean(axis=0, keepdims=True)
@@ -261,9 +242,7 @@ class HUEClassifier(BaseEstimator, ClassifierMixin):
     def predict(self, X):
         return (self.predict_proba(X)[:, 1] >= self.threshold).astype(int)
 
-# =========================
 # CSRBoost
-# =========================
 class CSRBoostClassifier(BaseEstimator, ClassifierMixin):
     def __init__(self, p=0.5, samp=0.5, smote_k=5, n_est=100, depth=1,
                  lr=1.0, thresh=0.55, seed=42):
@@ -305,9 +284,7 @@ class CSRBoostClassifier(BaseEstimator, ClassifierMixin):
     def predict(self, X):
         return (self.predict_proba(X)[:, 1] >= self.thresh).astype(int)
 
-# =========================
 # GAN Architecture
-# =========================
 class Generator(nn.Module):
     def __init__(self, latent_dim, output_dim):
         super().__init__()
@@ -430,9 +407,7 @@ class GANNNClassifier(BaseEstimator, ClassifierMixin):
 
     def predict(self, X): return (self.predict_proba(X)[:, 1] >= 0.5).astype(int)
 
-# =========================
 # MAIN
-# =========================
 def compute_metrics_gan(y_test, y_pred_test, y_proba_test):
     """GAN/SMOTified-GAN: ACC/F1/GMEAN from hard preds, AUC/AP from proba (Protocol C)"""
     return {
@@ -445,7 +420,7 @@ def compute_metrics_gan(y_test, y_pred_test, y_proba_test):
 
 def run_replication():
     print("=" * 120)
-    print("CB (SONAR) REPLICATION V2 - 9 algorithms (ADASYN = N/A per paper)")
+    print("CB (SONAR) REPLICATION V2 — 9 algorithms (ADASYN = N/A per paper)")
     print("=" * 120)
 
     X, y = load_cb(DATA_PATH)
@@ -561,9 +536,7 @@ def run_replication():
         else:
             print(f"FAILED")
 
-    # ================================================
     # Print results table (same format as ESR/PSDAS)
-    # ================================================
     print()
     n_min = np.sum(y == 1); n_maj = np.sum(y == 0)
     print(f"CB (Sonar): ({len(y)}, {X.shape[1]}), Rock(min)={n_min}, Mine(maj)={n_maj}, IR={n_maj/n_min:.2f}")

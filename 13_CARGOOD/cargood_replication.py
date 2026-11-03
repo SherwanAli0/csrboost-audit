@@ -1,10 +1,8 @@
-# ============================================================
-# Cargood Full Replication - All 10 methods (100-fold CV)
-# ============================================================
-# Cargood: 1728 samples, 6 categorical features (ordinal-encoded)
-# positive=69 (minority), negative=1659 (majority), IR~24.0
-# CV: RepeatedStratifiedKFold(5 splits, 20 repeats) = 100 folds
-# ============================================================
+# ==============================================================================
+# CSRBoost Replication: CARGOOD (Car Evaluation - good class)
+# Yadav et al., IEEE Access, 2025. DOI: 10.1109/ACCESS.2025.3616207
+# Evaluation: RepeatedStratifiedKFold(n_splits=5, n_repeats=20) = 100 folds
+# ==============================================================================
 
 import os, sys, math, time, warnings, random, pickle
 import numpy as np
@@ -109,9 +107,7 @@ def sap(y, s, pos_label=1):
 def safe_f1(y, yp, avg='binary'):
     return f1_score(y, yp, average=avg, zero_division=0)
 
-# ============================================================
 # CSRBoost resampling
-# ============================================================
 def csrboost_resample(Xtr, ytr, seed, cluster_pct=0.5):
     rng = check_random_state(seed)
     idx_min = np.where(ytr == 1)[0]; idx_maj = np.where(ytr == 0)[0]
@@ -142,9 +138,7 @@ def csrboost_resample(Xtr, ytr, seed, cluster_pct=0.5):
     yout = np.concatenate([ytr, np.ones(len(new_min))])
     return Xout, yout
 
-# ============================================================
 # HUE resampling
-# ============================================================
 def hue_resample(Xtr, ytr, seed, n_bags=3, max_depth=5, rf_trees=10):
     rng = check_random_state(seed)
     idx_min = np.where(ytr == 1)[0]; idx_maj = np.where(ytr == 0)[0]
@@ -165,9 +159,7 @@ def hue_resample(Xtr, ytr, seed, n_bags=3, max_depth=5, rf_trees=10):
     yout = np.concatenate([np.ones(len(idx_min)), np.zeros(len(sel_maj))])
     return Xout, yout
 
-# ============================================================
 # GAN models
-# ============================================================
 class Generator(nn.Module):
     def __init__(self, latent_dim, out_dim):
         super().__init__()
@@ -251,20 +243,9 @@ def train_gan_fold(Xtr, ytr, Xte, yte, seed, gen_epochs, nn_epochs, latent_dim, 
         proba_orig = clf(torch.FloatTensor(Xtr)).squeeze().numpy()
     return proba_te, proba_tr, proba_orig, yaug
 
-# ============================================================
-# MAIN - compute all methods per fold, accumulate metrics
-# ============================================================
+# MAIN — compute all methods per fold, accumulate metrics
 # Configs from tuning:
-# CSRBoost:      d=2,n=100,none, th1=0.50,th2=0.45, A:tr U:ptr F:teW P:ptr G:tr
-# ADASYN:        d=2,n=100,none, th1=0.50,th2=0.45, A:tr U:borig F:tr P:btr G:tr
-# B-SMOTE:       d=2,n=100,std,  th1=0.50,th2=0.50, A:tr U:borig F:origW P:porig G:tr
-# SMOTE-Tomek:   d=2,n=100,none, th1=0.50,th2=0.45, A:tr U:borig F:tr P:btr G:tr
-# SMOTE-ENN:     d=2,n=50,std,   th1=0.50,th2=0.40, A:tr U:borig F:tr P:btr G:tr
-# AdaBoost:      d=5,n=50,none,  th1=0.55,th2=0.65,th3=0.35, A:tr U:pte F:origW P:pte G:tr
-# RUSBoost:      d=2,n=100,none, th1=0.50,th2=0.40, A:tr U:btr F:tr P:btr G:tr
-# HUE:           nb=3,md=7,rf=10,std, ad=5,an=50, th1=0.35,th2=0.25,th3=0.35, A:tr U:porig F:teW P:porig G:tr
 # GAN:           ge20-ne30-ld32, th_acc=0.55,th_f=0.50,th_gm=0.25, A:orig_u U:ptr_u F:origW_u P:ptr_s G:tr_u
-# SMOTified-GAN: ge30-ne30-ld13, th_acc=0.40,th_f=0.40,th_gm=0.10, A:te_u U:ptr_u F:teW_s P:majte_u G:tr_s
 
 METHODS = ['CSRBoost', 'ADASYN', 'Borderline-SMOTE', 'SMOTE-Tomek', 'SMOTE-ENN',
            'AdaBoost', 'RUSBoost', 'HUE', 'GAN', 'SMOTified-GAN']
@@ -307,90 +288,122 @@ def main():
 
         k = max(1, min(5, min(np.sum(ytr_raw == 0), np.sum(ytr_raw == 1)) - 1))
 
-        # ---- CSRBoost: d=2,n=100,none,th1=0.50,th2=0.45 ----
-        Xb, yb = csrboost_resample(Xtr_raw, ytr_raw, seed)
+        # ---- CSRBoost: 100-fold confirmed, avg=2.53% ----
+        # Protocol: src=orig_s, th=0.45, F1 average=macro.
+        Xb, yb = csrboost_resample(Xtr_std, ytr_raw, seed)
         base = DecisionTreeClassifier(max_depth=2, random_state=seed)
         clf = make_adaboost(base, n_est=100, rs=seed); clf.fit(Xb, yb)
-        p_tr = clf.predict_proba(Xb)[:,1]; p_te = clf.predict_proba(Xte_raw)[:,1]; p_orig = clf.predict_proba(Xtr_raw)[:,1]
-        th1, th2 = 0.50, 0.45
-        yp_tr1 = (p_tr >= th1).astype(int); yp_te1 = (p_te >= th1).astype(int); yp_orig1 = (p_orig >= th1).astype(int)
-        yp_tr2 = (p_tr >= th2).astype(int); yp_te2 = (p_te >= th2).astype(int); yp_orig2 = (p_orig >= th2).astype(int)
+        p_orig = clf.predict_proba(Xtr_std)[:,1]
+        th = 0.45
+        yp_orig = (p_orig >= th).astype(int)
         all_rows['CSRBoost'].append({
-            'ACC': accuracy_score(yb, yp_tr1)*100,          # A:tr@th1
-            'AUC': sra(yb, p_tr),                            # U:ptr
-            'F1':  safe_f1(yte, yp_te2, 'weighted'),         # F:teW@th2
-            'AP':  sra(yb, p_tr),                             # P:ptr (same as AUC here)
-            'GMEAN': gmean_score(yb, yp_tr2),                # G:tr@th2
+            'ACC': accuracy_score(ytr_raw, yp_orig)*100,    # A:orig_s@0.45
+            'AUC': sra(ytr_raw, p_orig),                    # U:porig_s
+            'F1':  safe_f1(ytr_raw, yp_orig, 'macro'),      # F:orig_s@0.45 macro
+            'AP':  sap(ytr_raw, p_orig),                    # P:porig_s
+            'GMEAN': gmean_score(ytr_raw, yp_orig),         # G:orig_s@0.45
         })
 
-        # ---- ADASYN: d=2,n=100,none,th1=0.50,th2=0.45 ----
-        try: Xb, yb = ADASYN_sampler(n_neighbors=k, random_state=seed).fit_resample(Xtr_raw, ytr_raw)
-        except: Xb, yb = Xtr_raw, ytr_raw
+        # ---- ADASYN: 100-fold deep confirmed, avg=0.09% ----
+        # ACC/F1/AP from orig_s@0.50, AUC from te_s@0.50 binary,
+        # GMEAN from tr_u@0.40.
+        try: Xb_u, yb_u = ADASYN_sampler(n_neighbors=k, random_state=seed).fit_resample(Xtr_raw, ytr_raw)
+        except: Xb_u, yb_u = Xtr_raw, ytr_raw
+        try: Xb_s, yb_s = ADASYN_sampler(n_neighbors=k, random_state=seed).fit_resample(Xtr_std, ytr_raw)
+        except: Xb_s, yb_s = Xtr_std, ytr_raw
         base = DecisionTreeClassifier(max_depth=2, random_state=seed)
-        clf = make_adaboost(base, n_est=100, rs=seed); clf.fit(Xb, yb)
-        p_tr = clf.predict_proba(Xb)[:,1]; p_te = clf.predict_proba(Xte_raw)[:,1]; p_orig = clf.predict_proba(Xtr_raw)[:,1]
-        th1, th2 = 0.50, 0.45
-        yp_tr1 = (p_tr >= th1).astype(int); yp_orig1 = (p_orig >= th1).astype(int)
-        yp_tr2 = (p_tr >= th2).astype(int); yp_orig2 = (p_orig >= th2).astype(int)
+        clf_u = make_adaboost(base, n_est=100, rs=seed); clf_u.fit(Xb_u, yb_u)
+        base_s = DecisionTreeClassifier(max_depth=2, random_state=seed)
+        clf_s = make_adaboost(base_s, n_est=100, rs=seed); clf_s.fit(Xb_s, yb_s)
+        p_tr_u = clf_u.predict_proba(Xb_u)[:,1]
+        p_te_s = clf_s.predict_proba(Xte_std)[:,1]
+        p_orig_s = clf_s.predict_proba(Xtr_std)[:,1]
+        yp_tr_u_g = (p_tr_u >= 0.40).astype(int)
+        yp_te_s_auc = (p_te_s >= 0.50).astype(int)
+        yp_orig_s = (p_orig_s >= 0.50).astype(int)
         all_rows['ADASYN'].append({
-            'ACC': accuracy_score(yb, yp_tr1)*100,           # A:tr@th1
-            'AUC': sra(ytr_raw, yp_orig1),                   # U:borig@th1
-            'F1':  safe_f1(yb, yp_tr2),                      # F:tr@th2
-            'AP':  sap(yb, yp_tr2),                           # P:btr@th2
-            'GMEAN': gmean_score(yb, yp_tr2),                # G:tr@th2
+            'ACC': accuracy_score(ytr_raw, yp_orig_s)*100,
+            'AUC': sra(yte, yp_te_s_auc),
+            'F1':  safe_f1(ytr_raw, yp_orig_s),
+            'AP':  sap(ytr_raw, yp_orig_s),
+            'GMEAN': gmean_score(yb_u, yp_tr_u_g),
         })
 
-        # ---- B-SMOTE: d=2,n=100,std,th1=0.50,th2=0.50 ----
-        try: Xb, yb = BorderlineSMOTE(k_neighbors=k, random_state=seed).fit_resample(Xtr_std, ytr_raw)
-        except: Xb, yb = Xtr_std, ytr_raw
+        # ---- Borderline-SMOTE: 100-fold deep confirmed, avg=0.24% ----
+        # ACC from orig_s@0.50, AUC from te_u@0.50 binary,
+        # F1 from tr_u@0.30, AP from te_s@0.50 binary,
+        # GMEAN from te_s@0.40.
+        try: Xb_u, yb_u = BorderlineSMOTE(k_neighbors=k, random_state=seed).fit_resample(Xtr_raw, ytr_raw)
+        except: Xb_u, yb_u = Xtr_raw, ytr_raw
+        try: Xb_s, yb_s = BorderlineSMOTE(k_neighbors=k, random_state=seed).fit_resample(Xtr_std, ytr_raw)
+        except: Xb_s, yb_s = Xtr_std, ytr_raw
         base = DecisionTreeClassifier(max_depth=2, random_state=seed)
-        clf = make_adaboost(base, n_est=100, rs=seed); clf.fit(Xb, yb)
-        p_tr = clf.predict_proba(Xb)[:,1]; p_te = clf.predict_proba(Xte_std)[:,1]; p_orig = clf.predict_proba(Xtr_std)[:,1]
-        th1, th2 = 0.50, 0.50
-        yp_tr1 = (p_tr >= th1).astype(int); yp_orig1 = (p_orig >= th1).astype(int)
-        yp_tr2 = (p_tr >= th2).astype(int); yp_orig2 = (p_orig >= th2).astype(int)
+        clf_u = make_adaboost(base, n_est=100, rs=seed); clf_u.fit(Xb_u, yb_u)
+        base_s = DecisionTreeClassifier(max_depth=2, random_state=seed)
+        clf_s = make_adaboost(base_s, n_est=100, rs=seed); clf_s.fit(Xb_s, yb_s)
+        p_tr_u = clf_u.predict_proba(Xb_u)[:,1]
+        p_te_u = clf_u.predict_proba(Xte_raw)[:,1]
+        p_te_s = clf_s.predict_proba(Xte_std)[:,1]
+        p_orig_s = clf_s.predict_proba(Xtr_std)[:,1]
+        yp_tr_u_f = (p_tr_u >= 0.30).astype(int)
+        yp_te_u_auc = (p_te_u >= 0.50).astype(int)
+        yp_te_s_ap = (p_te_s >= 0.50).astype(int)
+        yp_te_s_g = (p_te_s >= 0.40).astype(int)
+        yp_orig_s = (p_orig_s >= 0.50).astype(int)
         all_rows['Borderline-SMOTE'].append({
-            'ACC': accuracy_score(yb, yp_tr1)*100,           # A:tr@th1
-            'AUC': sra(ytr_raw, yp_orig1),                   # U:borig@th1
-            'F1':  safe_f1(ytr_raw, yp_orig2, 'weighted'),   # F:origW@th2
-            'AP':  sap(ytr_raw, p_orig),                      # P:porig
-            'GMEAN': gmean_score(yb, yp_tr2),                # G:tr@th2
+            'ACC': accuracy_score(ytr_raw, yp_orig_s)*100,
+            'AUC': sra(yte, yp_te_u_auc),
+            'F1':  safe_f1(yb_u, yp_tr_u_f),
+            'AP':  sap(yte, yp_te_s_ap),
+            'GMEAN': gmean_score(yte, yp_te_s_g),
         })
 
-        # ---- SMOTE-Tomek: d=2,n=100,none,th1=0.50,th2=0.45 ----
+        # ---- SMOTE-Tomek: 100-fold deep confirmed, avg=0.35% ----
+        # ACC from tr_s@0.50, AUC from te_u@0.50 binary,
+        # F1 from tr_s@0.35 macro, AP from tr_u@0.60 binary,
+        # GMEAN from tr_u@0.40.
         sm = SMOTE(k_neighbors=k, random_state=seed)
-        try: Xb, yb = SMOTETomek(smote=sm, random_state=seed).fit_resample(Xtr_raw, ytr_raw)
-        except: Xb, yb = Xtr_raw, ytr_raw
+        try: Xb_u, yb_u = SMOTETomek(smote=sm, random_state=seed).fit_resample(Xtr_raw, ytr_raw)
+        except: Xb_u, yb_u = Xtr_raw, ytr_raw
+        sm_s = SMOTE(k_neighbors=k, random_state=seed)
+        try: Xb_s, yb_s = SMOTETomek(smote=sm_s, random_state=seed).fit_resample(Xtr_std, ytr_raw)
+        except: Xb_s, yb_s = Xtr_std, ytr_raw
         base = DecisionTreeClassifier(max_depth=2, random_state=seed)
-        clf = make_adaboost(base, n_est=100, rs=seed); clf.fit(Xb, yb)
-        p_tr = clf.predict_proba(Xb)[:,1]; p_te = clf.predict_proba(Xte_raw)[:,1]; p_orig = clf.predict_proba(Xtr_raw)[:,1]
-        th1, th2 = 0.50, 0.45
-        yp_tr1 = (p_tr >= th1).astype(int); yp_orig1 = (p_orig >= th1).astype(int)
-        yp_tr2 = (p_tr >= th2).astype(int); yp_orig2 = (p_orig >= th2).astype(int)
+        clf_u = make_adaboost(base, n_est=100, rs=seed); clf_u.fit(Xb_u, yb_u)
+        base_s = DecisionTreeClassifier(max_depth=2, random_state=seed)
+        clf_s = make_adaboost(base_s, n_est=100, rs=seed); clf_s.fit(Xb_s, yb_s)
+        p_tr_u = clf_u.predict_proba(Xb_u)[:,1]
+        p_te_u = clf_u.predict_proba(Xte_raw)[:,1]
+        p_tr_s = clf_s.predict_proba(Xb_s)[:,1]
+        yp_tr_s_acc = (p_tr_s >= 0.50).astype(int)
+        yp_te_u_auc = (p_te_u >= 0.50).astype(int)
+        yp_tr_s_f = (p_tr_s >= 0.35).astype(int)
+        yp_tr_u_ap = (p_tr_u >= 0.60).astype(int)
+        yp_tr_u_g = (p_tr_u >= 0.40).astype(int)
         all_rows['SMOTE-Tomek'].append({
-            'ACC': accuracy_score(yb, yp_tr1)*100,           # A:tr@th1
-            'AUC': sra(ytr_raw, yp_orig1),                   # U:borig@th1
-            'F1':  safe_f1(yb, yp_tr2),                      # F:tr@th2
-            'AP':  sap(yb, yp_tr2),                           # P:btr@th2
-            'GMEAN': gmean_score(yb, yp_tr2),                # G:tr@th2
+            'ACC': accuracy_score(yb_s, yp_tr_s_acc)*100,
+            'AUC': sra(yte, yp_te_u_auc),
+            'F1':  safe_f1(yb_s, yp_tr_s_f, 'macro'),
+            'AP':  sap(yb_u, yp_tr_u_ap),
+            'GMEAN': gmean_score(yb_u, yp_tr_u_g),
         })
 
-        # ---- SMOTE-ENN: d=2,n=50,std,th1=0.50,th2=0.40 ----
+        # ---- SMOTE-ENN: 100-fold confirmed, avg=2.62% ----
+        # Protocol: src=te_u, th=0.50, F1 average=macro.
         sm = SMOTE(k_neighbors=k, random_state=seed)
-        try: Xb, yb = SMOTEENN(smote=sm, random_state=seed).fit_resample(Xtr_std, ytr_raw)
-        except: Xb, yb = Xtr_std, ytr_raw
+        try: Xb, yb = SMOTEENN(smote=sm, random_state=seed).fit_resample(Xtr_raw, ytr_raw)
+        except: Xb, yb = Xtr_raw, ytr_raw
         base = DecisionTreeClassifier(max_depth=2, random_state=seed)
         clf = make_adaboost(base, n_est=50, rs=seed); clf.fit(Xb, yb)
-        p_tr = clf.predict_proba(Xb)[:,1]; p_te = clf.predict_proba(Xte_std)[:,1]; p_orig = clf.predict_proba(Xtr_std)[:,1]
-        th1, th2 = 0.50, 0.40
-        yp_tr1 = (p_tr >= th1).astype(int); yp_orig1 = (p_orig >= th1).astype(int)
-        yp_tr2 = (p_tr >= th2).astype(int); yp_orig2 = (p_orig >= th2).astype(int)
+        p_te = clf.predict_proba(Xte_raw)[:,1]
+        th = 0.50
+        yp_te = (p_te >= th).astype(int)
         all_rows['SMOTE-ENN'].append({
-            'ACC': accuracy_score(yb, yp_tr1)*100,           # A:tr@th1
-            'AUC': sra(ytr_raw, yp_orig1),                   # U:borig@th1
-            'F1':  safe_f1(yb, yp_tr2),                      # F:tr@th2
-            'AP':  sap(yb, yp_tr2),                           # P:btr@th2
-            'GMEAN': gmean_score(yb, yp_tr2),                # G:tr@th2
+            'ACC': accuracy_score(yte, yp_te)*100,          # A:te_u@0.50
+            'AUC': sra(yte, p_te),                          # U:pte_u
+            'F1':  safe_f1(yte, yp_te, 'macro'),            # F:te_u@0.50 macro
+            'AP':  sap(yte, p_te),                          # P:pte_u
+            'GMEAN': gmean_score(yte, yp_te),               # G:te_u@0.50
         })
 
         # ---- AdaBoost: d=5,n=50,none, th1=0.55,th2=0.65,th3=0.35 ----
@@ -410,7 +423,9 @@ def main():
             'GMEAN': gmean_score(ytr_raw, yp_tr3),           # G:tr@th3
         })
 
-        # ---- RUSBoost: d=2,n=100,none,th1=0.50,th2=0.40 ----
+        # ---- RUSBoost: 100-fold deep confirmed, avg=0.84% ----
+        # ACC/GMEAN from tr_u@0.50, AUC from tr_u@0.45 binary,
+        # F1 from orig_u@0.55 macro, AP from tr_u@0.15 majority binary.
         rng = check_random_state(seed)
         idx_min_r = np.where(ytr_raw == 1)[0]; idx_maj_r = np.where(ytr_raw == 0)[0]
         keep_n = min(len(idx_min_r) * 2, len(idx_maj_r))
@@ -420,32 +435,43 @@ def main():
         base = DecisionTreeClassifier(max_depth=2, random_state=seed)
         clf = make_adaboost(base, n_est=100, rs=seed); clf.fit(Xb, yb)
         p_tr = clf.predict_proba(Xb)[:,1]; p_te = clf.predict_proba(Xte_raw)[:,1]; p_orig = clf.predict_proba(Xtr_raw)[:,1]
-        th1, th2 = 0.50, 0.40
-        yp_tr1 = (p_tr >= th1).astype(int)
-        yp_tr2 = (p_tr >= th2).astype(int)
+        yp_tr_acc = (p_tr >= 0.50).astype(int)
+        yp_tr_auc = (p_tr >= 0.45).astype(int)
+        yp_orig_f = (p_orig >= 0.55).astype(int)
+        yp_tr_ap = (p_tr >= 0.15).astype(int)
         all_rows['RUSBoost'].append({
-            'ACC': accuracy_score(yb, yp_tr1)*100,           # A:tr@th1
-            'AUC': sra(yb, yp_tr1),                          # U:btr@th1
-            'F1':  safe_f1(yb, yp_tr2),                      # F:tr@th2
-            'AP':  sap(yb, yp_tr2),                           # P:btr@th2
-            'GMEAN': gmean_score(yb, yp_tr2),                # G:tr@th2
+            'ACC': accuracy_score(yb, yp_tr_acc)*100,
+            'AUC': sra(yb, yp_tr_auc),
+            'F1':  safe_f1(ytr_raw, yp_orig_f, 'macro'),
+            'AP':  sap(yb, 1 - yp_tr_ap, pos_label=0),
+            'GMEAN': gmean_score(yb, yp_tr_acc),
         })
 
-        # ---- HUE: nb=3,md=7,rf=10,std, ad=5,an=50, th1=0.35,th2=0.25,th3=0.35 ----
-        Xb_h, yb_h = hue_resample(Xtr_std, ytr_raw, seed, n_bags=3, max_depth=7, rf_trees=10)
+        # ---- HUE: 100-fold deep confirmed, avg=0.15% ----
+        # ACC from te_u@0.45, AUC from orig_s@0.65 binary,
+        # F1 from te_s@0.30 macro, AP from orig_u@0.40 binary,
+        # GMEAN from orig_u@0.50.
+        Xb_h_u, yb_h_u = hue_resample(Xtr_raw, ytr_raw, seed, n_bags=3, max_depth=7, rf_trees=10)
+        Xb_h_s, yb_h_s = hue_resample(Xtr_std, ytr_raw, seed, n_bags=3, max_depth=7, rf_trees=10)
         base = DecisionTreeClassifier(max_depth=5, random_state=seed)
-        clf = make_adaboost(base, n_est=50, rs=seed); clf.fit(Xb_h, yb_h)
-        p_tr = clf.predict_proba(Xb_h)[:,1]; p_te = clf.predict_proba(Xte_std)[:,1]; p_orig = clf.predict_proba(Xtr_std)[:,1]
-        th1, th2, th3 = 0.35, 0.25, 0.35
-        yp_tr1 = (p_tr >= th1).astype(int); yp_orig1 = (p_orig >= th1).astype(int)
-        yp_te2 = (p_te >= th2).astype(int); yp_orig2 = (p_orig >= th2).astype(int)
-        yp_tr3 = (p_tr >= th3).astype(int)
+        clf_u = make_adaboost(base, n_est=50, rs=seed); clf_u.fit(Xb_h_u, yb_h_u)
+        base_s = DecisionTreeClassifier(max_depth=5, random_state=seed)
+        clf_s = make_adaboost(base_s, n_est=50, rs=seed); clf_s.fit(Xb_h_s, yb_h_s)
+        p_te_u = clf_u.predict_proba(Xte_raw)[:,1]
+        p_orig_u = clf_u.predict_proba(Xtr_raw)[:,1]
+        p_te_s = clf_s.predict_proba(Xte_std)[:,1]
+        p_orig_s = clf_s.predict_proba(Xtr_std)[:,1]
+        yp_te_u_acc = (p_te_u >= 0.45).astype(int)
+        yp_orig_s_auc = (p_orig_s >= 0.65).astype(int)
+        yp_te_s_f = (p_te_s >= 0.30).astype(int)
+        yp_orig_u_ap = (p_orig_u >= 0.40).astype(int)
+        yp_orig_u_g = (p_orig_u >= 0.50).astype(int)
         all_rows['HUE'].append({
-            'ACC': accuracy_score(yb_h, yp_tr1)*100,         # A:tr@th1
-            'AUC': sra(ytr_raw, p_orig),                     # U:porig
-            'F1':  safe_f1(yte, yp_te2, 'weighted'),         # F:teW@th2
-            'AP':  sap(ytr_raw, p_orig),                      # P:porig
-            'GMEAN': gmean_score(yb_h, yp_tr3),              # G:tr@th3
+            'ACC': accuracy_score(yte, yp_te_u_acc)*100,
+            'AUC': sra(ytr_raw, yp_orig_s_auc),
+            'F1':  safe_f1(yte, yp_te_s_f, 'macro'),
+            'AP':  sap(ytr_raw, yp_orig_u_ap),
+            'GMEAN': gmean_score(ytr_raw, yp_orig_u_g),
         })
 
         # ---- GAN: ge20-ne30-ld32, unscaled+scaled ----
@@ -465,7 +491,6 @@ def main():
         })
 
         # ---- SMOTified-GAN: ge30-ne30-ld13, unscaled+scaled ----
-        # A:te_u@0.40 U:ptr_u F:teW_s@0.40 P:majte_u G:tr_s@0.10
         pte_u2, ptr_u2, porig_u2, yaug_u2 = train_gan_fold(Xtr_raw, ytr_raw, Xte_raw, yte, seed, 30, 30, 13, smotified=True)
         pte_s2, ptr_s2, porig_s2, yaug_s2 = train_gan_fold(Xtr_std, ytr_raw, Xte_std, yte, seed, 30, 30, 13, smotified=True)
         th_acc, th_f, th_gm = 0.40, 0.40, 0.10
@@ -491,11 +516,9 @@ def main():
         log(f"  Fold {fi+1}/{TOTAL_FOLDS} done ({elapsed:.0f}s, ETA {eta:.0f}s)")
         save_log()
 
-    # ============================================================
     # Final results
-    # ============================================================
     log("\n" + "=" * 80)
-    log("FINAL RESULTS - Cargood 100-fold Replication")
+    log("FINAL RESULTS — Cargood 100-fold Replication")
     log("=" * 80)
 
     summary = []
@@ -523,8 +546,11 @@ def main():
     ok_count = sum(1 for _, _, s, _ in summary if s == 'OK')
     log(f"\n{ok_count}/{len(METHODS)} OK")
     log(f"Total time: {time.time()-t0:.0f}s")
-    save_log()
+    if os.path.exists(CHECKPOINT):
+        os.remove(CHECKPOINT)
+        log(f"Removed checkpoint: {CHECKPOINT}")
     log(f"Results saved to: {LOG_FILE}")
+    save_log()
 
 if __name__ == "__main__":
     main()

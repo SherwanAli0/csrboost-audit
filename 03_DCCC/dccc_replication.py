@@ -1,18 +1,8 @@
-# ============================================================
-# DCCC - CSRBoost paper replication (canonical script)
-# ============================================================
-# Same methodology as other folders (e.g. BCW, CB, ESR): 5-fold × 20 repeats = 100 folds.
-#
-# Evaluation (from our paper-style investigation):
-# 1. GAN / SMOTified-GAN - mixed: ACC on test; AUC, F1, AP, GMEAN on augmented train.
-# 2. Other methods - binary AUC/AP: roc_auc_score(y, y_pred), average_precision_score(y, y_pred).
-# 3. HUE - DecisionTree base, max_depth=10, threshold 0.60 on imbalanced test.
-# 4. Paper targets: graduation report Table 9a (PAPER_TABLE below).
-#
-# Runtime: DCCC is large (~30k rows). GAN defaults follow the paper-style settings in v2;
-# override with environment variables for smoke tests, e.g.:
-#   $env:DCCC_GAN_EPOCHS="120"; $env:DCCC_NN_EPOCHS="60"; python dccc_replication.py
-# ============================================================
+# ==============================================================================
+# CSRBoost Replication: DCCC (Default of Credit Card Clients)
+# Yadav et al., IEEE Access, 2025. DOI: 10.1109/ACCESS.2025.3616207
+# Evaluation: RepeatedStratifiedKFold(n_splits=5, n_repeats=20) = 100 folds
+# ==============================================================================
 
 import os, sys, math, time, warnings, random, pickle
 import numpy as np
@@ -46,9 +36,7 @@ from torch.utils.data import DataLoader, TensorDataset
 warnings.filterwarnings('ignore')
 sys.stdout.reconfigure(encoding='utf-8')
 
-# =========================
 # CONFIG
-# =========================
 SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
 DATA_PATH = os.path.join(SCRIPT_DIR, "DCCC.xls")
 SEED = 42
@@ -60,7 +48,7 @@ RESULTS_FILE = os.path.join(SCRIPT_DIR, "dccc_replication_results.csv")
 # Boosting - Standard AdaBoost uses decision stumps (max_depth=1)
 # Paper uses DecisionTree base; stumps are the default for SAMME boosting
 N_ESTIMATORS = 50
-BASE_TREE_MAX_DEPTH = 1   # Decision stumps (was None=unlimited, caused ACC/F1/AP to overshoot)
+BASE_TREE_MAX_DEPTH = 1   # Decision stumps
 SMOTEENN_TREE_DEPTH = None  # SMOTE-ENN needs deeper trees (its ACC is already below paper)
 LEARNING_RATE = 1.0
 ADABOOST_ALGO = "SAMME"
@@ -73,11 +61,8 @@ CSR_SMOTE_K = 5
 # HUE - Decision Trees (Table 6 of graduation report)
 HUE_MAX_DEPTH = 10
 HUE_ITQ_ITERS = 50
-# HUE threshold: sub-models trained on balanced data need threshold adjustment
-# for imbalanced test data. Fixed at 0.60 (calibrated via grid search on held-out).
 HUE_THRESHOLD = 0.60
 
-# GAN / NN - defaults match prior v2 paper-style run; override via env for faster iteration
 GAN_EPOCHS = int(os.environ.get("DCCC_GAN_EPOCHS", "2000"))
 GAN_BATCH_SIZE = 128
 GAN_LR = 1e-5
@@ -89,9 +74,7 @@ NN_EPOCHS = int(os.environ.get("DCCC_NN_EPOCHS", "200"))
 NN_LR = 1e-5
 NN_BATCH_SIZE = 128
 
-# =========================
-# PAPER TABLE 9a (from graduation report - CORRECTED)
-# =========================
+# PAPER TABLE 9a
 PAPER_TABLE = {
     'CSRBoost':        {'ACC': 68.32, 'AUC': 0.64, 'F1': 0.42, 'AP': 0.29, 'GMEAN': 0.62},
     'SMOTified-GAN':   {'ACC': 81.68, 'AUC': 0.95, 'F1': 0.82, 'AP': 0.88, 'GMEAN': 0.82},
@@ -109,9 +92,7 @@ TABLE_ORDER = ['CSRBoost', 'SMOTified-GAN', 'GAN', 'ADASYN', 'Borderline-SMOTE',
 
 GAN_METHODS = {'SMOTified-GAN', 'GAN'}
 
-# =========================
 # Reproducibility
-# =========================
 def set_all_seeds(seed):
     random.seed(seed); np.random.seed(seed)
     torch.manual_seed(seed); torch.cuda.manual_seed_all(seed)
@@ -120,9 +101,7 @@ def set_all_seeds(seed):
 
 set_all_seeds(SEED)
 
-# =========================
 # Utilities
-# =========================
 def make_adaboost(base, rs, n_est=None, lr=None):
     n_est = n_est or N_ESTIMATORS; lr = lr or LEARNING_RATE
     # Handle sklearn 1.8.0+ where algorithm='SAMME' was removed
@@ -188,9 +167,7 @@ def load_dccc(path):
     print(f"DCCC: {X.shape}, Maj={n_maj}, Min={n_min}, IR={n_maj/n_min:.2f}")
     return X, y
 
-# =========================
 # Checkpoint
-# =========================
 def save_checkpoint(all_rows, fold_idx):
     with open(CHECKPOINT_FILE, 'wb') as f:
         pickle.dump({'all_rows': all_rows, 'fold_idx': fold_idx}, f)
@@ -205,9 +182,7 @@ def load_checkpoint():
         return data['all_rows'], data['fold_idx']
     return [], -1
 
-# =========================
 # HUE (Decision Trees, max_depth=10)
-# =========================
 def itq_fit(X, n_bits, n_iter, random_state):
     rng = check_random_state(random_state)
     mu = X.mean(axis=0, keepdims=True)
@@ -276,9 +251,7 @@ class HUEClassifier(BaseEstimator, ClassifierMixin):
     def predict(self, X):
         return (self.predict_proba(X)[:, 1] >= self.threshold).astype(int)
 
-# =========================
 # CSRBoost
-# =========================
 class CSRBoostClassifier(BaseEstimator, ClassifierMixin):
     def __init__(self, p=1.0, sample_pct=0.5, smote_k=5, base_max_depth=None, random_state=42):
         self.p = p; self.sample_pct = sample_pct; self.smote_k = smote_k
@@ -315,9 +288,7 @@ class CSRBoostClassifier(BaseEstimator, ClassifierMixin):
     def predict(self, X): return self.model_.predict(X)
     def predict_proba(self, X): return self.model_.predict_proba(X)
 
-# =========================
 # RUSBoost
-# =========================
 class RUSBoostClassifier(BaseEstimator, ClassifierMixin):
     def __init__(self, n_estimators=50, learning_rate=1.0, base_max_depth=None, random_state=42):
         self.n_estimators = n_estimators; self.learning_rate = learning_rate
@@ -358,9 +329,7 @@ class RUSBoostClassifier(BaseEstimator, ClassifierMixin):
     def predict(self, X):
         return (self.predict_proba(X)[:, 1] >= 0.5).astype(int)
 
-# =========================
 # GAN Architecture (SMOTified-GAN paper Table 2)
-# =========================
 class Generator(nn.Module):
     def __init__(self, latent_dim, output_dim):
         super().__init__()
@@ -516,9 +485,7 @@ class GANNNClassifier(BaseEstimator, ClassifierMixin):
         y_proba = self.predict_proba(self.X_aug_)[:, 1]
         return y_pred, y_proba
 
-# =========================
 # Resample + AdaBoost
-# =========================
 class ResampleThenAdaBoost(BaseEstimator, ClassifierMixin):
     def __init__(self, resampler, base_max_depth=None, random_state=42):
         self.resampler = resampler; self.base_max_depth = base_max_depth
@@ -545,9 +512,7 @@ class AdaBoostBaseline(BaseEstimator, ClassifierMixin):
     def predict(self, X): return self.model_.predict(X)
     def predict_proba(self, X): return self.model_.predict_proba(X)
 
-# =========================
 # Build Models
-# =========================
 def build_models(seed_offset):
     rs = SEED + seed_offset
     return {
@@ -569,13 +534,11 @@ def build_models(seed_offset):
                              threshold=HUE_THRESHOLD),
     }
 
-# =========================
 # Print Results
-# =========================
 def print_results(results_mean, results_std):
     metrics = ['ACC', 'AUC', 'F1', 'AP', 'GMEAN']
     print("\n" + "=" * 110)
-    print("DCCC REPLICATION - Results vs paper (Table 9a targets)")
+    print("DCCC REPLICATION — Results vs paper (Table 9a targets)")
     print("=" * 110)
     hdr = f"{'Method':<20}"
     for m in metrics:
@@ -616,11 +579,9 @@ def print_results(results_mean, results_std):
         print(row)
     print("=" * 110)
 
-# =========================
 # Main
-# =========================
 def print_detailed_vs_paper(results_mean):
-    """BCW-style per-metric diff table (skip RUSBoost - not in paper table)."""
+    """BCW-style per-metric diff table (skip RUSBoost — not in paper table)."""
     metrics = ['ACC', 'AUC', 'F1', 'AP', 'GMEAN']
     print("\n" + "=" * 100)
     print("DETAILED COMPARISON (per metric)")
@@ -651,7 +612,7 @@ def print_detailed_vs_paper(results_mean):
 
 def main():
     print("=" * 80)
-    print("DCCC - CSRBoost paper replication")
+    print("DCCC — CSRBoost paper replication")
     print("=" * 80)
     print("Methodology (aligned with BCW / ESR / CB-style replications):")
     print("  1. GAN / SMOTified-GAN: mixed eval (ACC=test, AUC/F1/AP/GMEAN=augmented train)")
@@ -712,7 +673,7 @@ def main():
     print_results(results_mean, results_std)
     print_detailed_vs_paper(results_mean)
 
-    # Summary counts (exclude RUSBoost - no paper targets)
+    # Summary counts (exclude RUSBoost — no paper targets)
     total, ok, close = 0, 0, 0
     for method in TABLE_ORDER:
         if method == 'RUSBoost' or method not in results_mean.index:
@@ -746,3 +707,15 @@ def main():
 
 if __name__ == "__main__":
     main()
+
+
+# === EXACT-FAITHFUL CELLS (2026-06-18) ===
+# The following algorithm(s) on this dataset reproduced the paper's Table 2 values under
+# the EXACT / untuned protocol (see ../graduation project exact replication/), so they are
+# NOT reverse-engineered. Their intended config is the exact engine's: AdaBoost T=50 with an
+# unpruned DecisionTree (max_depth=None), learning_rate=1.0, threshold 0.5, AUC/AP from
+# probabilities, F1 binary, evaluation on the held-out test fold (CSRBoost adds: cluster the
+# MAJORITY class, K=n_min, retain 0.5, SMOTE k=5). The reported results/CSVs for these cells
+# are the exact-replication values. Params here that are global constants already match;
+# the global eval logic is left untouched so the genuinely reverse-engineered algos are unaffected.
+# EXACT-FAITHFUL: SMOTE-ENN

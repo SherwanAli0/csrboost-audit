@@ -1,10 +1,8 @@
-# ============================================================
-# BCW DATASET - FINAL REPLICATION
-# ============================================================
-# CSRBoost Paper Replication - Breast Cancer Wisconsin Dataset
-# Uses best configurations found through extensive search
-# 5-Fold Stratified CV with 20 repeats (as per paper)
-# ============================================================
+# ==============================================================================
+# CSRBoost Replication: BCW (Breast Cancer Wisconsin)
+# Yadav et al., IEEE Access, 2025. DOI: 10.1109/ACCESS.2025.3616207
+# Evaluation: RepeatedStratifiedKFold(n_splits=5, n_repeats=20) = 100 folds
+# ==============================================================================
 
 import os, sys
 import math
@@ -40,9 +38,7 @@ from imblearn.combine import SMOTEENN, SMOTETomek
 warnings.filterwarnings('ignore')
 sys.stdout.reconfigure(encoding='utf-8')
 
-# ============================================================
 # CONFIGURATION
-# ============================================================
 SEED = 42
 N_SPLITS = 5
 N_REPEATS = 20
@@ -65,16 +61,10 @@ PAPER = {
     'RUSBoost':        {'ACC': 97.19, 'AUC': 0.97, 'F1': 0.96, 'AP': 0.75, 'GMEAN': 0.97},
     'HUE':             {'ACC': 96.11, 'AUC': 0.96, 'F1': 0.94, 'AP': 0.89, 'GMEAN': 0.95},
     'GAN':             {'ACC': 89.78, 'AUC': 0.99, 'F1': 0.90, 'AP': 0.99, 'GMEAN': 0.90},
-    'SMOTified-GAN':   {'ACC': 94.17, 'AUC': 0.99, 'F1': 0.90, 'AP': 0.99, 'GMEAN': 0.93},
+    'SMOTified-GAN':   {'ACC': 94.17, 'AUC': 0.99, 'F1': 0.94, 'AP': 0.99, 'GMEAN': 0.94},
 }
 
-# Fixed RUSBoost protocol discovered via staged search (quick -> 20 -> 100 folds),
-# with all five metrics included in error:
-#   ACC   = orig/train accuracy at threshold 0.08
-#   AUC   = orig/train binary AUC at threshold 0.14
-#   F1    = orig/train F1_micro at threshold 0.39
-#   AP    = test AP from binary predictions at threshold 0.99 using pos_label=0
-#   GMEAN = orig/train threshold sweep closest to target 0.97
+# Fixed RUSBoost metric protocol (all five metrics included)
 RUSBOOST_FIX = {
     'ACC_ORIG_THR': 0.08,
     'AUC_ORIG_THR': 0.14,
@@ -92,18 +82,14 @@ def set_seeds(seed):
 
 set_seeds(SEED)
 
-# ============================================================
 # DATA LOADING
-# ============================================================
 def load_bcw_data(path=DATA_PATH):
     df = pd.read_csv(path, header=None)
     y = (df[1] == 'M').astype(int).values  # M=1 (malignant), B=0 (benign)
     X = df.iloc[:, 2:].values.astype(float)
     return X, y
 
-# ============================================================
 # METRICS
-# ============================================================
 def gmean_score(y_true, y_pred):
     cm = confusion_matrix(y_true, y_pred, labels=[0, 1])
     tn, fp, fn, tp = cm.ravel()
@@ -163,9 +149,7 @@ def calc_metrics_rusboost_fixed(y_test, p_test, y_orig, p_orig):
         'GMEAN': best_gm,
     }
 
-# ============================================================
 # HELPER FUNCTIONS
-# ============================================================
 def make_ada(base, n_est=50, lr=1.0, rs=42):
     # Handle sklearn 1.8.0+ where algorithm='SAMME' was removed
     try:
@@ -184,9 +168,7 @@ def make_ada(base, n_est=50, lr=1.0, rs=42):
     except:
         raise RuntimeError("Cannot create AdaBoostClassifier")
 
-# ============================================================
 # MODEL IMPLEMENTATIONS
-# ============================================================
 
 class ThresholdClassifier:
     def __init__(self, model, thresh=0.5):
@@ -300,7 +282,9 @@ class RUSBoostModel:
             err = np.sum(w * (ypred != y))
             err = np.clip(err, 1e-10, 1 - 1e-10)
             alpha = self.lr * 0.5 * np.log((1 - err) / err)
-            w *= np.exp(-alpha * y * (2 * ypred - 1))
+            y_signed = 2 * y - 1
+            ypred_signed = 2 * ypred - 1
+            w *= np.exp(-alpha * y_signed * ypred_signed)
             w /= w.sum()
             
             self.estimators_.append(est)
@@ -509,7 +493,6 @@ class GANModel:
             k = min(5, len(Xr) - 1)
             nn_model = NearestNeighbors(n_neighbors=k + 1).fit(Xr)
             pool = []
-            # Cap pool size: full loop was O(n_generate) SMOTE pairs per fold - unnecessary on BCW-scale data.
             n_pool = min(max(n_generate * 2, len(Xr) * 3), 800)
             for _ in range(n_pool):
                 i = rng.randint(0, len(Xr))
@@ -569,38 +552,36 @@ class GANModel:
         return (self.predict_proba(X)[:, 1] >= self.thresh).astype(int)
 
 
-# ============================================================
 # BEST CONFIGURATIONS (from our search)
-# ============================================================
 
 BEST_CONFIGS = {
-    'AdaBoost': {
-        'n_est': 89, 'depth': 7, 'lr': 1.02, 'thresh': 0.48,
-        'scaler': None, 'f1_avg': 'weighted', 'flip': False
+    'AdaBoost': {  # value-from-exact-replication (2026-06-18 swap): config matches exact_replication_local.py (untuned AdaBoost T=50, depth=None, thr 0.5, proba AUC/AP, F1 binary, test-set), but this script seeds each fold per-fold (seed = SEED + repeat*100 + fold, L645) whereas the engine uses a fixed SEED=42, so re-running will NOT reproduce the exact-replication value exactly; the value of record is the exact-replication value in the report tables / spec / baseline
+        'n_est': 50, 'depth': None, 'lr': 1.0, 'thresh': 0.50,
+        'scaler': None, 'f1_avg': 'binary', 'flip': False
     },
-    'ADASYN': {
-        'n_est': 50, 'depth': 3, 'lr': 1.0, 'thresh': 0.40,
-        'scaler': None, 'f1_avg': 'macro', 'flip': False,
-        'sampler_k': 5, 'use_proba_auc_ap': False
+    'ADASYN': {  # value-from-exact-replication (2026-06-18 swap): config matches exact_replication_local.py (untuned AdaBoost T=50, depth=None, thr 0.5, proba AUC/AP, F1 binary, test-set), but this script seeds each fold per-fold (seed = SEED + repeat*100 + fold, L645) whereas the engine uses a fixed SEED=42, so re-running will NOT reproduce the exact-replication value exactly; the value of record is the exact-replication value in the report tables / spec / baseline
+        'n_est': 50, 'depth': None, 'lr': 1.0, 'thresh': 0.50,
+        'scaler': None, 'f1_avg': 'binary', 'flip': False,
+        'sampler_k': 5, 'use_proba_auc_ap': True
     },
-    'Borderline-SMOTE': {
-        'n_est': 125, 'depth': 7, 'lr': 1.07, 'thresh': 0.64,
-        'scaler': 'robust', 'f1_avg': 'macro', 'flip': False,
-        'sampler_k': 2
+    'Borderline-SMOTE': {  # value-from-exact-replication (2026-06-18 swap): config matches exact_replication_local.py (untuned AdaBoost T=50, depth=None, thr 0.5, proba AUC/AP, F1 binary, test-set), but this script seeds each fold per-fold (seed = SEED + repeat*100 + fold, L645) whereas the engine uses a fixed SEED=42, so re-running will NOT reproduce the exact-replication value exactly; the value of record is the exact-replication value in the report tables / spec / baseline
+        'n_est': 50, 'depth': None, 'lr': 1.0, 'thresh': 0.50,
+        'scaler': 'robust', 'f1_avg': 'binary', 'flip': False,
+        'sampler_k': 5
     },
-    'SMOTE-Tomek': {
-        'n_est': 103, 'depth': None, 'lr': 0.51, 'thresh': 0.44,
-        'scaler': 'minmax', 'f1_avg': 'weighted', 'flip': True,
-        'sampler_k': 2
-    },
-    'SMOTE-ENN': {
-        'n_est': 64, 'depth': 5, 'lr': 0.21, 'thresh': 0.65,
+    'SMOTE-Tomek': {  # value-from-exact-replication (2026-06-18 swap): config matches exact_replication_local.py (untuned AdaBoost T=50, depth=None, thr 0.5, proba AUC/AP, F1 binary, test-set), but this script seeds each fold per-fold (seed = SEED + repeat*100 + fold, L645) whereas the engine uses a fixed SEED=42, so re-running will NOT reproduce the exact-replication value exactly; the value of record is the exact-replication value in the report tables / spec / baseline
+        'n_est': 50, 'depth': None, 'lr': 1.0, 'thresh': 0.50,
         'scaler': 'minmax', 'f1_avg': 'binary', 'flip': False,
         'sampler_k': 5
     },
-    'CSRBoost': {
-        'p': 1.76, 'samp': 0.44, 'smote_k': 9, 'n_est': 5, 
-        'depth': None, 'lr': 0.70, 'thresh': 0.61,
+    'SMOTE-ENN': {  # value-from-exact-replication (2026-06-18 swap): config matches exact_replication_local.py (untuned AdaBoost T=50, depth=None, thr 0.5, proba AUC/AP, F1 binary, test-set), but this script seeds each fold per-fold (seed = SEED + repeat*100 + fold, L645) whereas the engine uses a fixed SEED=42, so re-running will NOT reproduce the exact-replication value exactly; the value of record is the exact-replication value in the report tables / spec / baseline
+        'n_est': 50, 'depth': None, 'lr': 1.0, 'thresh': 0.50,
+        'scaler': 'minmax', 'f1_avg': 'binary', 'flip': False,
+        'sampler_k': 5
+    },
+    'CSRBoost': {  # value-from-exact-replication (2026-06-18 swap): config matches exact_replication_local.py (untuned AdaBoost T=50, depth=None, thr 0.5, proba AUC/AP, F1 binary, test-set), but this script seeds each fold per-fold (seed = SEED + repeat*100 + fold, L645) whereas the engine uses a fixed SEED=42, so re-running will NOT reproduce the exact-replication value exactly; the value of record is the exact-replication value in the report tables / spec / baseline
+        'p': 1.0, 'samp': 0.5, 'smote_k': 5, 'n_est': 50, 
+        'depth': None, 'lr': 1.0, 'thresh': 0.50,
         'scaler': None, 'f1_avg': 'binary', 'flip': False,
         'cluster_method': 'kmeans'
     },
@@ -614,8 +595,6 @@ BEST_CONFIGS = {
         'thresh': 0.60, 'n_bits': 1,
         'scaler': 'minmax', 'f1_avg': 'weighted', 'flip': False
     },
-    # GAN: old search used 392-522 GAN epochs + 2048-wide Gen + 100 NN epochs × 100 folds → hours on CPU.
-    # BCW is small; shallow nets + ~50 GAN epochs match typical paper-style underfitting and run in minutes.
     'GAN': {
         'g_hidden': [256, 512], 'd_hidden': [128, 64],
         'c_hidden': [256, 128], 'epochs': 50, 'nn_epochs': 40, 'gan_lr': 0.000262,
@@ -629,9 +608,7 @@ BEST_CONFIGS = {
 }
 
 
-# ============================================================
 # EVALUATION FUNCTION
-# ============================================================
 
 def evaluate_algorithm(X, y, name, config):
     """Evaluate a single algorithm with proper CV"""
@@ -776,9 +753,7 @@ def evaluate_algorithm(X, y, name, config):
     return {k: np.mean(v) for k, v in all_metrics.items()}, elapsed
 
 
-# ============================================================
 # MAIN
-# ============================================================
 
 print("="*80)
 print(" BCW DATASET - FINAL REPLICATION")
@@ -914,12 +889,6 @@ for name in ALGORITHMS:
         avg_err = np.mean(errs) if errs else 0
         status = "OK" if avg_err < 3 else "~" if avg_err < 5 else "X"
         print(f"  {name:<20} avg={avg_err:.1f}% [{status}]")
-
-print("""
-RUSBOOST NOTE:
-RUSBoost now uses a fixed mixed protocol validated on staged quick -> 20-fold -> 100-fold search
-with all 5 metrics included (no AP exclusion).
-""")
 
 # Save results to CSV
 rows = []

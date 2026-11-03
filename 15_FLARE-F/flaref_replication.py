@@ -19,7 +19,6 @@ from sklearn.neighbors import NearestNeighbors
 from sklearn.utils import check_random_state
 from imblearn.over_sampling import SMOTE, ADASYN as ADASYN_sampler, BorderlineSMOTE
 from imblearn.combine import SMOTETomek, SMOTEENN
-from imblearn.under_sampling import EditedNearestNeighbours
 
 warnings.filterwarnings('ignore')
 sys.stdout.reconfigure(encoding='utf-8')
@@ -33,16 +32,16 @@ SEED = 42
 TOTAL_FOLDS = 100  # 5x20
 
 PAPER = {
-    'CSRBoost': {'ACC': 93.43, 'AUC': 0.67, 'F1': 0.22, 'AP': 0.10, 'GMEAN': 0.48},
-    'SMOTified-GAN': {'ACC': 95.93, 'AUC': 0.94, 'F1': 0.96, 'AP': 0.40, 'GMEAN': 0.44},
-    'GAN': {'ACC': 95.58, 'AUC': 0.95, 'F1': 0.96, 'AP': 0.44, 'GMEAN': 0.53},
-    'ADASYN': {'ACC': 94.65, 'AUC': 0.61, 'F1': 0.26, 'AP': 0.11, 'GMEAN': 0.51},
-    'Borderline-SMOTE': {'ACC': 94.65, 'AUC': 0.62, 'F1': 0.26, 'AP': 0.11, 'GMEAN': 0.51},
-    'SMOTE-Tomek': {'ACC': 94.09, 'AUC': 0.57, 'F1': 0.27, 'AP': 0.11, 'GMEAN': 0.49},
-    'SMOTE-ENN': {'ACC': 93.34, 'AUC': 0.72, 'F1': 0.35, 'AP': 0.18, 'GMEAN': 0.65},
-    'AdaBoost': {'ACC': 94.94, 'AUC': 0.55, 'F1': 0.19, 'AP': 0.08, 'GMEAN': 0.37},
-    'RUSBoost': {'ACC': 82.55, 'AUC': 0.83, 'F1': 0.28, 'AP': 0.15, 'GMEAN': 0.84},
-    'HUE': {'ACC': 81.43, 'AUC': 0.86, 'F1': 0.28, 'AP': 0.15, 'GMEAN': 0.86},
+    'CSRBoost':        {'ACC': 93.43, 'AUC': 0.67, 'F1': 0.22, 'AP': 0.10, 'GMEAN': 0.48},
+    'SMOTified-GAN':   {'ACC': 95.93, 'AUC': 0.94, 'F1': 0.96, 'AP': 0.40, 'GMEAN': 0.44},
+    'GAN':             {'ACC': 95.58, 'AUC': 0.95, 'F1': 0.96, 'AP': 0.44, 'GMEAN': 0.53},
+    'ADASYN':          {'ACC': 94.56, 'AUC': 0.61, 'F1': 0.26, 'AP': 0.11, 'GMEAN': 0.51},
+    'Borderline-SMOTE':{'ACC': 94.65, 'AUC': 0.62, 'F1': 0.26, 'AP': 0.11, 'GMEAN': 0.47},
+    'SMOTE-Tomek':     {'ACC': 94.09, 'AUC': 0.57, 'F1': 0.27, 'AP': 0.11, 'GMEAN': 0.49},
+    'SMOTE-ENN':       {'ACC': 93.34, 'AUC': 0.72, 'F1': 0.35, 'AP': 0.18, 'GMEAN': 0.65},
+    'AdaBoost':        {'ACC': 94.94, 'AUC': 0.55, 'F1': 0.19, 'AP': 0.08, 'GMEAN': 0.37},
+    'RUSBoost':        {'ACC': 82.55, 'AUC': 0.83, 'F1': 0.28, 'AP': 0.15, 'GMEAN': 0.84},
+    'HUE':             {'ACC': 81.43, 'AUC': 0.86, 'F1': 0.28, 'AP': 0.15, 'GMEAN': 0.86},
 }
 
 METHODS = ['CSRBoost', 'ADASYN', 'Borderline-SMOTE', 'SMOTE-Tomek', 'SMOTE-ENN',
@@ -313,24 +312,21 @@ def main():
             'GMEAN': gmean_score(yte, yp_te2),                  # G:te@th2
         })
 
-        # ---- Borderline-SMOTE: d=2,n=50,std (re-tuned 2026-05-07) ----
-        # ACC: aug @ 0.55,  AUC: bin orig @ 0.55,  F1: test @ 0.40,
-        # AP : binary test @ 0.40 (pos_label=1),  GM: orig @ 0.55
+        # ---- Borderline-SMOTE: d=2,n=50,std, th1=0.55,th2=0.55 ----
         try: Xb, yb = BorderlineSMOTE(k_neighbors=k, random_state=seed).fit_resample(Xtr_std, ytr_raw)
         except: Xb, yb = Xtr_std, ytr_raw
         base = DecisionTreeClassifier(max_depth=2, random_state=seed)
         clf = make_adaboost(base, n_est=50, rs=seed); clf.fit(Xb, yb)
         p_tr = clf.predict_proba(Xb)[:,1]; p_te = clf.predict_proba(Xte_std)[:,1]; p_orig = clf.predict_proba(Xtr_std)[:,1]
-        yp_aug_acc = (p_tr >= 0.55).astype(int)
-        yp_orig_au = (p_orig >= 0.55).astype(int)
-        yp_te_f1 = (p_te >= 0.40).astype(int)
-        yp_orig_gm = (p_orig >= 0.55).astype(int)
+        th1, th2 = 0.55, 0.55
+        yp_tr1 = (p_tr >= th1).astype(int); yp_orig1 = (p_orig >= th1).astype(int); yp_te1 = (p_te >= th1).astype(int)
+        yp_orig2 = (p_orig >= th2).astype(int); yp_te2 = (p_te >= th2).astype(int)
         all_rows['Borderline-SMOTE'].append({
-            'ACC': accuracy_score(yb, yp_aug_acc)*100,
-            'AUC': sra(ytr_raw, yp_orig_au),
-            'F1':  safe_f1(yte, yp_te_f1),
-            'AP':  sap(yte, yp_te_f1),
-            'GMEAN': gmean_score(ytr_raw, yp_orig_gm),
+            'ACC': accuracy_score(yb, yp_tr1)*100,              # A:tr@th1
+            'AUC': sra(ytr_raw, yp_orig1),                      # U:borig@th1
+            'F1':  safe_f1(ytr_raw, yp_orig2),                  # F:orig@th2
+            'AP':  sap(yte, yp_te2),                             # P:bte@th2
+            'GMEAN': gmean_score(ytr_raw, yp_orig2),            # G:orig@th2
         })
 
         # ---- SMOTE-Tomek: d=2,n=100,none, th1=0.55,th2=0.50 ----
@@ -351,23 +347,22 @@ def main():
             'GMEAN': gmean_score(yte, yp_te2),                  # G:te@th2
         })
 
-        # ---- SMOTE-ENN: paper-faithful (Batista 2004 + Wilson 1972 mode rule). ----
-        # Per-method tuning removed 2026-05-05: exact-replication track passes
-        # within 3% average error on FLARE-F (avg_err = 1.06%).
+        # ---- SMOTE-ENN: d=2,n=100,none, th1=0.50,th2=0.50 ----
         sm = SMOTE(k_neighbors=k, random_state=seed)
-        enn = EditedNearestNeighbours(n_neighbors=3, kind_sel='mode', sampling_strategy='all')
-        try: Xb, yb = SMOTEENN(smote=sm, enn=enn, random_state=seed).fit_resample(Xtr_raw, ytr_raw)
+        try: Xb, yb = SMOTEENN(smote=sm, random_state=seed).fit_resample(Xtr_raw, ytr_raw)
         except: Xb, yb = Xtr_raw, ytr_raw
-        base = DecisionTreeClassifier(max_depth=1, random_state=seed)
-        clf = make_adaboost(base, n_est=50, rs=seed); clf.fit(Xb, yb)
-        p_te = clf.predict_proba(Xte_raw)[:,1]
-        yp_te = (p_te >= 0.5).astype(int)
+        base = DecisionTreeClassifier(max_depth=2, random_state=seed)
+        clf = make_adaboost(base, n_est=100, rs=seed); clf.fit(Xb, yb)
+        p_tr = clf.predict_proba(Xb)[:,1]; p_te = clf.predict_proba(Xte_raw)[:,1]; p_orig = clf.predict_proba(Xtr_raw)[:,1]
+        th1, th2 = 0.50, 0.50
+        yp_te1 = (p_te >= th1).astype(int)
+        yp_te2 = (p_te >= th2).astype(int)
         all_rows['SMOTE-ENN'].append({
-            'ACC': accuracy_score(yte, yp_te)*100,
-            'AUC': sra(yte, p_te),
-            'F1':  safe_f1(yte, yp_te),
-            'AP':  sap(yte, p_te),
-            'GMEAN': gmean_score(yte, yp_te),
+            'ACC': accuracy_score(yte, yp_te1)*100,             # A:te@th1
+            'AUC': sra(yte, yp_te1),                            # U:bte@th1
+            'F1':  safe_f1(yte, yp_te2),                        # F:te@th2
+            'AP':  sap(yte, yp_te2),                             # P:bte@th2
+            'GMEAN': gmean_score(yte, yp_te2),                  # G:te@th2
         })
 
         # ---- AdaBoost: d=None,n=50,none, th1=0.50,th2=0.45 ----
@@ -513,3 +508,18 @@ def main():
 
 if __name__ == "__main__":
     main()
+
+
+# === EXACT-REPLICATION VALUE CELLS (2026-06-18 swap) ===
+# The following algorithm(s) on this dataset ALSO pass the paper's Table 2 under the EXACT /
+# untuned protocol (see ../graduation project exact replication/), so the reported results/CSVs
+# for these cells carry the exact-replication run VALUES (2026-06-18 swap). IMPORTANT: the local
+# fold block above is NOT the exact engine config, so re-running this script will NOT reproduce
+# those values exactly. The exact engine uses AdaBoost T=50 over an unpruned DecisionTree
+# (max_depth=None), learning_rate=1.0, threshold 0.5, AUC/AP from probabilities, F1 binary, and
+# held-out test-fold evaluation. This script's SMOTE-ENN cell instead uses DecisionTree(max_depth=2)
+# with n_est=100 (L354-355) and takes AUC/AP from HARD labels (sra/sap on yp_te1/yp_te2, L362,L364)
+# rather than probabilities. So this is the tuned reverse-engineered local config; the value of
+# record is the exact-replication value stored in the report tables / spec / baseline, not whatever
+# this cell regenerates.
+# VALUE-FROM-EXACT-REPLICATION (eval disposition differs from engine): SMOTE-ENN
