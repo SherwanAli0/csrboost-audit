@@ -1,6 +1,6 @@
-# Finding 01: The SEED F1 paradox
+# Finding 01: The SEED F1 inconsistency
 
-**Severity:** highest. This is a mathematical proof, not a hypothesis.
+**Severity:** high. Strong empirical evidence of a per-method change in F1 definition. It is not a mathematical proof: the seven methods are different classifiers with different outputs.
 
 ## Symptom
 
@@ -20,12 +20,12 @@ All seven methods are evaluated on the same data, the same labels, and the same 
 
 ## Evidence
 
-No single threshold and F1-averaging mode can produce both 0.50 and 0.98 from the same classifier outputs on identical labels. We computed live:
+For one fixed set of classifier outputs on identical labels, no single threshold and F1-averaging mode can give both 0.50 and 0.98. The seven methods do not share outputs, so this is an argument about this audit's implementations, not a proof about the original experiments. We computed live:
 
 - F1-binary on the SEED test folds for all seven methods returns values in the 0.85 to 0.91 range.
 - F1-weighted on the same test folds returns values above 0.97.
 
-For the published values to be reproducible from a uniform protocol, F1-binary would need to land at 0.50 for the resampling baselines and at 0.98 for RUSBoost / HUE on the same data. This is mathematically impossible given identical inputs.
+For the published values to be reproducible from a uniform protocol with these implementations, F1-binary would need to land at 0.50 for the resampling baselines and at 0.98 for RUSBoost / HUE on the same data. It lands at 0.85 to 0.91 for all seven in this audit's runs, so a uniform F1 definition did not reproduce the table here.
 
 ## Reproduction
 
@@ -38,7 +38,7 @@ See `09_SEED/seed_replication.py` for the exact reproduction.
 
 ## Why this matters
 
-Mid-table averaging-mode substitution is not a transcription error. The same dataset row produces different "F1" values depending on which metric definition is silently applied. This is the most direct evidence in this audit that Table 2 of the original paper does not represent a single coherent evaluation pipeline.
+Mid-table averaging-mode substitution is the explanation that fits the published numbers best; a transcription error or classifiers that behave differently from this audit's implementations cannot be excluded. If it did occur, the same dataset row would show different "F1" values depending on which metric definition was applied without disclosure. This is the most direct evidence in this audit that Table 2 of the original paper does not represent one uniform evaluation pipeline.
 
 ## Suggested fix for future authors
 
