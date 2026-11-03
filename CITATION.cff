@@ -6,7 +6,9 @@ authors:
   - family-names: Ali
     given-names: Sherwan
     affiliation: "Uskudar University, Department of Computer Engineering"
-license: MIT
+license:
+  - MIT
+  - CC-BY-4.0
 date-released: 2026-04-27
 keywords:
   - reproducibility audit
