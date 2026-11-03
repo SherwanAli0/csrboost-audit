@@ -1,0 +1,2 @@
+Dataset,Method,Paper_ACC(%),Paper_AUC,Paper_F1,Paper_AP,Paper_GMean,Replication_ACC(%),Replication_AUC,Replication_F1,Replication_AP,Replication_GMean,ACC_Error(pp),AUC_Error(pp),F1_Error(pp),AP_Error(pp),GMean_Error(pp),Average_Error(%),Status,N_folds_completed,Source
+ILPD,HUE,66.55,0.71,0.58,0.42,0.7,62.53772472737991,0.7415557672503101,0.5725486911291252,0.4779720670522618,0.6764448654150259,4.012275272620087,3.1555767250310174,0.7451308870874751,5.797206705226182,2.3555134584974047,3.2131406096924335,FAIL,100,fixes/hue_canonical (ITQ-HUE per Ng 2022)

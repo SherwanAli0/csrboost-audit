@@ -1,0 +1,2 @@
+Dataset,Method,Paper_ACC(%),Paper_AUC,Paper_F1,Paper_AP,Paper_GMean,Replication_ACC(%),Replication_AUC,Replication_F1,Replication_AP,Replication_GMean,ACC_Error(pp),AUC_Error(pp),F1_Error(pp),AP_Error(pp),GMean_Error(pp),Average_Error(%),Status,N_folds_completed,Source
+WINE,HUE,94.43,0.98,0.97,0.95,0.98,97.31111111111112,0.9999615384615385,0.9551457832785064,0.999909090909091,0.9811381573164567,2.8811111111111103,1.9961538461538475,1.4854216721493563,4.990909090909101,0.11381573164567227,2.2934822903938175,PASS,100,fixes/hue_canonical (ITQ-HUE per Ng 2022)
