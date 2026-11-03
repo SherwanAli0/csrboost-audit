@@ -1,10 +1,8 @@
-# ============================================================
-# CarVGood 100-fold Replication - All 10 methods
-# ============================================================
-# car-vgood: 1728 samples, 6 categorical features
-# positive=65 (minority=vgood), negative=1663, IR~25.6
-# CV: RepeatedStratifiedKFold(5 splits, 20 repeats) = 100 folds
-# ============================================================
+# ==============================================================================
+# CSRBoost Replication: CARVGOOD (Car Evaluation - very good class)
+# Yadav et al., IEEE Access, 2025. DOI: 10.1109/ACCESS.2025.3616207
+# Evaluation: RepeatedStratifiedKFold(n_splits=5, n_repeats=20) = 100 folds
+# ==============================================================================
 
 import os, sys, math, time, warnings, random, pickle
 import numpy as np
@@ -33,26 +31,26 @@ SEED = 42
 TOTAL_FOLDS = 100
 
 PAPER = {
-    'CSRBoost':        {'ACC': 99.83, 'AUC': 0.99, 'F1': 0.96, 'AP': 0.92, 'GMEAN': 0.99},
+    'CSRBoost':        {'ACC': 99.83, 'AUC': 0.99, 'F1': 0.96, 'AP': 0.92, 'GMEAN': 0.99},  # paper Table 2 value; the matching replication cell was swapped to the exact-replication run (2026-06-18). See CONFIGS below: this script's eval disposition is not identical to the engine (train-set ACC/GMEAN, binary AUC/AP, and CSRBoost clusters the minority - the documented CARVGOOD deviation), so re-running will not reproduce the engine values exactly.
     'SMOTified-GAN':   {'ACC': 93.14, 'AUC': 0.99, 'F1': 0.93, 'AP': 0.98, 'GMEAN': 0.82},
     'GAN':             {'ACC': 94.78, 'AUC': 0.99, 'F1': 0.95, 'AP': 0.99, 'GMEAN': 0.93},
-    'ADASYN':          {'ACC': 99.88, 'AUC': 0.99, 'F1': 0.98, 'AP': 0.97, 'GMEAN': 0.98},
-    'Borderline-SMOTE':{'ACC': 99.88, 'AUC': 0.99, 'F1': 0.99, 'AP': 0.99, 'GMEAN': 1.00},
-    'SMOTE-Tomek':     {'ACC': 99.94, 'AUC': 0.99, 'F1': 0.98, 'AP': 0.97, 'GMEAN': 0.99},
-    'SMOTE-ENN':       {'ACC': 99.88, 'AUC': 0.99, 'F1': 0.96, 'AP': 0.93, 'GMEAN': 0.98},
-    'AdaBoost':        {'ACC': 99.94, 'AUC': 0.99, 'F1': 0.98, 'AP': 0.97, 'GMEAN': 0.99},
+    'ADASYN':          {'ACC': 99.88, 'AUC': 0.98, 'F1': 0.98, 'AP': 0.97, 'GMEAN': 0.98},  # AUC 0.98 as printed in paper Table 2 (earlier copies of this table had 0.99; see README.md, Paper constants); paper Table 2 value; the matching replication cell was swapped to the exact-replication run (2026-06-18). See CONFIGS below: this script's eval disposition is not identical to the engine (train-set ACC/GMEAN, binary AUC/AP, and CSRBoost clusters the minority - the documented CARVGOOD deviation), so re-running will not reproduce the engine values exactly.
+    'Borderline-SMOTE':{'ACC': 99.88, 'AUC': 0.99, 'F1': 0.99, 'AP': 0.99, 'GMEAN': 1.00},  # paper Table 2 value; the matching replication cell was swapped to the exact-replication run (2026-06-18). See CONFIGS below: this script's eval disposition is not identical to the engine (train-set ACC/GMEAN, binary AUC/AP, and CSRBoost clusters the minority - the documented CARVGOOD deviation), so re-running will not reproduce the engine values exactly.
+    'SMOTE-Tomek':     {'ACC': 99.94, 'AUC': 0.99, 'F1': 0.98, 'AP': 0.97, 'GMEAN': 0.99},  # paper Table 2 value; the matching replication cell was swapped to the exact-replication run (2026-06-18). See CONFIGS below: this script's eval disposition is not identical to the engine (train-set ACC/GMEAN, binary AUC/AP, and CSRBoost clusters the minority - the documented CARVGOOD deviation), so re-running will not reproduce the engine values exactly.
+    'SMOTE-ENN':       {'ACC': 99.88, 'AUC': 0.99, 'F1': 0.96, 'AP': 0.93, 'GMEAN': 0.98},  # paper Table 2 value; the matching replication cell was swapped to the exact-replication run (2026-06-18). See CONFIGS below: this script's eval disposition is not identical to the engine (train-set ACC/GMEAN, binary AUC/AP, and CSRBoost clusters the minority - the documented CARVGOOD deviation), so re-running will not reproduce the engine values exactly.
+    'AdaBoost':        {'ACC': 99.94, 'AUC': 0.99, 'F1': 0.98, 'AP': 0.97, 'GMEAN': 0.99},  # paper Table 2 value; the matching replication cell was swapped to the exact-replication run (2026-06-18). See CONFIGS below: this script's eval disposition is not identical to the engine (train-set ACC/GMEAN, binary AUC/AP, and CSRBoost clusters the minority - the documented CARVGOOD deviation), so re-running will not reproduce the engine values exactly.
     'RUSBoost':        {'ACC': 99.02, 'AUC': 0.99, 'F1': 0.88, 'AP': 0.78, 'GMEAN': 0.99},
     'HUE':             {'ACC': 98.44, 'AUC': 0.99, 'F1': 0.83, 'AP': 0.72, 'GMEAN': 0.99},
 }
 
 # Best configs from 20-fold tuning
 CONFIGS = {
-    'CSRBoost':        {'d': 2, 'n': 100, 'scaler': 'std', 'th1': 0.50, 'th2': 0.50, 'A': 'orig', 'U': 'bte', 'F': 'te', 'P': 'bte', 'G': 'orig'},
-    'ADASYN':          {'d': 2, 'n': 30, 'scaler': 'std', 'th1': 0.50, 'th2': 0.45, 'A': 'tr', 'U': 'bte', 'F': 'origW', 'P': 'btr', 'G': 'te'},
-    'Borderline-SMOTE':{'d': 2, 'n': 50, 'scaler': 'std', 'th1': 0.50, 'th2': 0.55, 'A': 'tr', 'U': 'bte', 'F': 'teW', 'P': 'pte', 'G': 'tr'},
-    'SMOTE-Tomek':     {'d': 2, 'n': 30, 'scaler': 'std', 'th1': 0.50, 'th2': 0.45, 'A': 'tr', 'U': 'bte', 'F': 'origW', 'P': 'btr', 'G': 'tr'},
-    'SMOTE-ENN':       {'d': 1, 'n': 50, 'scaler': 'std', 'th1': 0.55, 'th2': 0.50, 'A': 'orig', 'U': 'btr', 'F': 'teW', 'P': 'pte', 'G': 'te'},
-    'AdaBoost':        {'d': 5, 'n': 50, 'scaler': 'none', 'th1': 0.30, 'th2': 0.55, 'A': 'tr', 'U': 'bte', 'F': 'te', 'P': 'bte', 'G': 'te'},
+    'CSRBoost':        {'d': None, 'n': 50, 'scaler': 'std', 'th1': 0.50, 'th2': 0.50, 'A': 'orig', 'U': 'bte', 'F': 'te', 'P': 'bte', 'G': 'orig'},  # value taken from the exact-replication run (2026-06-18 swap): the structural T=50/depth=None/thr 0.5 follows exact_replication_local.py, but this script's eval disposition here is NOT identical to the engine - ACC/GMEAN are computed on the train-orig set (A='orig', G='orig') and AUC/AP are binary on hard test labels (U='bte', P='bte'), not the engine's proba AUC/AP on the held-out test fold; and CSRBoost here clusters the MINORITY class (the documented CARVGOOD minority-clustering deviation), whereas the engine clusters the MAJORITY. Re-running will not reproduce the engine values exactly; the swapped values of record live in the report tables / spec / baseline.
+    'ADASYN':          {'d': None, 'n': 50, 'scaler': 'std', 'th1': 0.50, 'th2': 0.50, 'A': 'tr', 'U': 'bte', 'F': 'origW', 'P': 'btr', 'G': 'te'},  # value taken from the exact-replication run (2026-06-18 swap): the structural T=50/depth=None/thr 0.5 follows exact_replication_local.py, but this script's eval disposition here is NOT identical to the engine - ACC on the train-aug set (A='tr'), AUC binary on hard test labels (U='bte'), F1 weighted on train-orig (F='origW'), AP binary on hard train-aug labels (P='btr'), rather than the engine's proba AUC/AP and binary F1 on the held-out test fold. Re-running will not reproduce the engine values exactly; the swapped values of record live in the report tables / spec / baseline.
+    'Borderline-SMOTE':{'d': None, 'n': 50, 'scaler': 'std', 'th1': 0.50, 'th2': 0.50, 'A': 'tr', 'U': 'bte', 'F': 'teW', 'P': 'pte', 'G': 'tr'},  # value taken from the exact-replication run (2026-06-18 swap): the structural T=50/depth=None/thr 0.5 follows exact_replication_local.py, but this script's eval disposition here is NOT identical to the engine - ACC on the train-aug set (A='tr'), AUC binary on hard test labels (U='bte'), F1 weighted on test (F='teW'), GMEAN on train-aug (G='tr'), rather than the engine's proba AUC, binary F1, and held-out-test evaluation (AP here is proba-test, P='pte'). Re-running will not reproduce the engine values exactly; the swapped values of record live in the report tables / spec / baseline.
+    'SMOTE-Tomek':     {'d': None, 'n': 50, 'scaler': 'std', 'th1': 0.50, 'th2': 0.50, 'A': 'tr', 'U': 'bte', 'F': 'origW', 'P': 'btr', 'G': 'tr'},  # value taken from the exact-replication run (2026-06-18 swap): the structural T=50/depth=None/thr 0.5 follows exact_replication_local.py, but this script's eval disposition here is NOT identical to the engine - ACC on the train-aug set (A='tr'), AUC binary on hard test labels (U='bte'), F1 weighted on train-orig (F='origW'), AP binary on hard train-aug labels (P='btr'), GMEAN on train-aug (G='tr'), rather than the engine's proba AUC/AP, binary F1, and held-out-test evaluation. Re-running will not reproduce the engine values exactly; the swapped values of record live in the report tables / spec / baseline.
+    'SMOTE-ENN':       {'d': None, 'n': 50, 'scaler': 'std', 'th1': 0.50, 'th2': 0.50, 'A': 'orig', 'U': 'btr', 'F': 'teW', 'P': 'pte', 'G': 'te'},  # value taken from the exact-replication run (2026-06-18 swap): the structural T=50/depth=None/thr 0.5 follows exact_replication_local.py, but this script's eval disposition here is NOT identical to the engine - ACC on the train-orig set (A='orig'), AUC binary on hard train-aug labels (U='btr'), F1 weighted on test (F='teW'), rather than the engine's proba AUC and binary F1 (AP/GMEAN here are proba-test / test, P='pte', G='te'). Re-running will not reproduce the engine values exactly; the swapped values of record live in the report tables / spec / baseline.
+    'AdaBoost':        {'d': None, 'n': 50, 'scaler': 'none', 'th1': 0.50, 'th2': 0.50, 'A': 'tr', 'U': 'bte', 'F': 'te', 'P': 'bte', 'G': 'te'},  # value taken from the exact-replication run (2026-06-18 swap): the structural T=50/depth=None/thr 0.5 follows exact_replication_local.py, but this script's eval disposition here is NOT identical to the engine - scaler='none' (engine fits StandardScaler), ACC on the train-aug set (A='tr'), and AUC/AP binary on hard test labels (U='bte', P='bte') rather than the engine's proba AUC/AP. Re-running will not reproduce the engine values exactly; the swapped values of record live in the report tables / spec / baseline.
     'RUSBoost':        {'d': 2, 'n': 100, 'scaler': 'none', 'th1': 0.55, 'th2': 0.55, 'A': 'te', 'U': 'borig', 'F': 'te', 'P': 'bte', 'G': 'orig'},
     'HUE':             {'nb': 3, 'md': 7, 'rf': 10, 'scaler': 'std', 'ada_d': 3, 'ada_n': 100, 'th1': 0.40, 'th2': 0.55, 'th3': 0.40, 'A': 'tr', 'U': 'porig', 'F': 'orig', 'P': 'bte', 'G': 'tr'},
     'GAN':             {'ge': 30, 'ne': 30, 'ld': 32, 'th_acc': 0.45, 'th_f': 0.40, 'th_gm': 0.20, 'A': 'te_u', 'U': 'ptr_u', 'F': 'origW_u', 'P': 'majte_u', 'G': 'tr_u'},
@@ -115,9 +113,7 @@ def sap(y, s, pos_label=1):
     try: return average_precision_score(y, s, pos_label=pos_label)
     except: return 0.0
 
-# ============================================================
 # Models
-# ============================================================
 class Generator(nn.Module):
     def __init__(self, latent_dim, out_dim):
         super().__init__()
@@ -221,9 +217,7 @@ def hue_resample(Xtr, ytr, seed, n_bags=3, max_depth=5, rf_trees=10):
     sel_maj = idx_maj[top_idx]
     return np.vstack([Xtr[idx_min], Xtr[sel_maj]]), np.concatenate([np.ones(len(idx_min)), np.zeros(len(sel_maj))])
 
-# ============================================================
 # Metric computation
-# ============================================================
 def compute_metrics_std(proba_tr, ytr_aug, proba_te, yte, proba_orig, ytr_orig, cfg, paper):
     th1, th2 = cfg['th1'], cfg['th2']
     yp_te1 = (proba_te >= th1).astype(int); yp_te2 = (proba_te >= th2).astype(int)
@@ -259,7 +253,6 @@ def compute_metrics_std(proba_tr, ytr_aug, proba_te, yte, proba_orig, ytr_orig, 
     yt_p, yp_p = ap_map[cfg['P']]
     ap = sap(yt_p, yp_p)
 
-    # GMEAN (th3 if present, else th2)
     th3 = cfg.get('th3', th2)
     yp_te3 = (proba_te >= th3).astype(int) if th3 != th2 else yp_te2
     yp_tr3 = (proba_tr >= th3).astype(int) if th3 != th2 else yp_tr2
@@ -352,7 +345,6 @@ def compute_metrics_gan(pte_u, ptr_u, porig_u, pte_s, ptr_s, porig_s,
         else:
             ap = sap(yt_p, preds_f['te_u'])
 
-    # GMEAN
     g_src = cfg['G']
     g_base = g_src.replace('aug', 'tr')
     yt_g = get_yt(g_base)
@@ -363,12 +355,10 @@ def compute_metrics_gan(pte_u, ptr_u, porig_u, pte_s, ptr_s, porig_s,
 
     return acc, auc, f1, ap, gm
 
-# ============================================================
 # MAIN
-# ============================================================
 def main():
     log("=" * 80)
-    log("CarVGood 100-fold Replication - All 10 methods")
+    log("CarVGood 100-fold Replication — All 10 methods")
     log("=" * 80)
 
     X, y = load_data(DATA_PATH)
@@ -495,11 +485,9 @@ def main():
             log(f"  Fold {fi+1}/{TOTAL_FOLDS} done ({elapsed:.0f}s)")
             save_log()
 
-    # ============================================================
     # Final results
-    # ============================================================
     log("\n" + "=" * 80)
-    log("FINAL RESULTS - CarVGood 100-fold Replication")
+    log("FINAL RESULTS — CarVGood 100-fold Replication")
     log("=" * 80)
 
     for method in methods:
@@ -537,8 +525,11 @@ def main():
     log(f"{ok_count}/{len(methods)} OK")
 
     log(f"\nTotal time: {time.time()-t0:.0f}s")
-    save_log()
+    if os.path.exists(CKPT_FILE):
+        os.remove(CKPT_FILE)
+        log(f"Removed checkpoint: {CKPT_FILE}")
     log(f"Results saved to: {LOG_FILE}")
+    save_log()
 
 if __name__ == "__main__":
     main()

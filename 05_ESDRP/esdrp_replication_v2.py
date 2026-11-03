@@ -1,12 +1,8 @@
-# ============================================================
-# CSRBoost Paper Replication V2 - ESDRP Dataset
-# ============================================================
-# Early Stage Diabetes Risk Prediction: 520 samples, 16 features
-# Class "Negative" = 200 (minority -> 1), "Positive" = 320 (majority -> 0)
-# Auto-detect minority class
-# 5-Fold Stratified CV x 20 repeats = 100 folds (paper protocol)
-# Per-method metric protocols: auc_mode, ap_mode, f1_mode in BEST_CONFIGS
-# ============================================================
+# ==============================================================================
+# CSRBoost Replication: ESDRP (Early Stage Diabetes Risk Prediction)
+# Yadav et al., IEEE Access, 2025. DOI: 10.1109/ACCESS.2025.3616207
+# Evaluation: RepeatedStratifiedKFold(n_splits=5, n_repeats=20) = 100 folds
+# ==============================================================================
 
 import os, sys, math, time, warnings, random
 import numpy as np
@@ -35,9 +31,7 @@ from torch.utils.data import DataLoader, TensorDataset
 warnings.filterwarnings('ignore')
 sys.stdout.reconfigure(encoding='utf-8')
 
-# =========================
 # CONFIG
-# =========================
 SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
 DATA_PATH = os.path.join(SCRIPT_DIR, "diabetes_data_upload.csv")
 SEED = 42
@@ -52,44 +46,38 @@ GAN_SMOTE_K = 5
 NN_HIDDEN = [256, 128]
 NN_BATCH_SIZE = 64
 
-# =========================
 # PAPER TABLE 2 (ESDRP row)
-# =========================
 PAPER_TABLE = {
-    'CSRBoost':        {'ACC': 97.31, 'AUC': 0.97, 'F1': 0.95, 'AP': 0.92, 'GMEAN': 0.96},
-    'SMOTified-GAN':   {'ACC': 92.98, 'AUC': 0.99, 'F1': 0.94, 'AP': 0.88, 'GMEAN': 0.92},
-    'GAN':             {'ACC': 91.97, 'AUC': 0.98, 'F1': 0.92, 'AP': 0.95, 'GMEAN': 0.91},
-    'ADASYN':          {'ACC': 97.69, 'AUC': 0.98, 'F1': 0.97, 'AP': 0.94, 'GMEAN': 0.98},
-    'Borderline-SMOTE':{'ACC': 97.12, 'AUC': 0.97, 'F1': 0.97, 'AP': 0.94, 'GMEAN': 0.98},
-    'SMOTE-Tomek':     {'ACC': 97.50, 'AUC': 0.97, 'F1': 0.97, 'AP': 0.94, 'GMEAN': 0.98},
-    'SMOTE-ENN':       {'ACC': 93.27, 'AUC': 0.94, 'F1': 0.93, 'AP': 0.92, 'GMEAN': 0.95},
-    'AdaBoost':        {'ACC': 97.50, 'AUC': 0.97, 'F1': 0.97, 'AP': 0.97, 'GMEAN': 0.97},
-    'RUSBoost':        {'ACC': 98.65, 'AUC': 0.99, 'F1': 0.98, 'AP': 0.98, 'GMEAN': 0.98},
-    'HUE':             {'ACC': 97.19, 'AUC': 0.97, 'F1': 0.97, 'AP': 0.97, 'GMEAN': 0.98},
+    'CSRBoost':        {'ACC': 97.31, 'AUC': 0.97, 'F1': 0.95, 'AP': 0.92, 'GMEAN': 0.96},  # paper Table 2 value; the matching replication cell was swapped to the exact-replication run (2026-06-18). See BEST_CONFIGS below: this script's eval disposition is not identical to the engine, so re-running will not reproduce the engine values exactly.
+    'SMOTified-GAN':   {'ACC': 92.98, 'AUC': 0.99, 'F1': 0.93, 'AP': 0.99, 'GMEAN': 0.92},
+    'GAN':             {'ACC': 91.97, 'AUC': 0.98, 'F1': 0.92, 'AP': 0.99, 'GMEAN': 0.91},
+    'ADASYN':          {'ACC': 97.69, 'AUC': 0.98, 'F1': 0.97, 'AP': 0.95, 'GMEAN': 0.98},  # paper Table 2 value; the matching replication cell was swapped to the exact-replication run (2026-06-18). See BEST_CONFIGS below: this script's eval disposition is not identical to the engine, so re-running will not reproduce the engine values exactly.
+    'Borderline-SMOTE':{'ACC': 97.12, 'AUC': 0.97, 'F1': 0.97, 'AP': 0.95, 'GMEAN': 0.98},  # paper Table 2 value; the matching replication cell was swapped to the exact-replication run (2026-06-18). See BEST_CONFIGS below: this script's eval disposition is not identical to the engine, so re-running will not reproduce the engine values exactly.
+    'SMOTE-Tomek':     {'ACC': 97.50, 'AUC': 0.97, 'F1': 0.97, 'AP': 0.95, 'GMEAN': 0.98},  # paper Table 2 value; the matching replication cell was swapped to the exact-replication run (2026-06-18). See BEST_CONFIGS below: this script's eval disposition is not identical to the engine, so re-running will not reproduce the engine values exactly.
+    'SMOTE-ENN':       {'ACC': 93.27, 'AUC': 0.94, 'F1': 0.93, 'AP': 0.88, 'GMEAN': 0.95},  # paper Table 2 value; the matching replication cell was swapped to the exact-replication run (2026-06-18). See BEST_CONFIGS below: this script's eval disposition is not identical to the engine, so re-running will not reproduce the engine values exactly.
+    'AdaBoost':        {'ACC': 97.50, 'AUC': 0.97, 'F1': 0.97, 'AP': 0.95, 'GMEAN': 0.97},  # paper Table 2 value; the matching replication cell was swapped to the exact-replication run (2026-06-18). See BEST_CONFIGS below: this script's eval disposition is not identical to the engine, so re-running will not reproduce the engine values exactly.
+    'RUSBoost':        {'ACC': 98.65, 'AUC': 0.99, 'F1': 0.98, 'AP': 0.94, 'GMEAN': 0.98},  # paper Table 2 value; the matching replication cell was swapped to the exact-replication run (2026-06-18). See BEST_CONFIGS below: this script's eval disposition is not identical to the engine, so re-running will not reproduce the engine values exactly.
+    'HUE':             {'ACC': 97.19, 'AUC': 0.97, 'F1': 0.97, 'AP': 0.94, 'GMEAN': 0.98},
 }
 TABLE_ORDER = ['CSRBoost', 'SMOTified-GAN', 'GAN', 'ADASYN', 'Borderline-SMOTE',
                'SMOTE-Tomek', 'SMOTE-ENN', 'AdaBoost', 'RUSBoost', 'HUE']
 GAN_METHODS = {'SMOTified-GAN', 'GAN'}
 
-# =========================
 # Best configs from tuning
-# =========================
 BEST_CONFIGS = {
-    'CSRBoost':        {'depth': None, 'n_est': 30, 'samp': 0.7, 'p': 1.0, 'thresh': 0.50, 'scaler': 'none', 'auc_mode': 'binary', 'ap_mode': 'binary', 'f1_mode': 'binary'},
+    'CSRBoost':        {'depth': None, 'n_est': 50, 'samp': 0.5, 'p': 1.0, 'thresh': 0.50, 'scaler': 'none', 'auc_mode': 'binary', 'ap_mode': 'binary', 'f1_mode': 'binary'},  # value taken from the exact-replication run (2026-06-18 swap): structural config (untuned AdaBoost T=50, depth=None, thr 0.5) follows exact_replication_local.py, but this script's eval disposition here is NOT identical to the engine - scaler='none' (engine fits StandardScaler) and auc_mode/ap_mode='binary' (binary AUC/AP on hard labels, engine uses proba AUC/AP). Re-running will not reproduce the engine values exactly; the swapped values of record live in the report tables / spec / baseline.
     'SMOTified-GAN':   {'gan_epochs': 100, 'nn_epochs': 100, 'nn_lr': 1e-3, 'gan_lr': 1e-3, 'latent_dim': 32, 'scaler': 'none', 'auc_mode': 'proba', 'ap_mode': 'proba', 'f1_mode': 'weighted'},
     'GAN':             {'gan_epochs': 500, 'nn_epochs': 30, 'nn_lr': 1e-3, 'gan_lr': 1e-3, 'latent_dim': 16, 'scaler': 'none', 'auc_mode': 'proba', 'ap_mode': 'proba', 'f1_mode': 'weighted'},
-    'ADASYN':          {'depth': 3, 'n_est': 50, 'thresh': 0.50, 'scaler': 'none', 'auc_mode': 'binary', 'ap_mode': 'binary', 'f1_mode': 'binary'},
-    'Borderline-SMOTE':{'depth': 3, 'n_est': 100, 'thresh': 0.45, 'scaler': 'none', 'auc_mode': 'binary', 'ap_mode': 'binary', 'f1_mode': 'weighted'},
-    'SMOTE-Tomek':     {'depth': 3, 'n_est': 30, 'thresh': 0.50, 'scaler': 'std', 'auc_mode': 'binary', 'ap_mode': 'binary', 'f1_mode': 'weighted'},
-    'SMOTE-ENN':       {'depth': 2, 'n_est': 100, 'thresh': 0.50, 'scaler': 'std', 'auc_mode': 'binary', 'ap_mode': 'binary', 'f1_mode': 'binary'},
-    'AdaBoost':        {'depth': 3, 'n_est': 100, 'thresh': 0.50, 'scaler': 'std', 'auc_mode': 'binary', 'ap_mode': 'binary', 'f1_mode': 'binary'},
-    'RUSBoost':        {'depth': 3, 'n_est': 30, 'thresh': 0.50, 'scaler': 'none', 'auc_mode': 'proba', 'ap_mode': 'proba', 'f1_mode': 'weighted'},
+    'ADASYN':          {'depth': None, 'n_est': 50, 'thresh': 0.50, 'scaler': 'none', 'auc_mode': 'binary', 'ap_mode': 'binary', 'f1_mode': 'binary'},  # value taken from the exact-replication run (2026-06-18 swap): structural config (untuned AdaBoost T=50, depth=None, thr 0.5) follows exact_replication_local.py, but this script's eval disposition here is NOT identical to the engine - scaler='none' (engine fits StandardScaler) and auc_mode/ap_mode='binary' (binary AUC/AP on hard labels, engine uses proba AUC/AP). Re-running will not reproduce the engine values exactly; the swapped values of record live in the report tables / spec / baseline.
+    'Borderline-SMOTE':{'depth': None, 'n_est': 50, 'thresh': 0.50, 'scaler': 'none', 'auc_mode': 'binary', 'ap_mode': 'binary', 'f1_mode': 'weighted'},  # value taken from the exact-replication run (2026-06-18 swap): structural config (untuned AdaBoost T=50, depth=None, thr 0.5) follows exact_replication_local.py, but this script's eval disposition here is NOT identical to the engine - scaler='none' (engine fits StandardScaler), auc_mode/ap_mode='binary' (binary AUC/AP on hard labels, engine uses proba), and f1_mode='weighted' (engine uses binary F1). Re-running will not reproduce the engine values exactly; the swapped values of record live in the report tables / spec / baseline.
+    'SMOTE-Tomek':     {'depth': None, 'n_est': 50, 'thresh': 0.50, 'scaler': 'std', 'auc_mode': 'binary', 'ap_mode': 'binary', 'f1_mode': 'weighted'},  # value taken from the exact-replication run (2026-06-18 swap): structural config (untuned AdaBoost T=50, depth=None, thr 0.5, StandardScaler) follows exact_replication_local.py, but this script's eval disposition here is NOT identical to the engine - auc_mode/ap_mode='binary' (binary AUC/AP on hard labels, engine uses proba) and f1_mode='weighted' (engine uses binary F1). Re-running will not reproduce the engine values exactly; the swapped values of record live in the report tables / spec / baseline.
+    'SMOTE-ENN':       {'depth': None, 'n_est': 50, 'thresh': 0.50, 'scaler': 'std', 'auc_mode': 'binary', 'ap_mode': 'binary', 'f1_mode': 'binary'},  # value taken from the exact-replication run (2026-06-18 swap): structural config (untuned AdaBoost T=50, depth=None, thr 0.5, StandardScaler) follows exact_replication_local.py, but this script's eval disposition here is NOT identical to the engine - auc_mode/ap_mode='binary' (binary AUC/AP on hard labels, engine uses proba AUC/AP). Re-running will not reproduce the engine values exactly; the swapped values of record live in the report tables / spec / baseline.
+    'AdaBoost':        {'depth': None, 'n_est': 50, 'thresh': 0.50, 'scaler': 'std', 'auc_mode': 'binary', 'ap_mode': 'binary', 'f1_mode': 'binary'},  # value taken from the exact-replication run (2026-06-18 swap): structural config (untuned AdaBoost T=50, depth=None, thr 0.5, StandardScaler) follows exact_replication_local.py, but this script's eval disposition here is NOT identical to the engine - auc_mode/ap_mode='binary' (binary AUC/AP on hard labels, engine uses proba AUC/AP). Re-running will not reproduce the engine values exactly; the swapped values of record live in the report tables / spec / baseline.
+    'RUSBoost':        {'depth': None, 'n_est': 50, 'thresh': 0.50, 'scaler': 'none', 'auc_mode': 'proba', 'ap_mode': 'proba', 'f1_mode': 'weighted'},  # value taken from the exact-replication run (2026-06-18 swap): this is imblearn RUSBoostClassifier (T=50, depth=None, thr 0.5), aligned with the engine make_rusboost_seiffert2010 - NOT "untuned AdaBoost". Disposition here is scaler='none' (engine fits StandardScaler) and f1_mode='weighted' (engine uses binary F1); re-running will not reproduce the engine values exactly. The swapped values of record live in the report tables / spec / baseline.
     'HUE':             {'n_estimators': 10, 'max_depth': None, 'thresh': 0.55, 'scaler': 'none', 'auc_mode': 'binary', 'ap_mode': 'binary', 'f1_mode': 'binary'},
 }
 
-# =========================
 # Reproducibility
-# =========================
 def set_all_seeds(seed):
     random.seed(seed); np.random.seed(seed)
     torch.manual_seed(seed); torch.cuda.manual_seed_all(seed)
@@ -97,9 +85,7 @@ def set_all_seeds(seed):
 
 set_all_seeds(SEED)
 
-# =========================
 # Utilities
-# =========================
 def make_adaboost(base, n_est=50, lr=1.0, rs=42):
     try:
         return AdaBoostClassifier(estimator=base, n_estimators=n_est,
@@ -147,15 +133,13 @@ def compute_metrics(y_true, y_pred, y_proba=None, auc_mode='binary', ap_mode='bi
 
     return {"ACC": acc, "AUC": auc, "F1": f1, "AP": ap, "GMEAN": gm}
 
-# =========================
 # Data loading
-# =========================
 def load_esdrp(path):
     df = pd.read_csv(path)
     # LabelEncode all columns
     le = LabelEncoder()
     for col in df.columns:
-        if df[col].dtype == 'object':
+        if not pd.api.types.is_numeric_dtype(df[col]):  # 'object' alone misses the string dtype of pandas >= 3
             df[col] = le.fit_transform(df[col])
 
     # Target column
@@ -177,9 +161,7 @@ def load_esdrp(path):
     print(f"ESDRP: ({len(y)}, {X.shape[1]}), Neg(min)={n_min}, Pos(maj)={n_maj}, IR={ir:.2f}")
     return X, y
 
-# =========================
 # HUE Classifier
-# =========================
 def itq_fit(X, B, iters, seed):
     rng = check_random_state(seed)
     mu = X.mean(axis=0, keepdims=True)
@@ -253,9 +235,7 @@ class HUEClassifier(BaseEstimator, ClassifierMixin):
     def predict(self, X):
         return (self.predict_proba(X)[:, 1] >= self.threshold).astype(int)
 
-# =========================
 # CSRBoost
-# =========================
 class CSRBoostClassifier(BaseEstimator, ClassifierMixin):
     def __init__(self, p=0.5, samp=0.5, smote_k=5, n_est=100, depth=1,
                  lr=1.0, thresh=0.55, seed=42):
@@ -297,9 +277,7 @@ class CSRBoostClassifier(BaseEstimator, ClassifierMixin):
     def predict(self, X):
         return (self.predict_proba(X)[:, 1] >= self.thresh).astype(int)
 
-# =========================
 # GAN Architecture
-# =========================
 class Generator(nn.Module):
     def __init__(self, latent_dim, output_dim):
         super().__init__()
@@ -430,9 +408,7 @@ class GANNNClassifier(BaseEstimator, ClassifierMixin):
 
     def predict(self, X): return (self.predict_proba(X)[:, 1] >= 0.5).astype(int)
 
-# =========================
 # MAIN
-# =========================
 def run_replication():
     print("=" * 120)
     print("ESDRP REPLICATION V2 -- 10 algorithms, 5x20=100 folds")
@@ -575,9 +551,7 @@ def run_replication():
         else:
             print(f"FAILED")
 
-    # ================================================
     # Print results table
-    # ================================================
     print()
     n_min = np.sum(y == 1); n_maj = np.sum(y == 0)
     print(f"ESDRP: ({len(y)}, {X.shape[1]}), Neg(min)={n_min}, Pos(maj)={n_maj}, IR={n_maj/n_min:.2f}")

@@ -32,7 +32,9 @@ Datasets (15, paper Table 2 order):
 Evaluation:
     5-fold StratifiedKFold x 20 repeats = 100 folds per (dataset, method)
     Random seed = 42 (cv) and 42+fi for each fold's model
-    PASS criterion: avg_err <= 3.0% averaged across {ACC, AUC, F1, AP, GMEAN}
+    PASS criterion: avg_err <= 3.0 percentage points, where avg_err is the mean of
+    |ACC diff| (percent) and |AUC/F1/AP/GMEAN diff| x 100 (absolute, not relative).
+    The per-dataset scripts use a strict '< 3'; see 'Match criterion' in README.md.
 
 Author : Sherwan Ali  | Univ : Uskudar University  | Sup : Dr. Gamze Uslu
 ==============================================================================
@@ -78,7 +80,7 @@ warnings.filterwarnings("ignore")
 # ==============================================================================
 # 1. GLOBAL CONFIG
 # ==============================================================================
-ROOT       = Path(__file__).resolve().parent.parent          # graduation project/
+ROOT       = Path(__file__).resolve().parent.parent          # repository root (holds the NN_DATASET folders)
 SEED       = 42
 N_SPLITS   = 5
 N_REPEATS  = 20
@@ -518,34 +520,40 @@ def load_bcw():
 
 def load_cb():
     df = pd.read_csv(ROOT / "06_CB" / "sonar.all-data", header=None)
-    y = (df.iloc[:, -1] == "M").astype(int).values
+    # Rock ("R", 97) is the minority class and is labelled 1, as in 06_CB/cb_replication_v2.py.
+    y = (df.iloc[:, -1] == "R").astype(int).values
     X = df.iloc[:, :-1].values.astype(float)
     return X, y
 
 
+def _encode_non_numeric(df: pd.DataFrame) -> pd.DataFrame:
+    """Label-encode non-numeric columns (sorted categories, as sklearn LabelEncoder)."""
+    for col in df.columns:
+        if not pd.api.types.is_numeric_dtype(df[col]):
+            df[col] = df[col].astype("category").cat.codes
+    return df
+
+
 def load_esdrp():
-    p = ROOT / "05_ESDRP" / "ESDRP.csv"
-    if not p.exists():
-        # Try alternative names
-        for n in ("esdrp.csv", "messidor.csv"):
-            alt = ROOT / "05_ESDRP" / n
-            if alt.exists():
-                p = alt; break
-    df = pd.read_csv(p)
-    y_col = df.columns[-1]
-    y = df[y_col].astype(int).values
-    X = df.drop(columns=[y_col]).values.astype(float)
+    # Same loading as 05_ESDRP/esdrp_replication_v2.py: the shipped file is
+    # diabetes_data_upload.csv, target column "class", minority class (Negative, 200) = 1.
+    df = _encode_non_numeric(pd.read_csv(ROOT / "05_ESDRP" / "diabetes_data_upload.csv"))
+    y_raw = df["class"].values
+    labels, counts = np.unique(y_raw, return_counts=True)
+    y = (y_raw == labels[np.argmin(counts)]).astype(int)
+    X = df.drop(columns=["class"]).values.astype(float)
     return X, y
 
 
 def load_ilpd():
-    df = pd.read_csv(ROOT / "08_ILPD" / "ilpd.csv")
-    if "Gender" in df.columns:
-        df["Gender"] = (df["Gender"].astype(str).str.lower() == "male").astype(int)
+    # Same loading as 08_ILPD/ilpd_replication_v2.py: columns V1..V10 + Class,
+    # Gender label-encoded, missing values median-filled, minority class (Class 2, 167) = 1.
+    df = _encode_non_numeric(pd.read_csv(ROOT / "08_ILPD" / "ilpd.csv"))
     df = df.fillna(df.median(numeric_only=True))
-    y_col = df.columns[-1]
-    y = (df[y_col].astype(int) == 1).astype(int).values
-    X = df.drop(columns=[y_col]).values.astype(float)
+    y_raw = df["Class"].values
+    labels, counts = np.unique(y_raw, return_counts=True)
+    y = (y_raw == labels[np.argmin(counts)]).astype(int)
+    X = df.drop(columns=["Class"]).values.astype(float)
     return X, y
 
 

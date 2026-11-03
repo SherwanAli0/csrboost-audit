@@ -8,7 +8,7 @@ The BCW and CB RUSBoost cells, and several HUE cells, require five different dec
 
 Specifically:
 
-- On CB, the reported AP = 0.97 alongside reported AUC = 0.72 is mathematically inconsistent under any single threshold.
+- On CB, the reported AP = 0.97 alongside reported AUC = 0.72 is very hard to reconcile under any single threshold.
 - On BCW, the reported AP = 0.75 alongside AUC = 0.97 exhibits the same impossibility.
 
 These mismatches between AP and AUC cannot be resolved by choosing any single threshold; they require AP and AUC to be computed at different operating points.
