@@ -77,7 +77,8 @@ In the stored uniform-protocol results, 42 of 143 rows pass. In the final table,
 +-- README.md                              this file
 +-- REPORT.md                              full forensic report (thesis manuscript)
 +-- CITATION.cff                           citation metadata
-+-- LICENSE                                MIT (code) + CC BY 4.0 (documentation)
++-- LICENSE                                MIT (code) + CC BY 4.0 (documentation), with scope of each
++-- LICENSE-CC-BY-4.0.txt                  full legal code of CC BY 4.0 (verbatim official text)
 +-- requirements.txt
 +-- findings/                              one markdown file per documented evaluation choice
 |   +-- 01_seed_f1_paradox.md
@@ -338,11 +339,15 @@ A `CITATION.cff` is provided so GitHub renders a "Cite this repository" button.
 This repository is dual-licensed (see [LICENSE](LICENSE)):
 
 - Source code (Python files, `combined_codes/`, `results/verify_summary.py`): [MIT License](LICENSE).
-- Documentation, results CSVs, findings, reports and research notes (`README.md`, `REPORT.md`, `findings/`, `results/`): [CC-BY 4.0](https://creativecommons.org/licenses/by/4.0/).
+- Documentation, results CSVs, findings, reports and research notes (`README.md`, `REPORT.md`, `findings/`, `results/`): [CC-BY 4.0](https://creativecommons.org/licenses/by/4.0/). The full legal code is included in [LICENSE-CC-BY-4.0.txt](LICENSE-CC-BY-4.0.txt).
 - **Not covered by either license:** the original CSRBoost paper (Yadav et al., IEEE Access 2025, copyright of its authors and publisher; it is not redistributed here), the datasets in the numbered folders (UCI Machine Learning Repository and KEEL data, which keep their providers' terms), and the third-party libraries the code uses.
 
 **License change.** Earlier versions of this repository shipped a `LICENSE` file containing Creative Commons Attribution-NonCommercial-NoDerivatives 4.0 (CC BY-NC-ND 4.0). That contradicted the MIT and CC-BY 4.0 terms stated in this README and in `CITATION.cff`, and made the code unusable under the stated terms. The file was replaced with the dual MIT + CC-BY 4.0 layout the README and `CITATION.cff` already described, matching the other repositories of this author. Copies obtained before the change were distributed under the earlier text.
 
+**Section B clarification.** An intermediate version of Section B of `LICENSE` added a condition that the supervision credit and the attribution of the original CSRBoost paper be kept when the material is reused. That condition was removed, because CC BY 4.0 does not permit additional restrictions. The credit is kept as an acknowledgement and a request (see [Acknowledgements](#acknowledgements)); who is credited has not changed.
+
 ## Acknowledgements
 
 This work was completed as a graduation thesis under the supervision of Dr. Gamze Uslu at Uskudar University. Computational resources were provided by Google Colab Pro and personal hardware.
+
+If you reuse this material, please keep this supervision credit (Dr. Gamze Uslu, Uskudar University) and the citation of the original paper that this audit examines: S. Yadav, S. Gupta, A. K. Yadav, and S. Gupta, "CSRBoost: Clustered Sampling With Resampling Boosting for Imbalanced Dataset Pattern Classification," IEEE Access, 2025, [DOI 10.1109/ACCESS.2025.3616207](https://doi.org/10.1109/ACCESS.2025.3616207). This is a request made in good faith, not an additional condition of the licenses. The CC BY 4.0 license itself requires attribution to the licensor, as set out in its legal code.
