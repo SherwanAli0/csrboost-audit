@@ -19,7 +19,7 @@ Reproducibility is a cornerstone of scientific research, yet machine-learning pu
 2. Observations about which tested evaluation choices align with the stored paper-reference values; these do not establish the original authors' actual procedure.
 3. Stored results and lightweight verifiers that distinguish numerical agreement from reproduced experiments.
 
-Two tracks frame the result. Under one uniform standardized protocol applied as the paper describes (the exact-replication track), only 42 of the 143 evaluated result rows reproduce within 3 percent average error (29.4 percent; see the criterion in Section 3.1), and CSRBoost itself reproduces this way on 10 of its 15 datasets, more than any comparator. After per-cell reverse-engineering, all 143 cells reproduce, but only under the undocumented choices above; on the 5 datasets where CSRBoost does not reproduce under the standard protocol (DCCC, SEED, YEAST5-ERL, CARGOOD, FLARE-F), it too requires these non-standard choices. The gap between 29.4 percent from the description and 100 percent only after reverse-engineering is the quantitative core of this audit. CSRBoost's core idea is supported; the tested uniform implementation does not reproduce every comparator row, and other implementations remain untested.
+Two tracks frame the result. Under one uniform standardized protocol applied as the paper describes (the exact-replication track), only 42 of the 143 evaluated result rows reproduce within 3 percent average error (29.4 percent; see the criterion in Section 3.1), and CSRBoost itself reproduces this way on 10 of its 15 datasets, more than any comparator. After per-cell reverse-engineering, all 143 rows agree in the stored final table under the row-average criterion (strict below 3 points; 42 rows carry uniform-protocol values and 101 are tuned values that were not regenerated in this pass), but only under the undocumented choices above; on the 5 datasets where CSRBoost does not reproduce under the standard protocol (DCCC, SEED, YEAST5-ERL, CARGOOD, FLARE-F), it too requires these non-standard choices. The gap between 29.4 percent from the description and 100 percent only after reverse-engineering is the quantitative core of this audit. This audit checks reported numbers and cannot by itself show whether the CSRBoost idea is sound. Under the tested uniform implementation CSRBoost agrees with its reported values on more datasets than any comparator, that implementation does not reproduce every row, and other implementations remain untested.
 
 **Keywords:** reproducibility audit, forensic reverse-engineering, evaluation-protocol disclosure, class imbalance, CSRBoost, ensemble learning, hyperparameter optimization, SMOTE, GAN, imbalanced classification, evaluation transparency.
 
@@ -38,7 +38,7 @@ Given the significance of these claims and the importance of independent verific
 1. To determine whether the reported performance metrics can be reproduced from the paper's published description under any single coherent evaluation protocol.
 2. To document, cell by cell, the specific undocumented evaluation choices required when no single coherent protocol exists.
 3. To quantify the parameter-space search effort required when publications provide incomplete specifications.
-4. To provide a complete configuration matrix that allows future readers to understand exactly what evaluation logic was applied where.
+4. To provide a historical configuration map (`combined_codes/BEST_CONFIGS.py`), partially checked against the final scripts by static comparison, that indicates which evaluation choices were applied where. It is not a validated recipe.
 
 The wider project effort is author-reported: approximately three months, 75,000 configurations and 900-plus compute-hours. These retrospective estimates are not verified totals from the committed logs and do not describe Test 1 or Test 2 alone. The final scripts contain per-row settings that aligned this study's stored outputs with the reference values; the historical combined configuration map is only partially checked against those scripts. Neither this mapping nor the tested alternatives establishes what procedure the original authors used.
 
@@ -112,7 +112,7 @@ The following parameters were not explicitly specified in the publication and re
 
 ### 5.1 Staged search
 
-A staged hyperparameter search was applied: 20-fold pilot searches narrowed configurations, then 100-fold runs locked them in. Each cell typically required hundreds to thousands of pilot configurations.
+The author reports that a staged hyperparameter search was applied: pilot searches on 20 evaluations narrowed configurations, then runs on 100 evaluations locked them in, and that each cell typically required hundreds to thousands of pilot configurations. No run ledger of these searches is committed, so these statements are not independently verifiable from this repository.
 
 ### 5.2 Computational effort
 
@@ -140,7 +140,7 @@ Detailed per-dataset Tables 5a-19b are provided in the per-folder scripts and th
 
 Summary across all 15 datasets:
 
-| Dataset | Cells reported | Cells matched within 3 percent | Forced Match Rate |
+| Dataset | Rows evaluated | Rows below 3 points row-average error (stored table) | Share of rows |
 |---|---|---|---|
 | PSDAS | 9 | 9 | 100% |
 | ESR | 9 | 9 | 100% |
@@ -185,9 +185,9 @@ Under the standardized exact protocol, CSRBoost reproduces within 3 percent on 1
 
 The choices described below are observed in this audit's implementations and stored results. They do not establish the original authors' implementation or intent, and the tested alternatives do not cover every possible uniform protocol.
 
-### 8.1 Validation of CSRBoost core claims
+### 8.1 CSRBoost rows under the tested uniform implementation
 
-This study supports the standalone effectiveness of the CSRBoost algorithm itself, with one honest qualification. When its own protocol (KMeans clustering with 50 percent per-cluster random under-sampling, SMOTE oversampling, AdaBoost with T=50 and standard 0.5 threshold, standard probability-based metrics, evaluation on the held-out test fold) is applied uniformly, CSRBoost lands within 3 percent of its reported numbers on 10 of the 15 datasets, more than any comparator method. On the remaining 5 (DCCC, SEED, YEAST5-ERL, CARGOOD, FLARE-F), CSRBoost reaches the published values only under the same non-standard evaluation choices required for the comparators. CSRBoost is thus the most reproducible method in the table, but it is not fully exempt from the table's reproducibility problem.
+A reproducibility audit of reported numbers can show whether those numbers are recovered, not whether a method is effective in general. With that limit, in this study's implementation: when CSRBoost's own protocol (KMeans clustering with 50 percent per-cluster random under-sampling, SMOTE oversampling, AdaBoost with T=50 and standard 0.5 threshold, standard probability-based metrics, evaluation on the held-out test fold) is applied uniformly, CSRBoost lands within 3 percent of its reported numbers on 10 of the 15 datasets, more than any comparator method. On the remaining 5 (DCCC, SEED, YEAST5-ERL, CARGOOD, FLARE-F), CSRBoost reaches the published values only under the same non-standard evaluation choices required for the comparators. CSRBoost is thus the most reproducible method in the table, but it is not fully exempt from the table's reproducibility problem.
 
 The stored numerical agreement does not validate the original comparison protocol. The final scripts use per-row choices, while `BEST_CONFIGS.py` is a historical map with partial static checks. These are implementation choices in this audit; agreement with the reference numbers does not demonstrate that the original authors used them. Full tuned-run reproduction remains unverified.
 
@@ -196,14 +196,14 @@ Achieving 100 percent reproduction therefore did not validate the original proto
 ### 8.2 Reproducibility barriers
 
 1. **GAN and SMOTified-GAN evaluation protocol.** The vague specification "configuration described in [32]" proved insufficient. Investigation revealed that GAN results are reproducible only when evaluation includes augmented training data, constituting data leakage. Neural-network classifiers (not AdaBoost) were required, a fundamental detail absent from the publication.
-2. **Non-standard AUC computation.** Multiple datasets required AUC computation from binary predictions rather than probability scores to match paper values, suggesting the original paper used balanced accuracy in place of standard ROC-AUC.
+2. **Non-standard AUC computation.** Multiple datasets required AUC computation from binary predictions rather than probability scores to match paper values. One hypothesis of this study, not established, is that a quantity closer to balanced accuracy than to ROC-AUC was reported.
 3. **HUE algorithm.** Critical details including tree depth limits, ITQ iteration counts, and threshold calibration required empirical discovery.
 4. **PSDAS class configuration.** The class mapping and evaluation protocol required dedicated validation to stabilize 100-fold replication.
 5. **RUSBoost mathematical inconsistency.** BCW and CB datasets required per-metric thresholds because no single threshold simultaneously produces all five reported metrics. On CB, AP=0.97 alongside AUC=0.72 is mathematically inconsistent; on BCW, AP=0.75 alongside AUC=0.97 exhibits the same problem. These suggest transcription errors in the original paper.
 
 ### 8.3 Forensic findings: evaluation irregularities and data leakage
 
-This section summarises the structural, mathematical, and procedural irregularities mapped during reconstruction. Each item is a forensic finding rather than a methodological choice on this study's part. The original paper's reported numbers are reproducible only when these specific irregularities are mirrored exactly; standard machine-learning conventions, applied uniformly, produce values that disagree with the paper by margins exceeding the 3 percent reproduction tolerance.
+This section summarises the structural, mathematical, and procedural irregularities mapped during reconstruction. Each item is an observation from this study's implementations rather than a methodological choice on this study's part. In this study's implementations the reported numbers were matched only when these specific choices were mirrored; standard conventions applied uniformly gave values that disagree with the paper by more than the 3 percent tolerance on most rows (42 of 143 rows agree). Other uniform protocols are not ruled out.
 
 #### 8.3.1 The SEED F1 inconsistency: evidence of a per-method change in metric definition
 
@@ -229,7 +229,7 @@ On BCW, CB, CARGOOD, and CARVGOOD, several reported AP cells are reproducible on
 
 Five reported G-Mean cells (PSDAS GAN, PSDAS SMOTified-GAN, PSDAS SMOTE-ENN, FLARE-F SMOTified-GAN, and BCW RUSBoost as already noted in Section 8.3.2) are reproducible only when the decision threshold is locked to the value that minimises the gap to the published G-Mean for that cell. The threshold is held fixed across all 100 folds for that cell.
 
-The FLARE-F SMOTified-GAN AP cell goes further: it is reproducible only when the AP decision threshold is set below zero, so that every prediction is forced positive. At this threshold the AP value reduces to the class prevalence of the augmented training set. This is the only operating point that lands the cell within the 3 percent tolerance, and it indicates that the reported AP for this cell was not obtained with the scikit-learn `average_precision_score` function under a positive decision threshold. How the value was obtained is unknown.
+The FLARE-F SMOTified-GAN AP cell goes further: it is reproducible only when the AP decision threshold is set below zero, so that every prediction is forced positive. At this threshold the AP value reduces to the class prevalence of the augmented training set. This is the only operating point that lands the cell within the 3 percent tolerance, and it does not match the output of the scikit-learn `average_precision_score` function under a positive decision threshold in this study's implementation. How the reported value was obtained is unknown.
 
 #### 8.3.7 Inverted training labels on BCW RUSBoost
 
@@ -263,7 +263,7 @@ This study presents a comprehensive reproducibility audit of the CSRBoost algori
 
 The key findings are:
 
-1. Numerical reproduction of the reported results was achieved for 143 of 143 evaluated algorithm-dataset combinations within 3 percent average error, with 7 paper rows correctly treated as N/A.
+1. In the stored final table, 143 of 143 evaluated algorithm-dataset rows agree with the reference values under the row-average criterion (strict below 3 points), with 7 paper rows treated as N/A. 42 of those rows carry uniform-protocol values, and the 101 tuned rows were not regenerated in this pass. This is numerical agreement of a stored table, not a reproduced experiment.
 2. Replication required dataset-specific protocols and extensive hyperparameter searches because the original paper did not fully specify implementation details.
 3. Under the tested uniform implementation, CSRBoost satisfies the row criterion on 10 of 15 datasets, and all algorithms together on 42 of 143 rows. This does not rule out other implementations or uniform protocols.
 4. The SEED F1 inconsistency (0.50 vs 0.98 on identical data, which this study's implementations could not produce with one F1 definition) is strong empirical evidence, though not a mathematical proof, that the published Table 2 is not the output of a uniform evaluation pipeline.
