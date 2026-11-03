@@ -16,6 +16,7 @@ experiments; `python results/verify_summary.py` recomputes the arithmetic from t
 | `exact_replication/baseline_phase1_results_only.csv` | The replicated values of that run only. |
 | `exact_replication/_42_pass_cells_spec.csv` | The 42 passing rows of the uniform-protocol run with their values and average errors. |
 | `hue_canonical/` | The author's re-run of the canonical ITQ-HUE on the nine datasets whose tuned HUE is a bagged RandomForest approximation: runner script and one result CSV per dataset. |
+| `earlier_workspace_tests/` | Result files and scripts of two side experiments (Test 1 and Test 2 of REPORT.md Section 5.4) from an earlier workspace of the author, runs of 2026-04-29, with a recomputation script and a README that says what each percentage means. Labelled as coming from the earlier workspace; not a file of record for Table 2 constants. |
 
 The code that produced the uniform-protocol table is in `../exact_replication/`. The raw per-fold
 outputs of that run are not included.

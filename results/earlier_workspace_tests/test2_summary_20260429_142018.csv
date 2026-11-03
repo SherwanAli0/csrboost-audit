@@ -1,0 +1,17 @@
+variation,description,rows_evaluated,total_cells,passed_cells_within_3pct,pass_rate_pct,mean_normalized_diff
+V01_platt_calib,Apply Platt (sigmoid) calibration to all probabilities,39,195,85,43.6,0.0808
+V02_isotonic_calib,Apply isotonic calibration to all probabilities,39,195,85,43.6,0.0776
+V08_lr_0.5,AdaBoost learning_rate=0.5,39,195,78,40.0,0.0852
+V07_depth_full,DecisionTree base max_depth=None (fully grown),39,195,76,39.0,0.0765
+V10_smote_k_10,SMOTE k_neighbors=10,39,195,74,37.9,0.0855
+V00_baseline,"Paper-default hyperparameters, threshold 0.5, F1 binary, AUC/AP probability-based",39,195,74,37.9,0.0854
+V15_f1_macro,F1 averaging mode = macro (vs binary),39,195,73,37.4,0.0841
+V09_smote_k_3,SMOTE k_neighbors=3,39,195,73,37.4,0.0857
+V14_f1_weighted,F1 averaging mode = weighted (vs binary),39,195,71,36.4,0.0841
+V03_n_est_100,AdaBoost n_estimators=100,39,195,71,36.4,0.0874
+V05_depth_2,DecisionTree base max_depth=2,39,195,70,35.9,0.0859
+V04_n_est_200,AdaBoost n_estimators=200,39,195,69,35.4,0.0877
+V06_depth_3,DecisionTree base max_depth=3,39,195,69,35.4,0.0883
+V13_class_redefine,CSRBoost mid-pipeline class redefinition (paper Section II-D Step 2.1),5,25,8,32.0,0.1417
+V12_retain_70,CSRBoost cluster retention=70%,5,25,8,32.0,0.069
+V11_retain_30,CSRBoost cluster retention=30%,5,25,7,28.0,0.0681
