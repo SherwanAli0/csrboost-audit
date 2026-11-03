@@ -1,0 +1,2 @@
+Dataset,Method,Paper_ACC(%),Paper_AUC,Paper_F1,Paper_AP,Paper_GMean,Replication_ACC(%),Replication_AUC,Replication_F1,Replication_AP,Replication_GMean,ACC_Error(pp),AUC_Error(pp),F1_Error(pp),AP_Error(pp),GMean_Error(pp),Average_Error(%),Status,N_folds_completed,Source
+CARVGOOD,HUE,98.44,0.99,0.83,0.72,0.99,91.6811929295468,0.9998057580286496,0.4800419800495762,0.9952768449499217,0.9557630703034559,6.7588070704532015,0.980575802864958,34.99580199504238,27.527684494992176,3.4236929696544127,14.737312466601423,FAIL,100,fixes/hue_canonical (ITQ-HUE per Ng 2022)
