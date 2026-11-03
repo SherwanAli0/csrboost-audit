@@ -1,19 +1,120 @@
-Creative Commons Attribution-NonCommercial-NoDerivatives 4.0 International (CC BY-NC-ND 4.0)
+============================================================
+DUAL LICENSE
+============================================================
+
+This repository uses two complementary licenses:
+
+1. SOURCE CODE - MIT License (see Section A below).
+   Applies to all .py files and any other executable/script files
+   written by the author (the per-dataset replication scripts, the
+   combined_codes/ framework and BEST_CONFIGS.py, and
+   results/verify_summary.py).
+
+2. DOCUMENTATION, RESULTS, FINDINGS, AND REPORTS - Creative Commons
+   Attribution 4.0 International (CC-BY 4.0) (see Section B below).
+   Applies to all .md files (README.md, REPORT.md, findings/,
+   combined_codes/README.md), the results CSV files, the
+   combined_replication.docx document, and the research notes in this
+   repository.
+
+3. ORIGINAL PAPER, DATASETS, AND THIRD-PARTY MATERIAL - NOT covered by
+   either license above. See Section C below.
+
+If a single file is unclear in scope (e.g. a file combining code and
+documentation), the more permissive of the two licenses applies.
+
+NOTE ON A LICENSE CHANGE: earlier versions of this repository carried
+a single-file LICENSE under Creative Commons Attribution-NonCommercial-
+NoDerivatives 4.0 (CC BY-NC-ND 4.0). That text contradicted the MIT
+(code) and CC BY 4.0 (documentation) terms stated in README.md and
+CITATION.cff. It has been replaced by the dual license in this file,
+which is what the README and CITATION.cff already described. Copies of
+the repository obtained before this change were distributed under the
+earlier terms.
+
+============================================================
+A. MIT License (source code)
+============================================================
 
 Copyright (c) 2026 Sherwan Ali
 
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
+
+============================================================
+B. Documentation, Results, Findings, and Reports
+   Creative Commons Attribution 4.0 International (CC-BY 4.0)
+============================================================
+
+Copyright (c) 2026 Sherwan Ali
+
+This work is licensed under the Creative Commons Attribution 4.0
+International License. To view a copy of this license, visit
+https://creativecommons.org/licenses/by/4.0/
 
 You are free to:
-  Share: copy and redistribute this material in any medium or format
+
+  Share - copy and redistribute the material in any medium or format
+  Adapt - remix, transform, and build upon the material for any
+  purpose, even commercially.
 
 Under the following terms:
-  Attribution:        You must give appropriate credit to the author (Sherwan Ali),
-                      provide a link to this repository, and indicate if changes were made.
-  NonCommercial:      You may not use this material for commercial purposes.
-  NoDerivatives:      If you remix, transform, or build upon this material,
-                      you may not distribute the modified version.
 
-No additional restrictions: You may not apply legal terms or technological measures
-that legally restrict others from doing anything the license permits.
+  Attribution - You must give appropriate credit (cite this
+  repository and its author - see CITATION.cff and the Citation
+  section of README.md), provide a link to the license, and indicate
+  if changes were made. You may do so in any reasonable manner, but
+  not in any way that suggests the licensor endorses you or your use.
 
-Full license text: https://creativecommons.org/licenses/by-nc-nd/4.0/legalcode
+  No additional restrictions - You may not apply legal terms or
+  technological measures that legally restrict others from doing
+  anything the license permits.
+
+The supervision credit (Dr. Gamze Uslu, Uskudar University) and the
+attribution of the original CSRBoost paper in README.md, REPORT.md and
+CITATION.cff must be kept when the material is reused.
+
+============================================================
+C. Original paper, datasets, and third-party material
+============================================================
+
+The following are NOT covered by Section A or Section B and keep their
+own terms:
+
+  - The original paper: S. Yadav, S. Gupta, A. K. Yadav, and S. Gupta,
+    "CSRBoost: Clustered Sampling With Resampling Boosting for
+    Imbalanced Dataset Pattern Classification," IEEE Access, 2025,
+    DOI 10.1109/ACCESS.2025.3616207. Its text, tables and figures are
+    the copyright of its authors and the publisher. This repository
+    compares numbers against that paper for the purpose of a
+    reproducibility study and does not redistribute the paper.
+
+  - The datasets in the numbered folders (01_PSDAS ... 15_FLARE-F):
+    they come from the UCI Machine Learning Repository and the KEEL
+    dataset repository and remain under the terms of their original
+    providers and donors. They are redistributed unmodified only so
+    that the scripts can be run; check the original source for the
+    applicable terms before any other use.
+
+  - The libraries the code depends on (scikit-learn, imbalanced-learn,
+    PyTorch, pandas, numpy, xlrd) are not part of this repository and
+    keep their own licenses.
+
+============================================================
+END OF LICENSE
+============================================================

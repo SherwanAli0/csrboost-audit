@@ -318,7 +318,13 @@ A `CITATION.cff` is provided so GitHub renders a "Cite this repository" button.
 
 ## License
 
-MIT for code. Documentation, results, and findings are available under [CC-BY 4.0](https://creativecommons.org/licenses/by/4.0/) when reused outside this repository.
+This repository is dual-licensed (see [LICENSE](LICENSE)):
+
+- Source code (Python files, `combined_codes/`, `results/verify_summary.py`): [MIT License](LICENSE).
+- Documentation, results CSVs, findings, reports and research notes (`README.md`, `REPORT.md`, `findings/`, `results/`): [CC-BY 4.0](https://creativecommons.org/licenses/by/4.0/).
+- **Not covered by either license:** the original CSRBoost paper (Yadav et al., IEEE Access 2025, copyright of its authors and publisher; it is not redistributed here), the datasets in the numbered folders (UCI Machine Learning Repository and KEEL data, which keep their providers' terms), and the third-party libraries the code uses.
+
+**License change.** Earlier versions of this repository shipped a `LICENSE` file containing Creative Commons Attribution-NonCommercial-NoDerivatives 4.0 (CC BY-NC-ND 4.0). That contradicted the MIT and CC-BY 4.0 terms stated in this README and in `CITATION.cff`, and made the code unusable under the stated terms. The file was replaced with the dual MIT + CC-BY 4.0 layout the README and `CITATION.cff` already described, matching the other repositories of this author. Copies obtained before the change were distributed under the earlier text.
 
 ## Acknowledgements
 
