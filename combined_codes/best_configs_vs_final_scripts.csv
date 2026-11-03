@@ -1,0 +1,151 @@
+dataset,algorithm,swapped_to_uniform_protocol,status,detail
+BCW,ADASYN,True,differs,depth: BEST_CONFIGS 1 / script None
+BCW,AdaBoost,True,differs,depth: BEST_CONFIGS 7 / script None; n_est: BEST_CONFIGS 89 / script 50; threshold: BEST_CONFIGS [0.48] / script [0.5]
+BCW,Borderline-SMOTE,True,differs,depth: BEST_CONFIGS 1 / script None; scaler: BEST_CONFIGS none / script robust
+BCW,CSRBoost,True,differs,depth: BEST_CONFIGS 1 / script None
+BCW,GAN,True,differs,threshold: BEST_CONFIGS [0.5] / script [0.34]
+BCW,HUE,False,match,"compared: depth, n_est, scaler, threshold"
+BCW,RUSBoost,False,differs,"threshold: BEST_CONFIGS [0.08, 0.14, 0.39, 0.97, 0.99] / script [0.5]"
+BCW,SMOTE-ENN,True,differs,depth: BEST_CONFIGS 1 / script None; scaler: BEST_CONFIGS none / script minmax
+BCW,SMOTE-Tomek,True,differs,depth: BEST_CONFIGS 1 / script None; scaler: BEST_CONFIGS none / script minmax
+BCW,SMOTified-GAN,True,differs,scaler: BEST_CONFIGS none / script minmax; threshold: BEST_CONFIGS [0.5] / script [0.3]
+CARGOOD,ADASYN,False,not machine-comparable (configuration is inside run functions),
+CARGOOD,AdaBoost,False,not machine-comparable (configuration is inside run functions),
+CARGOOD,Borderline-SMOTE,False,not machine-comparable (configuration is inside run functions),
+CARGOOD,CSRBoost,False,not machine-comparable (configuration is inside run functions),
+CARGOOD,GAN,False,not machine-comparable (configuration is inside run functions),
+CARGOOD,HUE,False,not machine-comparable (configuration is inside run functions),
+CARGOOD,RUSBoost,False,not machine-comparable (configuration is inside run functions),
+CARGOOD,SMOTE-ENN,False,not machine-comparable (configuration is inside run functions),
+CARGOOD,SMOTE-Tomek,False,not machine-comparable (configuration is inside run functions),
+CARGOOD,SMOTified-GAN,False,not machine-comparable (configuration is inside run functions),
+CARVGOOD,ADASYN,True,differs,depth: BEST_CONFIGS 1 / script None; scaler: BEST_CONFIGS none / script std
+CARVGOOD,AdaBoost,True,differs,"depth: BEST_CONFIGS 5 / script None; threshold: BEST_CONFIGS [0.3, 0.55] / script [0.5]"
+CARVGOOD,Borderline-SMOTE,True,differs,depth: BEST_CONFIGS 1 / script None; scaler: BEST_CONFIGS none / script std
+CARVGOOD,CSRBoost,True,differs,depth: BEST_CONFIGS 1 / script None; scaler: BEST_CONFIGS none / script std
+CARVGOOD,GAN,False,match,compared: 
+CARVGOOD,HUE,False,match,"compared: scaler, threshold"
+CARVGOOD,RUSBoost,False,match,"compared: depth, n_est, scaler, threshold"
+CARVGOOD,SMOTE-ENN,True,differs,depth: BEST_CONFIGS 1 / script None; scaler: BEST_CONFIGS none / script std
+CARVGOOD,SMOTE-Tomek,True,differs,depth: BEST_CONFIGS 1 / script None; scaler: BEST_CONFIGS none / script std
+CARVGOOD,SMOTified-GAN,False,match,compared: 
+CB,ADASYN,False,N/A in the paper,
+CB,AdaBoost,False,match,"compared: depth, n_est, scaler, threshold"
+CB,Borderline-SMOTE,False,match,"compared: depth, n_est, scaler, threshold"
+CB,CSRBoost,True,differs,depth: BEST_CONFIGS 1 / script None
+CB,GAN,False,match,compared: scaler
+CB,HUE,False,match,"compared: scaler, threshold"
+CB,RUSBoost,False,differs,"threshold: BEST_CONFIGS [0.27, 0.4, 0.54, 0.56, 0.68] / script [0.5]"
+CB,SMOTE-ENN,False,match,"compared: depth, n_est, scaler, threshold"
+CB,SMOTE-Tomek,False,match,"compared: depth, n_est, scaler, threshold"
+CB,SMOTified-GAN,False,match,compared: scaler
+DCCC,ADASYN,False,not machine-comparable (configuration is inside run functions),
+DCCC,AdaBoost,False,not machine-comparable (configuration is inside run functions),
+DCCC,Borderline-SMOTE,False,not machine-comparable (configuration is inside run functions),
+DCCC,CSRBoost,False,not machine-comparable (configuration is inside run functions),
+DCCC,GAN,False,not machine-comparable (configuration is inside run functions),
+DCCC,HUE,False,not machine-comparable (configuration is inside run functions),
+DCCC,RUSBoost,False,N/A in the paper,
+DCCC,SMOTE-ENN,True,not machine-comparable (configuration is inside run functions),
+DCCC,SMOTE-Tomek,False,not machine-comparable (configuration is inside run functions),
+DCCC,SMOTified-GAN,False,not machine-comparable (configuration is inside run functions),
+ESDRP,ADASYN,True,differs,depth: BEST_CONFIGS 1 / script None
+ESDRP,AdaBoost,True,differs,depth: BEST_CONFIGS 3 / script None; n_est: BEST_CONFIGS 100 / script 50
+ESDRP,Borderline-SMOTE,True,differs,depth: BEST_CONFIGS 1 / script None
+ESDRP,CSRBoost,True,differs,n_est: BEST_CONFIGS 30 / script 50; cluster_pct: BEST_CONFIGS 0.7 / script 0.5
+ESDRP,GAN,False,match,compared: scaler
+ESDRP,HUE,False,match,"compared: scaler, threshold"
+ESDRP,RUSBoost,True,differs,n_est: BEST_CONFIGS 10 / script 50
+ESDRP,SMOTE-ENN,True,differs,depth: BEST_CONFIGS 1 / script None; scaler: BEST_CONFIGS none / script std
+ESDRP,SMOTE-Tomek,True,differs,depth: BEST_CONFIGS 1 / script None; scaler: BEST_CONFIGS none / script std
+ESDRP,SMOTified-GAN,False,match,compared: scaler
+ESR,ADASYN,True,not machine-comparable (configuration is inside run functions),
+ESR,AdaBoost,True,not machine-comparable (configuration is inside run functions),
+ESR,Borderline-SMOTE,True,not machine-comparable (configuration is inside run functions),
+ESR,CSRBoost,True,not machine-comparable (configuration is inside run functions),
+ESR,GAN,False,not machine-comparable (configuration is inside run functions),
+ESR,HUE,False,not machine-comparable (configuration is inside run functions),
+ESR,RUSBoost,False,N/A in the paper,
+ESR,SMOTE-ENN,True,not machine-comparable (configuration is inside run functions),
+ESR,SMOTE-Tomek,True,not machine-comparable (configuration is inside run functions),
+ESR,SMOTified-GAN,False,not machine-comparable (configuration is inside run functions),
+FLARE-F,ADASYN,False,not machine-comparable (configuration is inside run functions),
+FLARE-F,AdaBoost,False,not machine-comparable (configuration is inside run functions),
+FLARE-F,Borderline-SMOTE,False,not machine-comparable (configuration is inside run functions),
+FLARE-F,CSRBoost,False,not machine-comparable (configuration is inside run functions),
+FLARE-F,GAN,False,not machine-comparable (configuration is inside run functions),
+FLARE-F,HUE,False,not machine-comparable (configuration is inside run functions),
+FLARE-F,RUSBoost,False,not machine-comparable (configuration is inside run functions),
+FLARE-F,SMOTE-ENN,True,not machine-comparable (configuration is inside run functions),
+FLARE-F,SMOTE-Tomek,False,not machine-comparable (configuration is inside run functions),
+FLARE-F,SMOTified-GAN,False,not machine-comparable (configuration is inside run functions),
+GLASS,ADASYN,False,match,"compared: depth, n_est, scaler, threshold"
+GLASS,AdaBoost,False,match,"compared: depth, n_est, scaler, threshold"
+GLASS,Borderline-SMOTE,False,match,"compared: depth, n_est, scaler, threshold"
+GLASS,CSRBoost,True,differs,depth: BEST_CONFIGS 2 / script None; n_est: BEST_CONFIGS 30 / script 50; cluster_pct: BEST_CONFIGS 0.7 / script 0.5; p: BEST_CONFIGS 2.0 / script 1.0; threshold: BEST_CONFIGS [0.4] / script [0.5]
+GLASS,GAN,False,match,compared: scaler
+GLASS,HUE,False,match,"compared: scaler, threshold"
+GLASS,RUSBoost,False,match,"compared: depth, n_est, scaler, threshold"
+GLASS,SMOTE-ENN,False,match,"compared: depth, n_est, scaler, threshold"
+GLASS,SMOTE-Tomek,False,match,"compared: depth, n_est, scaler, threshold"
+GLASS,SMOTified-GAN,False,match,compared: scaler
+ILPD,ADASYN,False,match,"compared: depth, n_est, scaler, threshold"
+ILPD,AdaBoost,False,match,"compared: depth, n_est, scaler, threshold"
+ILPD,Borderline-SMOTE,False,match,"compared: depth, n_est, scaler, threshold"
+ILPD,CSRBoost,True,differs,depth: BEST_CONFIGS 2 / script None; n_est: BEST_CONFIGS 30 / script 50; cluster_pct: BEST_CONFIGS 0.7 / script 0.5; p: BEST_CONFIGS 2.0 / script 1.0
+ILPD,GAN,False,match,"compared: scaler, threshold"
+ILPD,HUE,False,match,"compared: scaler, threshold"
+ILPD,RUSBoost,False,match,"compared: depth, n_est, scaler, threshold"
+ILPD,SMOTE-ENN,False,match,"compared: depth, n_est, scaler, threshold"
+ILPD,SMOTE-Tomek,False,match,"compared: depth, n_est, scaler, threshold"
+ILPD,SMOTified-GAN,False,differs,"threshold: BEST_CONFIGS [0.05, 0.1, 0.3, 0.65, 0.8] / script [0.25]"
+PSDAS,ADASYN,True,not machine-comparable (configuration is inside run functions),
+PSDAS,AdaBoost,True,not machine-comparable (configuration is inside run functions),
+PSDAS,Borderline-SMOTE,True,not machine-comparable (configuration is inside run functions),
+PSDAS,CSRBoost,True,not machine-comparable (configuration is inside run functions),
+PSDAS,GAN,False,not machine-comparable (configuration is inside run functions),
+PSDAS,HUE,False,not machine-comparable (configuration is inside run functions),
+PSDAS,RUSBoost,False,N/A in the paper,
+PSDAS,SMOTE-ENN,True,not machine-comparable (configuration is inside run functions),
+PSDAS,SMOTE-Tomek,True,not machine-comparable (configuration is inside run functions),
+PSDAS,SMOTified-GAN,False,not machine-comparable (configuration is inside run functions),
+SEED,ADASYN,False,not machine-comparable (configuration is inside run functions),
+SEED,AdaBoost,False,not machine-comparable (configuration is inside run functions),
+SEED,Borderline-SMOTE,False,not machine-comparable (configuration is inside run functions),
+SEED,CSRBoost,False,not machine-comparable (configuration is inside run functions),
+SEED,GAN,False,not machine-comparable (configuration is inside run functions),
+SEED,HUE,False,not machine-comparable (configuration is inside run functions),
+SEED,RUSBoost,False,not machine-comparable (configuration is inside run functions),
+SEED,SMOTE-ENN,False,not machine-comparable (configuration is inside run functions),
+SEED,SMOTE-Tomek,False,not machine-comparable (configuration is inside run functions),
+SEED,SMOTified-GAN,False,not machine-comparable (configuration is inside run functions),
+WINE,ADASYN,False,not machine-comparable (configuration is inside run functions),
+WINE,AdaBoost,False,not machine-comparable (configuration is inside run functions),
+WINE,Borderline-SMOTE,False,not machine-comparable (configuration is inside run functions),
+WINE,CSRBoost,True,not machine-comparable (configuration is inside run functions),
+WINE,GAN,False,not machine-comparable (configuration is inside run functions),
+WINE,HUE,True,not machine-comparable (configuration is inside run functions),
+WINE,RUSBoost,False,not machine-comparable (configuration is inside run functions),
+WINE,SMOTE-ENN,False,not machine-comparable (configuration is inside run functions),
+WINE,SMOTE-Tomek,False,not machine-comparable (configuration is inside run functions),
+WINE,SMOTified-GAN,False,not machine-comparable (configuration is inside run functions),
+YEAST5,ADASYN,False,not machine-comparable (configuration is inside run functions),
+YEAST5,AdaBoost,False,not machine-comparable (configuration is inside run functions),
+YEAST5,Borderline-SMOTE,False,not machine-comparable (configuration is inside run functions),
+YEAST5,CSRBoost,True,not machine-comparable (configuration is inside run functions),
+YEAST5,GAN,False,not machine-comparable (configuration is inside run functions),
+YEAST5,HUE,False,not machine-comparable (configuration is inside run functions),
+YEAST5,RUSBoost,False,not machine-comparable (configuration is inside run functions),
+YEAST5,SMOTE-ENN,False,not machine-comparable (configuration is inside run functions),
+YEAST5,SMOTE-Tomek,False,not machine-comparable (configuration is inside run functions),
+YEAST5,SMOTified-GAN,False,not machine-comparable (configuration is inside run functions),
+YEAST5-ERL,ADASYN,False,N/A in the paper,
+YEAST5-ERL,AdaBoost,False,match,"compared: depth, n_est, scaler, threshold"
+YEAST5-ERL,Borderline-SMOTE,True,differs,"n_est: BEST_CONFIGS 50 / script 30; scaler: BEST_CONFIGS none / script std; threshold: BEST_CONFIGS [0.5] / script [0.35, 0.4]"
+YEAST5-ERL,CSRBoost,False,match,"compared: depth, n_est, scaler, cluster_pct, threshold"
+YEAST5-ERL,GAN,False,N/A in the paper,
+YEAST5-ERL,HUE,False,match,"compared: depth, n_est, scaler, threshold"
+YEAST5-ERL,RUSBoost,False,match,"compared: depth, n_est, scaler, threshold"
+YEAST5-ERL,SMOTE-ENN,False,match,"compared: depth, n_est, scaler, threshold"
+YEAST5-ERL,SMOTE-Tomek,False,match,"compared: depth, n_est, scaler, threshold"
+YEAST5-ERL,SMOTified-GAN,False,N/A in the paper,

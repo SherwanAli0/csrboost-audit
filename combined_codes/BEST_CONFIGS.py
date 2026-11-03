@@ -2034,3 +2034,56 @@ PAPER_TABLE = {
     ('FLARE-F', 'HUE'): {'ACC': 81.43, 'AUC': 0.86, 'F1': 0.28, 'AP': 0.15, 'GMEAN': 0.86},
 }
 
+
+# =============================================================================
+# UNIFORM_PROTOCOL_CELLS - the 42 (dataset, method) cells whose stored replicated values are the
+# values of the uniform-protocol run (the 2026-06-18 "honesty swap" of the author), not values
+# produced by the configuration recorded above for the same cell. The configurations in
+# BEST_CONFIGS describe the earlier tuned state of this file (snapshot of 2026-05-07, before the swap);
+# see combined_codes/README.md and combined_codes/best_configs_vs_final_scripts.csv.
+# Source of this list: results/exact_replication/_42_pass_cells_spec.csv.
+# =============================================================================
+UNIFORM_PROTOCOL_CELLS = {
+    ('PSDAS', 'CSRBoost'),
+    ('PSDAS', 'ADASYN'),
+    ('PSDAS', 'Borderline-SMOTE'),
+    ('PSDAS', 'SMOTE-Tomek'),
+    ('PSDAS', 'SMOTE-ENN'),
+    ('PSDAS', 'AdaBoost'),
+    ('ESR', 'CSRBoost'),
+    ('ESR', 'ADASYN'),
+    ('ESR', 'Borderline-SMOTE'),
+    ('ESR', 'SMOTE-Tomek'),
+    ('ESR', 'SMOTE-ENN'),
+    ('ESR', 'AdaBoost'),
+    ('DCCC', 'SMOTE-ENN'),
+    ('BCW', 'CSRBoost'),
+    ('BCW', 'SMOTified-GAN'),
+    ('BCW', 'GAN'),
+    ('BCW', 'ADASYN'),
+    ('BCW', 'Borderline-SMOTE'),
+    ('BCW', 'SMOTE-Tomek'),
+    ('BCW', 'SMOTE-ENN'),
+    ('BCW', 'AdaBoost'),
+    ('CB', 'CSRBoost'),
+    ('ESDRP', 'CSRBoost'),
+    ('ESDRP', 'ADASYN'),
+    ('ESDRP', 'Borderline-SMOTE'),
+    ('ESDRP', 'SMOTE-Tomek'),
+    ('ESDRP', 'SMOTE-ENN'),
+    ('ESDRP', 'AdaBoost'),
+    ('ESDRP', 'RUSBoost'),
+    ('ILPD', 'CSRBoost'),
+    ('GLASS', 'CSRBoost'),
+    ('WINE', 'CSRBoost'),
+    ('WINE', 'HUE'),
+    ('YEAST5-ERL', 'Borderline-SMOTE'),
+    ('CARVGOOD', 'CSRBoost'),
+    ('CARVGOOD', 'ADASYN'),
+    ('CARVGOOD', 'Borderline-SMOTE'),
+    ('CARVGOOD', 'SMOTE-Tomek'),
+    ('CARVGOOD', 'SMOTE-ENN'),
+    ('CARVGOOD', 'AdaBoost'),
+    ('YEAST5', 'CSRBoost'),
+    ('FLARE-F', 'SMOTE-ENN'),
+}
