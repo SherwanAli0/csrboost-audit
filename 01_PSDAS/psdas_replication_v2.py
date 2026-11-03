@@ -514,7 +514,7 @@ class RUSBoostClassifier(BaseEstimator, ClassifierMixin):
 
 # GAN Architecture
 class GeneratorSigmoid(nn.Module):
-    """Sigmoid output — matches SMOTified-GAN reference code generator."""
+    """Sigmoid output - matches SMOTified-GAN reference code generator."""
     def __init__(self, latent_dim, output_dim):
         super().__init__()
         self.net = nn.Sequential(
@@ -540,7 +540,7 @@ class RefNNClassifier(nn.Module):
       Dense(256, relu) → Dense(128, relu) → Dense(1)
     NO BatchNorm, NO Dropout, NO Sigmoid output.
     Used with MAE loss (L1Loss) and 5 epochs.
-    Raw output (not sigmoid) — threshold at 0.5 for classification,
+    Raw output (not sigmoid) - threshold at 0.5 for classification,
     sigmoid transform for probability-based metrics.
     """
     def __init__(self, input_dim):
@@ -614,7 +614,7 @@ def train_gan_psdas(X_minority, n_gen, mode='gan', seed=42):
         syn = G(torch.FloatTensor(sample_latent(n_gen)).to(device)).cpu().numpy()
     return syn.astype(np.float32)
 
-# GAN+NN Classifier — PSDAS
+# GAN+NN Classifier - PSDAS
 class GANNNClassifierPSDAS(BaseEstimator, ClassifierMixin):
     """
     GAN/SMOTified-GAN classifier for PSDAS.
@@ -840,7 +840,7 @@ def build_models(seed_offset):
 def print_results(results_mean, results_std):
     metrics = ['ACC', 'AUC', 'F1', 'AP', 'GMEAN']
     print("\n" + "=" * 115)
-    print("PSDAS REPLICATION V2 — Results vs Paper (Table 7a)")
+    print("PSDAS REPLICATION V2 \u2014 Results vs Paper (Table 7a)")
     print("=" * 115)
     hdr = f"{'Method':<20}"
     for m in metrics:
@@ -887,7 +887,7 @@ def print_results(results_mean, results_std):
 # Main
 def main():
     print("=" * 80)
-    print("CSRBoost Replication V2 — PSDAS Dataset")
+    print("CSRBoost Replication V2 \u2014 PSDAS Dataset")
     print(f"CV: {N_SPLITS}x{REPEATS}={N_SPLITS*REPEATS} folds | Device: {GAN_DEVICE}")
     print(f"PSDAS label mode: {PSDAS_LABEL_MODE}")
     print(f"GAN/SMOTified-GAN: RefNN (256→128→1), MAE loss, "

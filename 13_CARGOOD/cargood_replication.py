@@ -243,7 +243,7 @@ def train_gan_fold(Xtr, ytr, Xte, yte, seed, gen_epochs, nn_epochs, latent_dim, 
         proba_orig = clf(torch.FloatTensor(Xtr)).squeeze().numpy()
     return proba_te, proba_tr, proba_orig, yaug
 
-# MAIN — compute all methods per fold, accumulate metrics
+# MAIN - compute all methods per fold, accumulate metrics
 # Configs from tuning:
 # GAN:           ge20-ne30-ld32, th_acc=0.55,th_f=0.50,th_gm=0.25, A:orig_u U:ptr_u F:origW_u P:ptr_s G:tr_u
 
@@ -518,7 +518,7 @@ def main():
 
     # Final results
     log("\n" + "=" * 80)
-    log("FINAL RESULTS — Cargood 100-fold Replication")
+    log("FINAL RESULTS \u2014 Cargood 100-fold Replication")
     log("=" * 80)
 
     summary = []

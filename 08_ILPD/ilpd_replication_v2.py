@@ -34,7 +34,7 @@ SEED = 42
 random.seed(SEED); np.random.seed(SEED)
 torch.manual_seed(SEED)
 
-# ── Paper Table 2 — ILPD row ──
+# -- Paper Table 2 - ILPD row --
 PAPER_TABLE = {
     'CSRBoost':        {'ACC': 66.72, 'AUC': 0.66, 'F1': 0.48, 'AP': 0.36, 'GMEAN': 0.62},
     'SMOTified-GAN':   {'ACC': 70.09, 'AUC': 0.76, 'F1': 0.77, 'AP': 0.88, 'GMEAN': 0.55},
@@ -50,7 +50,7 @@ PAPER_TABLE = {
 TABLE_ORDER = ['CSRBoost', 'SMOTified-GAN', 'GAN', 'ADASYN', 'Borderline-SMOTE',
                'SMOTE-Tomek', 'SMOTE-ENN', 'AdaBoost', 'RUSBoost', 'HUE']
 
-# ── Best configs from tuning ──
+# -- Best configs from tuning --
 BEST_CONFIGS = {
     'CSRBoost':        {'depth': None, 'n_est': 50, 'samp': 0.5, 'p': 1.0, 'thresh': 0.50, 'scaler': 'none',  # value taken from the exact-replication run (2026-06-18 swap): the structural config (untuned AdaBoost T=50, depth=None, thr 0.5) follows exact_replication_local.py, but this script's eval disposition here is NOT identical to the engine - it uses scaler='none' (engine fits StandardScaler) and proto 'T' which feeds HARD predictions to roc_auc/average_precision (binary AUC/AP), not the engine's proba AUC/AP (numerically equal to 4dp here, but not the same disposition). So re-running will not reproduce the engine values exactly; the swapped values of record live in the report tables / spec / baseline.
                         'proto': 'T'},
@@ -82,7 +82,7 @@ BEST_CONFIGS = {
                         'proto': 'T'},
 }
 
-# ── GAN components ──
+# -- GAN components --
 class Generator(nn.Module):
     def __init__(self, latent_dim, out_dim):
         super().__init__()
@@ -445,7 +445,7 @@ def main():
 
         all_rows.append({'Method': method, **avg, 'note': f'{mean_err:.1f}% [{tag}]'})
 
-    # ── Print final table ──
+    # -- Print final table --
     print(f"\n{'='*110}")
     print(f"{'Method':20s} | {'ACC':>7s} {'AUC':>6s} {'F1':>6s} {'AP':>6s} {'GM':>6s} | {'Paper ACC':>9s} {'AUC':>6s} {'F1':>6s} {'AP':>6s} {'GM':>6s} | {'Err':>8s}")
     print('-' * 110)
