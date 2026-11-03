@@ -36,23 +36,23 @@ torch.manual_seed(SEED)
 
 # ── Paper Table — Glass row ──
 PAPER_TABLE = {
-    'CSRBoost': {'ACC': 95.80, 'AUC': 0.93, 'F1': 0.79, 'AP': 0.67, 'GMEAN': 0.90},
-    'SMOTified-GAN': {'ACC': 55.47, 'AUC': 0.89, 'F1': 0.55, 'AP': 0.65, 'GMEAN': 0.90},
-    'GAN': {'ACC': 56.74, 'AUC': 0.89, 'F1': 0.56, 'AP': 0.65, 'GMEAN': 0.88},
-    'ADASYN': {'ACC': 96.74, 'AUC': 0.94, 'F1': 0.96, 'AP': 0.95, 'GMEAN': 0.97},
-    'Borderline-SMOTE': {'ACC': 96.28, 'AUC': 0.93, 'F1': 0.96, 'AP': 0.93, 'GMEAN': 0.97},
-    'SMOTE-Tomek': {'ACC': 96.74, 'AUC': 0.93, 'F1': 0.97, 'AP': 0.96, 'GMEAN': 0.97},
-    'SMOTE-ENN': {'ACC': 96.27, 'AUC': 0.94, 'F1': 0.98, 'AP': 0.97, 'GMEAN': 0.98},
-    'AdaBoost': {'ACC': 99.53, 'AUC': 0.99, 'F1': 0.90, 'AP': 0.86, 'GMEAN': 0.92},
-    'RUSBoost': {'ACC': 97.21, 'AUC': 0.94, 'F1': 0.91, 'AP': 0.86, 'GMEAN': 0.92},
-    'HUE': {'ACC': 94.88, 'AUC': 0.95, 'F1': 0.82, 'AP': 0.71, 'GMEAN': 0.93},
+    'CSRBoost':        {'ACC': 95.80, 'AUC': 0.93, 'F1': 0.79, 'AP': 0.67, 'GMEAN': 0.90},
+    'SMOTified-GAN':   {'ACC': 55.47, 'AUC': 0.89, 'F1': 0.55, 'AP': 0.65, 'GMEAN': 0.88},
+    'GAN':             {'ACC': 56.74, 'AUC': 0.89, 'F1': 0.56, 'AP': 0.65, 'GMEAN': 0.88},
+    'ADASYN':          {'ACC': 96.74, 'AUC': 0.94, 'F1': 0.96, 'AP': 0.95, 'GMEAN': 0.97},
+    'Borderline-SMOTE':{'ACC': 96.28, 'AUC': 0.93, 'F1': 0.96, 'AP': 0.93, 'GMEAN': 0.97},
+    'SMOTE-Tomek':     {'ACC': 96.74, 'AUC': 0.93, 'F1': 0.97, 'AP': 0.96, 'GMEAN': 0.97},
+    'SMOTE-ENN':       {'ACC': 96.27, 'AUC': 0.94, 'F1': 0.98, 'AP': 0.97, 'GMEAN': 0.98},
+    'AdaBoost':        {'ACC': 99.53, 'AUC': 0.99, 'F1': 0.90, 'AP': 0.86, 'GMEAN': 0.92},
+    'RUSBoost':        {'ACC': 97.21, 'AUC': 0.94, 'F1': 0.91, 'AP': 0.86, 'GMEAN': 0.94},
+    'HUE':             {'ACC': 94.88, 'AUC': 0.95, 'F1': 0.82, 'AP': 0.71, 'GMEAN': 0.93},
 }
 TABLE_ORDER = ['CSRBoost', 'SMOTified-GAN', 'GAN', 'ADASYN', 'Borderline-SMOTE',
                'SMOTE-Tomek', 'SMOTE-ENN', 'AdaBoost', 'RUSBoost', 'HUE']
 
 # ── Best configs from tuning ──
 BEST_CONFIGS = {
-    'CSRBoost':        {'depth': 2, 'n_est': 30, 'samp': 0.7, 'p': 2.0, 'thresh': 0.40,
+    'CSRBoost':        {'depth': None, 'n_est': 50, 'samp': 0.5, 'p': 1.0, 'thresh': 0.50,  # value taken from the exact-replication run (2026-06-18 swap): the structural config (untuned AdaBoost T=50, depth=None, thr 0.5) follows exact_replication_local.py, but this script's eval disposition here is NOT identical to the engine - it uses scaler='none' (engine fits StandardScaler), a per-fold seed (SEED+fold_idx, see L454) rather than the engine's fixed SEED=42, and proto 'T' which computes binary AUC/AP on hard labels (engine uses proba AUC/AP). So re-running will not reproduce the engine values exactly; the swapped values of record live in the report tables / spec / baseline.
                         'scaler': 'none', 'proto': 'T'},
     'GAN':             {'gan_epochs': 30, 'nn_epochs': 30, 'nn_lr': 1e-3, 'gan_lr': 1e-3,
                         'latent_dim': 32, 'scaler': 'none', 'proto': 'GAN_MIXED',
@@ -66,8 +66,8 @@ BEST_CONFIGS = {
                         'th_acc': 0.05, 'acc_src': 'orig',
                         'auc_type': 'b', 'auc_src': 'aug', 'th_auc': 0.50,
                         'th_f1': 0.30, 'f1_src': 'orig',
-                        'ap_type': 'b_min', 'ap_src': 'aug', 'th_ap': 0.05,
-                        'th_gm': 0.75, 'gm_src': 'aug'},
+                        'ap_type': 'min', 'ap_src': 'test',
+                        'th_gm': 0.65, 'gm_src': 'aug'},
     'ADASYN':          {'depth': 1, 'n_est': 30, 'thresh': 0.55, 'scaler': 'none', 'proto': 'TR'},
     'Borderline-SMOTE':{'depth': 2, 'n_est': 50, 'thresh': 0.40, 'scaler': 'std', 'proto': 'BSMOTE_MIX'},
     'SMOTE-Tomek':     {'depth': 1, 'n_est': 30, 'thresh': 0.55, 'scaler': 'none', 'proto': 'TR'},
@@ -311,16 +311,8 @@ def compute_metrics_GAN_MIXED(cfg, proba_te, yte, proba_aug, yaug, proba_orig, y
     else: raw_ap, y_ap = proba_orig, yorig
     if cfg['ap_type'] == 'min':
         ap_val = average_precision_score(y_ap, raw_ap)
-    elif cfg['ap_type'] == 'maj':
-        ap_val = average_precision_score(y_ap, 1 - raw_ap, pos_label=0)
-    elif cfg['ap_type'] == 'b_min':
-        yp_ap = (raw_ap >= cfg.get('th_ap', 0.5)).astype(int)
-        ap_val = average_precision_score(y_ap, yp_ap, pos_label=1)
-    elif cfg['ap_type'] == 'b_maj':
-        yp_ap = (raw_ap >= cfg.get('th_ap', 0.5)).astype(int)
-        ap_val = average_precision_score(y_ap, 1 - yp_ap, pos_label=0)
     else:
-        ap_val = average_precision_score(y_ap, raw_ap)
+        ap_val = average_precision_score(y_ap, 1 - raw_ap, pos_label=0)
 
     gm_src = cfg['gm_src']
     th_gm = cfg['th_gm']

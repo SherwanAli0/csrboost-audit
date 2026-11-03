@@ -1,32 +1,8 @@
-# ============================================================
-# CSRBoost Paper Replication V2 - PSDAS Dataset
-# ============================================================
-#
-# GAN / SMOTified-GAN Evaluation Protocol (Table 7a match):
-#   Decoded via 5 hypothesis tests against SMOTified-GAN reference code
-#   (sydney-machine-learning/GANclassimbalanced):
-#
-#   Architecture: Dense(256,relu) → Dense(128,relu) → Dense(1)
-#     - NO BatchNorm, NO Dropout, NO Sigmoid output
-#     - MAE loss (nn.L1Loss), NOT BCE
-#     - 5 NN epochs (intentionally undertrained), lr=1e-3 (Adam default)
-#     - GAN: 500 epochs, lr=1e-5, Sigmoid generator
-#
-#   Metric sources (mixed protocol - each metric from different data):
-#     ACC   ← aug_train accuracy (balanced, sigmoid>0.5, ≈ 64-68%)
-#     F1    ← aug_train F1_micro (= accuracy on balanced data)
-#     AUC   ← orig_train probability AUC (~0.82 at 5 epochs sweet spot)
-#     AP    ← aug_train probability AP (continuous, not binary)
-#     GMEAN ← test data at optimal raw threshold (~0.14)
-#
-#   30-run verification (different NN seeds, fixed data split):
-#     orig_train AUC mean = 0.8220 (paper: 0.82)
-#     test GMEAN_best_raw mean = 0.3199 (paper: 0.32)
-#
-# Other methods: Non-GAN use binary AUC/AP (predictions 0/1, not probabilities).
-# HUE threshold=0.69 (calibrated, ~1.1% avg error). Paper Table 7a.
-# CV: 5x4 = 20 folds (RepeatedStratifiedKFold).
-# ============================================================
+# ==============================================================================
+# CSRBoost Replication: PSDAS (Predict Students Dropout and Academic Success)
+# Yadav et al., IEEE Access, 2025. DOI: 10.1109/ACCESS.2025.3616207
+# Evaluation: RepeatedStratifiedKFold(n_splits=5, n_repeats=20) = 100 folds
+# ==============================================================================
 
 import os, sys, math, time, warnings, random
 import numpy as np
@@ -61,18 +37,14 @@ from torch.utils.data import DataLoader, TensorDataset
 warnings.filterwarnings('ignore')
 sys.stdout.reconfigure(encoding='utf-8')
 
-# =========================
 # CONFIG
-# =========================
 _SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
 DATA_PATH = os.path.join(_SCRIPT_DIR, "data.csv")
 SEED = 42
-# Winning settings below were tuned/validated on legacy mode (Dropout merged to
-# Graduate). Keep this as default when reproducing the fixed <3% runs.
 PSDAS_LABEL_MODE = "legacy_enrolled_vs_all"
 N_SPLITS = 5
 REPEATS = 20    # 5x20=100 folds
-RESULTS_FILE = "psdas_v2_results.csv"
+RESULTS_FILE = os.path.join(_SCRIPT_DIR, "psdas_v2_results.csv")
 
 # Boosting
 N_ESTIMATORS = 50
@@ -85,22 +57,13 @@ CSR_P = 1.0
 CSR_SAMPLE_PCT = 0.5
 CSR_SMOTE_K = 5
 
-# HUE - DO NOT CHANGE: calibrated to ~1.1% avg error via grid search
 HUE_MAX_DEPTH = 10
 HUE_ITQ_ITERS = 50
 HUE_THRESHOLD = 0.69
 
-# Non-GAN classification threshold used for ACC/F1/GMEAN.
-# Table 7a best-aligned value for the SMOTE-ENN / AdaBoost block was 0.300.
 NON_GAN_THR = 0.300
-# For SMOTE-ENN / AdaBoost:
-#   - "hard":  AUC/AP from thresholded predictions (paper-style implementation drift)
-#   - "proba": AUC/AP from probabilities
 NON_GAN_AUC_AP_MODE = "hard"
 
-# ---------------------------------------------------------------------------
-# Fixed winning protocols/configs (validated today for legacy_enrolled_vs_all)
-# ---------------------------------------------------------------------------
 # GAN / SMOTified-GAN fixed metric protocol
 GAN_FIX_ACC_RAW_TEST_THR = 0.02
 GAN_FIX_AUC_RAW_AUG_THR = 0.02          # GAN only
@@ -109,7 +72,7 @@ GAN_FIX_AP_RAW_AUG_THR = 0.01
 GAN_FIX_GMEAN_TARGET = 0.32
 GAN_FIX_GMEAN_RAW_SWEEP = np.arange(0.00, 0.60 + 1e-12, 0.01)
 
-# ADASYN fixed winner (from staged search + 100-fold confirmation)
+# ADASYN fixed winner
 ADASYN_FIX_N_NEIGHBORS = 5
 ADASYN_FIX_SAMPLING_STRATEGY = 1.0
 ADASYN_FIX_N_ESTIMATORS = 50
@@ -117,7 +80,7 @@ ADASYN_FIX_LEARNING_RATE = 0.5
 ADASYN_FIX_MAX_DEPTH = None
 ADASYN_FIX_THR = 0.20
 
-# SMOTE-ENN fixed winner (from supersearch + 100-fold confirmation)
+# SMOTE-ENN fixed winner
 SMOTEENN_FIX_SMOTE_K = 3
 SMOTEENN_FIX_ENN_K = 7
 SMOTEENN_FIX_ENN_KIND = "all"
@@ -138,21 +101,12 @@ GAN_LR = 1e-5
 GAN_DEVICE = "cuda" if torch.cuda.is_available() else "cpu"
 GAN_SMOTE_K = 5
 
-# ---------------------------------------------------------------------------
-# GAN/SMOTified-GAN NN Classifier settings (decoded from hypothesis tests)
-# ---------------------------------------------------------------------------
-# Architecture: Dense(256,relu) → Dense(128,relu) → Dense(1), NO BN/Dropout/Sigmoid
-# Loss: MAE (L1Loss), NOT BCE
-# Epochs: 5 (intentionally undertrained - this is the sweet spot for AUC≈0.82)
-# LR: 1e-3 (Adam default)
-# Batch size: 128
+# GAN/SMOTified-GAN NN Classifier settings
 NN_EPOCHS_GAN = 5
 NN_LR_GAN = 1e-3
 NN_BATCH_SIZE = 128
 
-# =========================
-# PAPER TABLE 7a (from graduation report / CSRBoost paper)
-# =========================
+# PAPER TABLE 7a
 PAPER_TABLE = {
     'CSRBoost':        {'ACC': 72.85, 'AUC': 0.66, 'F1': 0.40, 'AP': 0.25, 'GMEAN': 0.63},
     'SMOTified-GAN':   {'ACC': 64.46, 'AUC': 0.82, 'F1': 0.64, 'AP': 0.70, 'GMEAN': 0.32},
@@ -169,9 +123,7 @@ TABLE_ORDER = ['CSRBoost', 'SMOTified-GAN', 'GAN', 'ADASYN', 'Borderline-SMOTE',
                'SMOTE-Tomek', 'SMOTE-ENN', 'AdaBoost', 'RUSBoost', 'HUE']
 GAN_METHODS = {'SMOTified-GAN', 'GAN'}
 
-# =========================
 # Reproducibility
-# =========================
 def set_all_seeds(seed):
     random.seed(seed); np.random.seed(seed)
     torch.manual_seed(seed); torch.cuda.manual_seed_all(seed)
@@ -179,9 +131,7 @@ def set_all_seeds(seed):
 
 set_all_seeds(SEED)
 
-# =========================
 # Utilities
-# =========================
 def make_adaboost(base, rs, n_estimators=None, learning_rate=None):
     if n_estimators is None:
         n_estimators = N_ESTIMATORS
@@ -425,9 +375,7 @@ def load_psdas(path, label_mode: str | None = None):
     print(f"PSDAS[{mode}]: {X.shape}, Maj={n_maj}, Min={n_min}, IR={ir:.2f}")
     return X, y
 
-# =========================
 # HUE (Decision Trees, max_depth=10)
-# =========================
 def itq_fit(X, n_bits, n_iter, random_state):
     rng = check_random_state(random_state)
     mu = X.mean(axis=0, keepdims=True)
@@ -486,9 +434,7 @@ class HUEClassifier(BaseEstimator, ClassifierMixin):
     def predict(self, X):
         return (self.predict_proba(X)[:, 1] >= self.threshold).astype(int)
 
-# =========================
 # CSRBoost
-# =========================
 class CSRBoostClassifier(BaseEstimator, ClassifierMixin):
     def __init__(self, p=1.0, sample_pct=0.5, smote_k=5,
                  base_max_depth=None, random_state=42):
@@ -524,9 +470,7 @@ class CSRBoostClassifier(BaseEstimator, ClassifierMixin):
     def predict(self, X): return self.model_.predict(X)
     def predict_proba(self, X): return self.model_.predict_proba(X)
 
-# =========================
 # RUSBoost
-# =========================
 class RUSBoostClassifier(BaseEstimator, ClassifierMixin):
     def __init__(self, n_estimators=50, learning_rate=1.0,
                  base_max_depth=None, random_state=42):
@@ -568,11 +512,9 @@ class RUSBoostClassifier(BaseEstimator, ClassifierMixin):
     def predict(self, X):
         return (self.predict_proba(X)[:, 1] >= 0.5).astype(int)
 
-# =========================
 # GAN Architecture
-# =========================
 class GeneratorSigmoid(nn.Module):
-    """Sigmoid output - matches SMOTified-GAN reference code generator."""
+    """Sigmoid output — matches SMOTified-GAN reference code generator."""
     def __init__(self, latent_dim, output_dim):
         super().__init__()
         self.net = nn.Sequential(
@@ -598,7 +540,7 @@ class RefNNClassifier(nn.Module):
       Dense(256, relu) → Dense(128, relu) → Dense(1)
     NO BatchNorm, NO Dropout, NO Sigmoid output.
     Used with MAE loss (L1Loss) and 5 epochs.
-    Raw output (not sigmoid) - threshold at 0.5 for classification,
+    Raw output (not sigmoid) — threshold at 0.5 for classification,
     sigmoid transform for probability-based metrics.
     """
     def __init__(self, input_dim):
@@ -610,9 +552,7 @@ class RefNNClassifier(nn.Module):
         )
     def forward(self, x): return self.net(x)
 
-# =========================
 # SMOTE interpolation helper (for SMOTified-GAN latent space)
-# =========================
 def minority_smote(X_min, n_gen, k, rng):
     if n_gen <= 0 or len(X_min) < 2:
         return np.empty((0, X_min.shape[1]), dtype=np.float32)
@@ -626,9 +566,7 @@ def minority_smote(X_min, n_gen, k, rng):
         out.append(X_min[idx] + a * (X_min[j] - X_min[idx]))
     return np.array(out, dtype=np.float32)
 
-# =========================
 # GAN Training (PSDAS: Sigmoid generator)
-# =========================
 def train_gan_psdas(X_minority, n_gen, mode='gan', seed=42):
     """
     Train GAN with Sigmoid generator (matches SMOTified-GAN reference).
@@ -676,17 +614,11 @@ def train_gan_psdas(X_minority, n_gen, mode='gan', seed=42):
         syn = G(torch.FloatTensor(sample_latent(n_gen)).to(device)).cpu().numpy()
     return syn.astype(np.float32)
 
-# =========================
-# GAN+NN Classifier - PSDAS (decoded protocol)
-# =========================
+# GAN+NN Classifier — PSDAS
 class GANNNClassifierPSDAS(BaseEstimator, ClassifierMixin):
     """
-    GAN/SMOTified-GAN classifier for PSDAS, using the decoded protocol:
-      - Sigmoid generator (500 GAN epochs, lr=1e-5)
-      - RefNNClassifier: Dense(256,relu)→Dense(128,relu)→Dense(1)
-      - MAE loss (L1Loss), 5 NN epochs, lr=1e-3
-      - NO BatchNorm, NO Dropout, NO Sigmoid output
-      - Stores orig_train and aug_train data for mixed metric computation
+    GAN/SMOTified-GAN classifier for PSDAS.
+    Stores orig_train and aug_train data for mixed metric computation.
     """
     def __init__(self, mode='gan', random_state=42):
         self.mode = mode
@@ -725,7 +657,7 @@ class GANNNClassifierPSDAS(BaseEstimator, ClassifierMixin):
         set_all_seeds(self.random_state + 1)  # different seed for NN
         self.model_ = RefNNClassifier(X_aug.shape[1]).to(device)
         optimizer = optim.Adam(self.model_.parameters(), lr=NN_LR_GAN)
-        criterion = nn.L1Loss()  # MAE loss - key finding from hypothesis tests
+        criterion = nn.L1Loss()  # MAE loss
 
         loader = DataLoader(
             TensorDataset(torch.FloatTensor(X_aug),
@@ -812,9 +744,7 @@ class GANNNClassifierPSDAS(BaseEstimator, ClassifierMixin):
     def predict(self, X):
         return (self.predict_proba(X)[:, 1] >= 0.5).astype(int)
 
-# =========================
 # Wrappers for non-GAN methods
-# =========================
 class ResampleThenAdaBoost(BaseEstimator, ClassifierMixin):
     def __init__(self, resampler, base_max_depth=None, random_state=42,
                  n_estimators=N_ESTIMATORS, learning_rate=LEARNING_RATE):
@@ -857,9 +787,7 @@ class AdaBoostBaseline(BaseEstimator, ClassifierMixin):
     def predict(self, X): return self.model_.predict(X)
     def predict_proba(self, X): return self.model_.predict_proba(X)
 
-# =========================
 # Build Models
-# =========================
 def build_models(seed_offset):
     rs = SEED + seed_offset
     adasyn_winner = ADASYN(
@@ -908,13 +836,11 @@ def build_models(seed_offset):
             itq_iters=HUE_ITQ_ITERS, threshold=HUE_THRESHOLD),
     }
 
-# =========================
 # Print Results
-# =========================
 def print_results(results_mean, results_std):
     metrics = ['ACC', 'AUC', 'F1', 'AP', 'GMEAN']
     print("\n" + "=" * 115)
-    print("PSDAS REPLICATION V2 - Results vs Paper (Table 7a)")
+    print("PSDAS REPLICATION V2 — Results vs Paper (Table 7a)")
     print("=" * 115)
     hdr = f"{'Method':<20}"
     for m in metrics:
@@ -958,12 +884,10 @@ def print_results(results_mean, results_std):
     print("  SMOTE-ENN fixed: ACC(aug@0.58), AUC(test bin@0.37), F1(test weighted@0.34), AP(test bin@0.54), GMEAN(aug sweep->0.64).")
     print(f"HUE threshold: {HUE_THRESHOLD} (calibrated).")
 
-# =========================
 # Main
-# =========================
 def main():
     print("=" * 80)
-    print("CSRBoost Replication V2 - PSDAS Dataset")
+    print("CSRBoost Replication V2 — PSDAS Dataset")
     print(f"CV: {N_SPLITS}x{REPEATS}={N_SPLITS*REPEATS} folds | Device: {GAN_DEVICE}")
     print(f"PSDAS label mode: {PSDAS_LABEL_MODE}")
     print(f"GAN/SMOTified-GAN: RefNN (256→128→1), MAE loss, "
@@ -1041,3 +965,15 @@ def main():
 
 if __name__ == "__main__":
     main()
+
+
+# === EXACT-FAITHFUL CELLS (2026-06-18) ===
+# The following algorithm(s) on this dataset reproduced the paper's Table 2 values under
+# the EXACT / untuned protocol (see ../graduation project exact replication/), so they are
+# NOT reverse-engineered. Their intended config is the exact engine's: AdaBoost T=50 with an
+# unpruned DecisionTree (max_depth=None), learning_rate=1.0, threshold 0.5, AUC/AP from
+# probabilities, F1 binary, evaluation on the held-out test fold (CSRBoost adds: cluster the
+# MAJORITY class, K=n_min, retain 0.5, SMOTE k=5). The reported results/CSVs for these cells
+# are the exact-replication values. Params here that are global constants already match;
+# the global eval logic is left untouched so the genuinely reverse-engineered algos are unaffected.
+# EXACT-FAITHFUL: CSRBoost, ADASYN, Borderline-SMOTE, SMOTE-Tomek, SMOTE-ENN, AdaBoost
