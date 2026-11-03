@@ -51,8 +51,8 @@
 #   'proba'  : roc_auc_score(y_true, y_proba)
 #
 # Per-paper N/A cells are marked with the string 'N/A':
-#   PSDAS:      HUE                                (paper text only)
-#   ESR:        ADASYN, RUSBoost                   (Section III-D)
+#   PSDAS:      RUSBoost                           (Section III-D)
+#   ESR:        RUSBoost                           (Section III-D)
 #   DCCC:       RUSBoost                           (Section III-D, time-series)
 #   CB:         ADASYN                             (Section III-D, no neighbours)
 #   YEAST5-ERL: SMOTified-GAN, GAN, ADASYN         (Section III-D)
@@ -72,7 +72,7 @@ BEST_CONFIGS = {
 
     # ==========================================================================
     # 01 PSDAS  (psdas_replication_v2.py)
-    # PAPER N/A: HUE   (graduation report only; per script runs HUE with thr=0.69)
+    # HUE is evaluated here and has paper values in PAPER_TABLE; only RUSBoost is N/A (see NA_CELLS).
     # ==========================================================================
     ('PSDAS', 'CSRBoost'): {
         'sampler': 'SMOTE', 'sampler_args': {'k_neighbors': 5},
@@ -183,7 +183,7 @@ BEST_CONFIGS = {
 
     # ==========================================================================
     # 02 ESR  (esr_replication_v2.py)
-    # PAPER N/A: ADASYN, RUSBoost  (Section III-D)
+    # PAPER N/A: RUSBoost only (Section III-D); ADASYN is evaluated (see NA_CELLS).
     # Note: script wraps ALL non-GAN methods with AdaBoost(N=50, lr=1.0, depth=None)
     # and uses Protocol C for GAN/SMOTified-GAN: all-test, proba AUC/AP.
     # ==========================================================================

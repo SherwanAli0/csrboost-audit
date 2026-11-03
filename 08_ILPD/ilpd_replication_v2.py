@@ -189,7 +189,7 @@ def gmean_score(y_true, y_pred):
 def load_ilpd(path):
     df = pd.read_csv(path)
     for col in df.columns:
-        if df[col].dtype == 'object':
+        if not pd.api.types.is_numeric_dtype(df[col]):  # 'object' alone misses the string dtype of pandas >= 3
             df[col] = LabelEncoder().fit_transform(df[col])
     df = df.fillna(df.median(numeric_only=True))
     X = df.drop('Class', axis=1).values.astype(float)
