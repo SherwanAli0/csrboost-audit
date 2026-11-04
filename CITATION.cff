@@ -25,13 +25,17 @@ references:
     title: "CSRBoost: Clustered Sampling With Resampling Boosting for Imbalanced Dataset Pattern Classification"
     authors:
       - family-names: Yadav
-        given-names: S.
-      - family-names: Gupta
-        given-names: S.
-      - family-names: Yadav
-        given-names: A. K.
-      - family-names: Gupta
-        given-names: S.
+        given-names: Seema
+      - family-names: Joshi
+        given-names: Dhruvanshu
+      - family-names: Mulye
+        given-names: Soham
+      - family-names: Asari
+        given-names: Labib
+      - family-names: Udmale
+        given-names: Sandeep S.
+      - family-names: Bhole
+        given-names: Girish P.
     journal: "IEEE Access"
     year: 2025
     doi: "10.1109/ACCESS.2025.3616207"
