@@ -310,6 +310,19 @@ This audit is a reproducibility study, not an accusation of intent. The findings
 
 **Wording correction.** Earlier versions of this repository called the SEED F1 result a mathematical proof and used terms such as "metric hacking" and "fabricated". The evidence supports a weaker statement: the published numbers could not be reproduced with one uniform metric definition in this study's implementations, and some cells could only be matched under non-standard choices. It does not show what procedure the original authors used or why. The text in this repository was adjusted accordingly.
 
+## Related extension: ERF-CSRBoost
+
+Alongside this audit, I explored an ensemble extension of CSRBoost and built
+FixYourDataset, a web application for examining class imbalance and comparing
+model behavior. The extension is an unpublished research project. Its methods,
+evaluation protocol and limitations are documented separately from this audit.
+The results in this repository (the audit tables, exact-replication runs and
+findings) do not include the ERF extension and say nothing about it.
+
+- [ERF-CSRBoost implementation and results](https://github.com/SherwanAli0/erf-csrboost)
+- [FixYourDataset application](https://fixyourdataset.fly.dev)
+
+
 ## Citation
 
 ```bibtex
