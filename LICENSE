@@ -102,9 +102,10 @@ C. Original paper, datasets, and third-party material
 The following are NOT covered by Section A or Section B and keep their
 own terms:
 
-  - The original paper: S. Yadav, S. Gupta, A. K. Yadav, and S. Gupta,
-    "CSRBoost: Clustered Sampling With Resampling Boosting for
-    Imbalanced Dataset Pattern Classification," IEEE Access, 2025,
+  - The original paper: S. Yadav, D. Joshi, S. Mulye, L. Asari,
+    S. S. Udmale, and G. P. Bhole, "CSRBoost: Clustered Sampling With
+    Resampling Boosting for Imbalanced Dataset Pattern Classification,"
+    IEEE Access, 2025,
     DOI 10.1109/ACCESS.2025.3616207. Its text, tables and figures are
     the copyright of its authors and the publisher. This repository
     compares numbers against that paper for the purpose of a
@@ -113,9 +114,11 @@ own terms:
   - The datasets in the numbered folders (01_PSDAS ... 15_FLARE-F):
     they come from the UCI Machine Learning Repository and the KEEL
     dataset repository and remain under the terms of their original
-    providers and donors. They are redistributed unmodified only so
-    that the scripts can be run; check the original source for the
-    applicable terms before any other use.
+    providers and donors. They are included only so that the scripts
+    can be run; the KEEL files are KEEL-processed versions of UCI data,
+    and this repository has not established the redistribution terms of
+    each file (in particular the KEEL files and the ESR file). Check
+    the original source for the applicable terms before any other use.
 
   - The libraries the code depends on (scikit-learn, imbalanced-learn,
     PyTorch, pandas, numpy, xlrd) are not part of this repository and

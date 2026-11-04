@@ -1,7 +1,7 @@
 # A Forensic Audit and Reverse-Engineering of CSRBoost
 
 > Replication study and forensic audit of:
-> S. Yadav, S. Gupta, A. K. Yadav, and S. Gupta. *CSRBoost: Clustered Sampling With Resampling Boosting for Imbalanced Dataset Pattern Classification.* IEEE Access, 2025.
+> S. Yadav, D. Joshi, S. Mulye, L. Asari, S. S. Udmale, and G. P. Bhole. *CSRBoost: Clustered Sampling With Resampling Boosting for Imbalanced Dataset Pattern Classification.* IEEE Access, 2025.
 > [DOI: 10.1109/ACCESS.2025.3616207](https://doi.org/10.1109/ACCESS.2025.3616207)
 
 [![License: MIT (code) + CC BY 4.0 (documentation)](https://img.shields.io/badge/license-MIT%20%28code%29%20%2B%20CC%20BY%204.0%20%28docs%29-yellow.svg)](LICENSE)
@@ -324,7 +324,7 @@ This audit is a reproducibility study, not an accusation of intent. The findings
 }
 
 @article{yadav2025csrboost,
-  author  = {Yadav, S. and Gupta, S. and Yadav, A. K. and Gupta, S.},
+  author  = {Yadav, Seema and Joshi, Dhruvanshu and Mulye, Soham and Asari, Labib and Udmale, Sandeep S. and Bhole, Girish P.},
   title   = {{CSRBoost: Clustered Sampling With Resampling Boosting for Imbalanced Dataset Pattern Classification}},
   journal = {IEEE Access},
   year    = {2025},
@@ -350,4 +350,4 @@ This repository is dual-licensed (see [LICENSE](LICENSE)):
 
 This work was completed as a graduation thesis under the supervision of Dr. Gamze Uslu at Uskudar University. Computational resources were provided by Google Colab Pro and personal hardware.
 
-If you reuse this material, please keep this supervision credit (Dr. Gamze Uslu, Uskudar University) and the citation of the original paper that this audit examines: S. Yadav, S. Gupta, A. K. Yadav, and S. Gupta, "CSRBoost: Clustered Sampling With Resampling Boosting for Imbalanced Dataset Pattern Classification," IEEE Access, 2025, [DOI 10.1109/ACCESS.2025.3616207](https://doi.org/10.1109/ACCESS.2025.3616207). This is a request made in good faith, not an additional condition of the licenses. The CC BY 4.0 license itself requires attribution to the licensor, as set out in its legal code.
+If you reuse this material, please keep this supervision credit (Dr. Gamze Uslu, Uskudar University) and the citation of the original paper that this audit examines: S. Yadav, D. Joshi, S. Mulye, L. Asari, S. S. Udmale, and G. P. Bhole, "CSRBoost: Clustered Sampling With Resampling Boosting for Imbalanced Dataset Pattern Classification," IEEE Access, 2025, [DOI 10.1109/ACCESS.2025.3616207](https://doi.org/10.1109/ACCESS.2025.3616207). This is a request made in good faith, not an additional condition of the licenses. The CC BY 4.0 license itself requires attribution to the licensor, as set out in its legal code.
