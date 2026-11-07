@@ -320,8 +320,8 @@ The results in this repository (the audit tables, exact-replication runs and
 findings) do not include the ERF extension and say nothing about it.
 
 The separate ERF record was updated on 7 November 2026: 2,000 new fits on five
-added tasks, combined with 15 historical tasks, give higher mean AP than the
-local CSRBoost reimplementation on 16/20 tasks. Results against ordinary forests
+added datasets, combined with 15 historical datasets, give higher mean AP than the
+local CSRBoost reimplementation on 16/20 datasets. Results against ordinary forests
 are mixed and ERF costs more to run. This does not change the audit's 42/143
 uniform-protocol finding. See the [qualified result record](https://github.com/SherwanAli0/erf-csrboost/tree/main/research/results/november2026_aligned_extension).
 
