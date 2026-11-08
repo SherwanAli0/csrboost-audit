@@ -18,7 +18,7 @@ This repository contains an undergraduate graduation thesis manuscript and the a
 
 ## Abstract
 
-This repository documents an independent forensic replication of CSRBoost across all fifteen benchmark datasets reported in the original paper, organized as two complementary tracks.
+This repository documents a forensic replication of CSRBoost, carried out independently of the CSRBoost authors, across all fifteen benchmark datasets reported in the original paper, organized as two complementary tracks.
 
 **Uniform-protocol baseline.** In the committed implementation of one standardized protocol without per-row tuning, **42 of 143** evaluated (dataset, algorithm) result rows (**29.4 percent**) satisfy the criterion under [Match criterion](#match-criterion). CSRBoost satisfies it on **10 of 15** datasets. These counts are recomputed from stored results, not regenerated experiments.
 
@@ -314,16 +314,18 @@ This audit is a reproducibility study, not an accusation of intent. The findings
 
 Alongside this audit, I explored an ensemble extension of CSRBoost and built
 FixYourDataset, a web application for examining class imbalance and comparing
-model behavior. The extension is an unpublished research project. Its methods,
+model behavior. The extension is a research project that is not peer reviewed. Its methods,
 evaluation protocol and limitations are documented separately from this audit.
 The results in this repository (the audit tables, exact-replication runs and
 findings) do not include the ERF extension and say nothing about it.
 
-The separate ERF record was updated on 7 November 2026: 2,000 new fits on five
-added datasets, combined with 15 historical datasets, give higher mean AP than the
-local CSRBoost reimplementation on 16/20 datasets. Results against ordinary forests
-are mixed and ERF costs more to run. This does not change the audit's 42/143
-uniform-protocol finding. See the [qualified result record](https://github.com/SherwanAli0/erf-csrboost/tree/main/research/results/november2026_aligned_extension).
+The separate ERF record (updated 7 November 2026; not peer reviewed) adds 2,000 new fits on five datasets to 15 historical datasets:
+
+- ERF exceeds the local CSRBoost reimplementation on 16 of 20 datasets (+0.0685 mean AP; lower on 4) and is within 0.001 mean AP of a plain random forest (higher on 12, tied on 2, lower on 6).
+- All 2,000 new fits completed with zero failures, and every table of that record is covered by a SHA-256 manifest and a read-only checker.
+- Scope: counts of datasets, not significance tests, and the near-tie with a plain random forest does not show equivalence. The median paired fit-and-score time ratio of ERF against a plain random forest is 6.6 to 35.6 times across the five new datasets (15.0 to 25.1 times against the CSRBoost reimplementation). None of this changes the audit's 42/143 uniform-protocol finding.
+
+See the [qualified result record](https://github.com/SherwanAli0/erf-csrboost/tree/main/research/results/november2026_aligned_extension).
 
 - [ERF-CSRBoost implementation and results](https://github.com/SherwanAli0/erf-csrboost)
 - [FixYourDataset application](https://fixyourdataset.fly.dev)
