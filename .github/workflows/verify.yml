@@ -1,0 +1,33 @@
+name: Verify stored tables
+
+# Recomputes the headline counts of this audit from the committed tables on every
+# push and pull request: results/verify_summary.py needs pandas only, trains no
+# model and reads no dataset. It exits with an error when a count that should
+# hold does not, so a change that breaks a stored figure turns this check red.
+
+on:
+  push:
+    branches: [master]
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        with:
+          persist-credentials: false
+
+      - uses: actions/setup-python@42375524e23c412d93fb67b49958b491fce71c38 # v5.4.0
+        with:
+          python-version: "3.11"
+
+      - name: Install pandas
+        run: pip install pandas==2.3.3
+
+      - name: Recompute the counts from the committed tables
+        run: python results/verify_summary.py
