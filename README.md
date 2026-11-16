@@ -7,6 +7,7 @@
 [![License: MIT (code) + CC BY 4.0 (documentation)](https://img.shields.io/badge/license-MIT%20%28code%29%20%2B%20CC%20BY%204.0%20%28docs%29-yellow.svg)](LICENSE)
 [![Python 3.10+](https://img.shields.io/badge/python-3.10+-blue.svg)](https://www.python.org/downloads/)
 [![Status: thesis manuscript](https://img.shields.io/badge/status-thesis%20manuscript-orange.svg)](#status)
+[![Stored tables verified](https://github.com/SherwanAli0/csrboost-audit/actions/workflows/verify.yml/badge.svg)](https://github.com/SherwanAli0/csrboost-audit/actions/workflows/verify.yml)
 
 **Author:** Sherwan Ali, Department of Computer Engineering, Uskudar University.
 **Supervisor:** Dr. Gamze Uslu.
@@ -107,6 +108,7 @@ In the stored uniform-protocol results, 42 of 143 rows pass. In the final table,
 +-- combined_codes/                        unified framework from an earlier snapshot (see its README)
 +-- exact_replication/                     uniform-protocol engine (Track 1) and its Colab variants for ESR and DCCC
 +-- results/                               audit tables of record, uniform-protocol records, HUE re-run, superseded files (see results/README.md)
++-- .github/workflows/verify.yml           runs results/verify_summary.py on every push and pull request
 ```
 
 IR = Imbalance Ratio (majority count divided by minority count).
