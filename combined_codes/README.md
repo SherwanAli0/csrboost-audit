@@ -24,7 +24,7 @@ It was written to mirror the section structure of an `exact_replication_local.py
 
 - **`combined_replication.docx`** (~63 KB)
   Single-document concatenation of `combined_replication.py` and
-  `BEST_CONFIGS.py` for review or LLM consumption.
+  `BEST_CONFIGS.py` for review.
 
 ### Reference (per-dataset scripts)
 
